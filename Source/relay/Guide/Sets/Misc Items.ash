@@ -620,13 +620,12 @@ void SMiscItemsGenerateResource(ChecklistEntry [int] resource_entries)
         if (!get_property_boolean("_stinkyCheeseBanisherUsed"))
             resource_entries.listAppend(ChecklistEntryMake("__item stinky cheese eye", "", ChecklistSubentryMake("Stinky cheese eye banish", "", "Free run.")).ChecklistEntryTagEntry("banish"));
         
-        if (get_property_int("_stinkyCheeseCount") < 100) {
-            string [int] description;
-            description.listAppend("+x/10 adventures/day pants.");
-            description.listAppend("Or +x/5% item/meat accessory.");
-            description.listAppend("Or some other stinky things.");
-            resource_entries.listAppend(ChecklistEntryMake("__item Ched", "", ChecklistSubentryMake(pluralise(get_property_int("_stinkyCheeseCount"), "/100 stinky cheese charge", "/100 stinky cheese charges"), "", description), importance_level_item));
-        }
+        int stinky_cheese_charge = min(100, get_property_int("_stinkyCheeseCount"));
+        string [int] description;
+        description.listAppend("+x/10 adventures/day pants.");
+        description.listAppend("Or +x/5% item/meat accessory.");
+        description.listAppend("Or some other stinky things.");
+        resource_entries.listAppend(ChecklistEntryMake("__item Ched", "", ChecklistSubentryMake(pluralise(stinky_cheese_charge, "/100 stinky cheese charge", "/100 stinky cheese charges"), "", description), importance_level_item));
     }
 
     if ($item[mayfly bait necklace].available_amount() > 0 && get_property_int("_mayflySummons") < 30) {
