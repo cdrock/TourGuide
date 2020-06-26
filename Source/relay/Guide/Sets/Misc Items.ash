@@ -596,7 +596,7 @@ void SMiscItemsGenerateResource(ChecklistEntry [int] resource_entries)
         }
         string line;
         line = adventures_remaining.listJoinComponents("/") + " adventures";
-        if (adventures_remaining.count() == 1) //hacky {
+        if (adventures_remaining.count() == 1) { //hacky
             if (adventures_remaining[0] == "+1")
                 line = "+1 adventure";
         }
