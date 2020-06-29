@@ -627,8 +627,8 @@ void SMiscItemsGenerateResource(ChecklistEntry [int] resource_entries)
 
         if (stinky_cheese_charge < 100) {
             title = pluralise(stinky_cheese_charge, "/ 100 stinky cheese charge", "/ 100 stinky cheese charges");
-            description.listAppend("+" + pluralise(stinky_cheese_charge / 10, "(/ 10) adventure", "(/ 10) adventures") + "/day pants.");
-            description.listAppend("Or +" + stinky_cheese_charge / 5 + "% (/ 20) item/meat accessory.");
+            description.listAppend("+" + pluralise(stinky_cheese_charge / 10, "adventure", "adventures") + "/day pants (max +10).");
+            description.listAppend("Or +" + stinky_cheese_charge / 5 + "% item/meat accessory (max +20%).");
         } else {
             title = "Fully charged stinky cheese";
             description.listAppend("+10 adventures/day pants.");
