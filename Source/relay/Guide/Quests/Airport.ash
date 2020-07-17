@@ -1245,12 +1245,185 @@ void QHotAirportLavaCoLampGenerateTasks(ChecklistEntry [int] task_entries)
     task_entries.listAppend(ChecklistEntryMake("__item " + missing_lamps[0], url, ChecklistSubentryMake("Make a " + colours_missing.listJoinComponents(", ", "and") + " LavaCo Lamp&trade;", modifiers, description), $locations[LavaCo&trade; Lamp Factory]));
 }
 
+void QHotAirportSuperduperheatedMetalGenerateTasks(ChecklistEntry [int] task_entries)
+{
+    int metal_sheets = lookupItem("Heat-resistant sheet metal").item_amount();
+    string image;
+    string header;
+    string [int] description;
+
+    if (!get_property_boolean("_volcanoSuperduperheatedMetal") && (__last_adventure_location == $location[The Bubblin\' Caldera] || !__misc_state["in run"])) {
+        image = "__item superduperheated metal";
+        header = "Get superduperheated metal";
+            if (metal_sheets > 0)
+                description.listAppend("Adventure in the Bubblin' Caldera. ~1/20 chance of superduperheated metal.");
+            else
+                description.listAppend("Get some (scraps of) heat-resistant sheet metal in your inventory.");
+    } else if (__last_adventure_location == $location[The Bubblin\' Caldera] && metal_sheets > 0) {
+        image = "__item superheated metal";
+        header = "Don't waste more Heat-resistant sheet metal";
+        description.listAppend("Already got Superduperheated metal today. Closet your Heat-resistant sheet metal (unless you want Superheated metal for the SMOOCH uniform).");
+    }
+
+    if (description.count() > 0)
+        task_entries.listAppend(ChecklistEntryMake(image, "place.php?whichplace=airport_hot", ChecklistSubentryMake(header, "", description), $locations[The Bubblin\' Caldera]));
+}
+
+void QHotAirportWLFBunkerGenerateTasks(ChecklistEntry [int] task_entries)
+{
+    if (get_property_boolean("_volcanoItemRedeemed"))
+        return;
+    
+    /*
+    _volcanoItem1, _volcanoItem2, _volcanoItem3
+    _volcanoItemCount1, _volcanoItemCount2, _volcanoItemCount3
+    */
+    int [int] volcano_item_id;
+    int [int] volcano_item_count;
+    for i from 1 to 3 {
+        volcano_item_id [i] = get_property_int("_volcanoItem" + i); // volcano_item_id [1st / 2nd / 3rd] => item ID
+        volcano_item_count [volcano_item_id [i]] = get_property_int("_volcanoItemCount" + i); // volcano_item_count [item ID] => amount asked
+    }
+    string subtitle;
+    string [int] description;
+    boolean [location] relevant_locations;
+
+    if (volcano_item_id [1] == 0 && volcano_item_id [2] == 0 && volcano_item_id [3] == 0)
+        description.listAppend("Visit the W.L.F. bunker to accepted items today.");
+    else {
+        boolean [item] volcano_item; // rearranged in a format that is compatible with "contains" (also going from ID to $item)
+        foreach i in volcano_item_id {
+            if (volcano_item_id [i] == 0) {
+                description.listAppend("Mafia's parsing of item " + i + " went wrong.");
+                remove volcano_item_id [i];
+            } else
+                volcano_item [lookupItem(volcano_item_id [i])] = true;
+        }
+
+        /*
+            The Bubblin' Caldera
+        8517 => SMOOCH bracers
+        8522 => superduperheated metal
+        8504 => Lavalos core
+        8496 => The One Mood Ring
+            The Velvet / Gold Mine
+        8516 => smooth velvet bra
+        8425 => New Age healing crystal
+        8505 => half-melted hula girl
+        8497 => Mr. Choch's bone
+            LavaCo™ Lamp Factory
+        8470 => gooey lava globs
+        8523 => fused fuse
+        8498 => Mr. Cheeng's 'stache
+        8506 => glass ceiling fragments
+            The SMOOCH Army HQ
+        8446 => SMOOCH bottlecap
+        8500 => the tongue of Smimmons
+        8501 => Raul's guitar pick
+        8502 => Pener's crisps
+        8503 => signed deuce
+            Discotheque
+        8499 => Saturday Night thermometer*/
+
+        void WLFBunkerTasks(string [int] map, item it, int amount_normally_asked, string acquisition_text) {
+            if (!(volcano_item contains it))
+                return;
+            
+            boolean this_isnt_right = volcano_item_count [it.to_int()] != amount_normally_asked;
+            
+            string text;
+            if (volcano_item_count [it.to_int()] > 1) //"5 (wait that's not right...) the tongues of Smimmons", "3 smooth velvet bras"
+                text += volcano_item_count [it.to_int()] + (this_isnt_right ? " (wait, that's not right...) " : " ") + it.plural;
+            else //"Raul's guitar pick", "New Age healing crystal x1 (wait that's not right...)"
+                text += it.name.capitaliseFirstLetter() + (this_isnt_right ? " x1 (wait, that's not right...)" : "");
+            
+            text += " (have " + it.item_amount() + ").";
+            text += "|*" + acquisition_text;
+            map.listAppend(text);
+
+            remove volcano_item [it];
+        }
+
+        string GenerateCommonZoneSpecificNCText(location l) {
+            return HTMLGenerateSpanOfClass("Win", "r_bold") + " 50 fights in " + l + " on the " + HTMLGenerateSpanOfClass("same day", "r_bold") + " to get the zone's 1/day NC.";
+        }
+
+        if (true) {
+            string [int] caldera;
+            string nc_text = GenerateCommonZoneSpecificNCText($location[The Bubblin' Caldera]);
+
+            caldera.WLFBunkerTasks($item[SMOOCH bracers], 3, "Multi-use 5 ingots of superheated metal (from adventuring in the caldera with heat-resistant sheet metal (from SMOOCH or mall) in inventory, or buy from mall) (each).");
+            caldera.WLFBunkerTasks($item[superduperheated metal], 1, get_property_boolean("_volcanoSuperduperheatedMetal") ? "Buy from mall." : "Look at the tile above this one (or buy from mall).");
+            caldera.WLFBunkerTasks($item[Lavalos core], 1, nc_text + " Head for the roaring (fight).");
+            caldera.WLFBunkerTasks($item[The One Mood Ring], 1, nc_text + " Head for the singing.");
+
+            if (caldera.count() > 0) {
+                relevant_locations [$location[The Bubblin' Caldera]] = true;
+                description.listAppend("In " + $location[The Bubblin' Caldera] + ":" + caldera.listJoinComponents("|").HTMLGenerateIndentedText());
+            }
+        }
+        if (true) {
+            string [int] VGmine;
+            string nc_text = GenerateCommonZoneSpecificNCText($location[The Velvet / Gold Mine]);
+
+            VGmine.WLFBunkerTasks($item[smooth velvet bra], 3, "Multi-use 3 pieces of unsmooth velvet (from mining) (each) (or buy from mall).");
+            VGmine.WLFBunkerTasks($item[New Age healing crystal], 5, "Fight healing crystal golems or mine (or buy from mall).");
+            VGmine.WLFBunkerTasks($item[half-melted hula girl], 1, nc_text + " Check out HR.");
+            VGmine.WLFBunkerTasks($item[Mr. Choch's bone], 1, nc_text + " Head to the boss's shack (fight).");
+
+            if (VGmine.count() > 0) {
+                relevant_locations [$location[The Velvet / Gold Mine]] = true;
+                description.listAppend("In " + $location[The Velvet / Gold Mine] + ":" + VGmine.listJoinComponents("|").HTMLGenerateIndentedText());
+            }
+        }
+        if (true) {
+            string [int] lavaco;
+            string nc_text = GenerateCommonZoneSpecificNCText($location[LavaCo&trade; Lamp Factory]);
+
+            lavaco.WLFBunkerTasks($item[gooey lava globs], 5, "Fight lava golems (or buy from mall).");
+            lavaco.WLFBunkerTasks($item[fused fuse], 1, "Sabotage the machine at the NC that happens every 10 turns.");
+            lavaco.WLFBunkerTasks($item[Mr. Cheeng's 'stache], 1, nc_text + " Go into the boss's office (fight).");
+            lavaco.WLFBunkerTasks($item[glass ceiling fragments], 1, nc_text + " Go up the stairs.");
+
+            if (lavaco.count() > 0) {
+                relevant_locations [$location[LavaCo&trade; Lamp Factory]] = true;
+                description.listAppend("In " + $location[LavaCo&trade; Lamp Factory] + ":" + lavaco.listJoinComponents("|").HTMLGenerateIndentedText());
+            }
+        }
+        if (true) {
+            string [int] SMOOCH;
+            string nc_text = GenerateCommonZoneSpecificNCText($location[The SMOOCH Army HQ]) + " Open door #";
+
+            SMOOCH.WLFBunkerTasks($item[SMOOCH bottlecap], 1, 'Eat ("drink") a SMOOCH soda (or buy from mall).');
+            SMOOCH.WLFBunkerTasks($item[the tongue of Smimmons], 1, nc_text + "1.");
+            SMOOCH.WLFBunkerTasks($item[Raul's guitar pick], 1, nc_text + "2.");
+            SMOOCH.WLFBunkerTasks($item[Pener's crisps], 1, nc_text + "3.");
+            SMOOCH.WLFBunkerTasks($item[signed deuce], 1, nc_text + "4.");
+
+            if (SMOOCH.count() > 0) {
+                relevant_locations [$location[The SMOOCH Army HQ]] = true;
+                description.listAppend("In " + $location[The SMOOCH Army HQ] + ":" + SMOOCH.listJoinComponents("|").HTMLGenerateIndentedText());
+            }
+        }
+        description.WLFBunkerTasks($item[Saturday Night thermometer], 1, get_property_boolean("_infernoDiscoVisited") ? "Elevator's already been used today :(" : "Rock a disco style of 3, go to the discotheque's elevator, go to the third floor.");
+
+        if (volcano_item.count() > 0)
+            description.listAppend(pluralise(volcano_item.count(), "of the items was", "of the items were") + " unregistered.");
+        if (volcano_item_id.count() - volcano_item.count() > 1) //if <n° of items ID other than 0> - <n° of items that didn't get listed>  > 1...
+            subtitle = "One of:";
+    }
+
+    task_entries.listAppend(ChecklistEntryMake("__item volcoino", "place.php?whichplace=airport_hot", ChecklistSubentryMake("Help smash the system!", subtitle, description), relevant_locations));
+}
+
 void QHotAirportGenerateTasks(ChecklistEntry [int] task_entries)
 {
     if (!__misc_state["hot airport available"])
         return;
     
     QHotAirportLavaCoLampGenerateTasks(task_entries);
+    QHotAirportSuperduperheatedMetalGenerateTasks(task_entries);
+    QHotAirportWLFBunkerGenerateTasks(task_entries);
 }
 
 void QHotAirportGenerateResource(ChecklistEntry [int] resource_entries)
