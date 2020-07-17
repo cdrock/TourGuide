@@ -1018,19 +1018,19 @@ void QStenchAirportGarbageGenerateTasks(ChecklistEntry [int] task_entries)
     if (get_property_boolean("_dinseyGarbageDisposed"))
         return;
     ChecklistSubentry subentry;
-    /*subentry.header = "Turn in garbage";
+    subentry.header = "Turn in garbage";
     subentry.entries.listAppend("Maintenance Tunnels Access" + __html_right_arrow_character + "Waste Disposal.");
-    task_entries.listAppend(ChecklistEntryMake("__item bag of park garbage", "place.php?whichplace=airport_stench&action=airport3_tunnels", subentry));*/
-    if ($item[bag of park garbage].item_amount() > 0)
-    {
+    if ($item[bag of park garbage].item_amount() == 0) {
+        if ($item[bag of park garbage].available_amount() > 0)
+            subentry.entries.listAppend("Have one, somewhere...");
+        else {
+            string line = "Fight barf mountain Garbage tourists";
+            if (!in_ronin())
+                line += " or buy from mall";
+            subentry.entries.listAppend(line + ".");
+        }
     }
-    else if ($item[bag of park garbage].available_amount() > 0)
-    {
-    }
-    else if (!in_ronin())
-    {
-        
-    }
+    task_entries.listAppend(ChecklistEntryMake("__item bag of park garbage", "place.php?whichplace=airport_stench&action=airport3_tunnels", subentry));
 }
 
 void QStenchAirportWartDinseyGenerateTasks(ChecklistEntry [int] task_entries)
