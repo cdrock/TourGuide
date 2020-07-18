@@ -199,7 +199,7 @@ void QSleazeAirportDebtGenerateTasks(ChecklistEntry [int] task_entries)
 
 void QSleazeAirportUMDGenerateTasks(ChecklistEntry [int] task_entries)
 {
-    if (!__misc_state["sleaze airport available"]&&false)
+    if (!__misc_state["sleaze airport available"])
         return;
     if (get_property("umdLastObtained") != "") { // && !__misc_state["in run"]
         string umd_date_obtained = get_property("umdLastObtained");
