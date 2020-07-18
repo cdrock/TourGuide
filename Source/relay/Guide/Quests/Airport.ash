@@ -1266,7 +1266,7 @@ void QHotAirportSuperduperheatedMetalGenerateTasks(ChecklistEntry [int] task_ent
         description.listAppend("Already got Superduperheated metal today. Closet your Heat-resistant sheet metal (unless you want Superheated metal for the SMOOCH uniform).");
     }
 
-    if (description.count() > 0)
+    if (description.count() > 0)
         task_entries.listAppend(ChecklistEntryMake(image, "place.php?whichplace=airport_hot", ChecklistSubentryMake(header, "", description), $locations[The Bubblin\' Caldera]));
 }
 
