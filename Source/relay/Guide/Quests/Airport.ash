@@ -1290,7 +1290,7 @@ void QHotAirportWLFBunkerGenerateTasks(ChecklistEntry [int] task_entries)
     boolean [location] relevant_locations;
 
     if (volcano_item_id [1] == 0 && volcano_item_id [2] == 0 && volcano_item_id [3] == 0)
-        description.listAppend("Visit the W.L.F. bunker to accepted items today.");
+        description.listAppend("Visit the W.L.F. bunker to learn today's accepted items.");
     else {
         boolean [item] volcano_item; // rearranged in a format that is compatible with "contains" (also going from ID to $item)
         foreach i in volcano_item_id {
