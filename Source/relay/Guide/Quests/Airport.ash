@@ -197,6 +197,49 @@ void QSleazeAirportDebtGenerateTasks(ChecklistEntry [int] task_entries)
 }
 
 
+void QSleazeAirportUMDGenerateTasks(ChecklistEntry [int] task_entries)
+{
+    if (!__misc_state["sleaze airport available"]&&false)
+        return;
+    if (get_property("umdLastObtained") != "") { // && !__misc_state["in run"]
+        string umd_date_obtained = get_property("umdLastObtained");
+        
+        int day_in_year_acquired_umd = format_date_time("yyyy-MM-dd", umd_date_obtained, "D").to_int();
+        int year_umd_acquired = format_date_time("yyyy-MM-dd", umd_date_obtained, "yyyy").to_int();
+        
+        string todays_date = today_to_string();
+        int today_day_in_year = format_date_time("yyyyMMdd", todays_date, "D").to_int();
+        int todays_year = format_date_time("yyyyMMdd", todays_date, "yyyy").to_int();
+        
+        //We compute the delta of days since last UMD obtained. If it's seven or higher, they can obtain it.
+        //If the year is different, more complicated.
+        //Umm... this will inevitably have an off by one error from me not looking closely enough.
+        
+        boolean has_been_seven_days = false;
+        if (year_umd_acquired != todays_year) {
+            //Query the number of days in last year, then subtract it from day_in_year_acquired_umd.
+            
+            int days_in_last_year = format_date_time("yyyy-MM-dd", todays_year + "-12-31", "D").to_int(); //this may work well past the year 10k. if it doesn't and you track down this bug and it's a problem, hello from eight thousand years ago!
+            
+            day_in_year_acquired_umd -= days_in_last_year * (todays_year - year_umd_acquired); //this is technically incorrect due to leap years, but it'll still result in proper checking. do not use for delta code
+        }
+        
+        if (today_day_in_year - day_in_year_acquired_umd >= 7)
+            has_been_seven_days = true;
+        if (has_been_seven_days||true) {
+            string [int] description;
+            description.listAppend("Adventure in the Sunken Party Yacht.|Choose the first option from a non-combat that appears every twenty adventures.");
+            description.listAppend("Found once every seven days.");
+            if ($effect[fishy].have_effect() == 0)
+                description.listAppend("Possibly acquire fishy effect first.");
+            if ($item[clara's bell].available_amount() > 0 && !get_property_boolean("_claraBellUsed"))
+                description.listAppend("Use clara's bell to instantly acquire. Won't need fishy.");
+            ChecklistEntry entry = ChecklistEntryMake("__item ultimate mind destroyer", $location[The Sunken Party Yacht].getClickableURLForLocation(), ChecklistSubentryMake("Ultimate Mind Destroyer collectable", "free runs", description), $locations[The Sunken Party Yacht]);
+            task_entries.listAppend(entry);
+        }
+    }
+}
+
 void QSleazeAirportGenerateTasks(ChecklistEntry [int] task_entries)
 {
     /*
@@ -245,50 +288,8 @@ void QSleazeAirportGenerateTasks(ChecklistEntry [int] task_entries)
         
         task_entries.listAppend(final_entry);
     }
-}
 
-void QSleazeAirportGenerateResource(ChecklistEntry [int] resource_entries)
-{
-    if (!__misc_state["sleaze airport available"])
-        return;
-    if (get_property("umdLastObtained") != "" && !__misc_state["in run"]) {
-        string umd_date_obtained = get_property("umdLastObtained");
-        
-        int day_in_year_acquired_umd = format_date_time("yyyy-MM-dd", umd_date_obtained, "D").to_int();
-        int year_umd_acquired = format_date_time("yyyy-MM-dd", umd_date_obtained, "yyyy").to_int();
-        
-        string todays_date = today_to_string();
-        int today_day_in_year = format_date_time("yyyyMMdd", todays_date, "D").to_int();
-        int todays_year = format_date_time("yyyyMMdd", todays_date, "yyyy").to_int();
-        
-        //We compute the delta of days since last UMD obtained. If it's seven or higher, they can obtain it.
-        //If the year is different, more complicated.
-        //Umm... this will inevitably have an off by one error from me not looking closely enough.
-        
-        boolean has_been_seven_days = false;
-        if (year_umd_acquired != todays_year) {
-            //Query the number of days in last year, then subtract it from day_in_year_acquired_umd.
-            
-            int days_in_last_year = format_date_time("yyyy-MM-dd", todays_year + "-12-31", "D").to_int(); //this may work well past the year 10k. if it doesn't and you track down this bug and it's a problem, hello from eight thousand years ago!
-            
-            day_in_year_acquired_umd -= days_in_last_year * (todays_year - year_umd_acquired); //this is technically incorrect due to leap years, but it'll still result in proper checking. do not use for delta code
-        }
-        
-        if (today_day_in_year - day_in_year_acquired_umd >= 7)
-            has_been_seven_days = true;
-        if (has_been_seven_days) {
-            string [int] description;
-            description.listAppend("Adventure in the Sunken Party Yacht.|Choose the first option from a non-combat that appears every twenty adventures.");
-            description.listAppend("Found once every seven days.");
-            if ($effect[fishy].have_effect() == 0)
-                description.listAppend("Possibly acquire fishy effect first.");
-            if ($item[clara's bell].available_amount() > 0 && !get_property_boolean("_claraBellUsed"))
-                description.listAppend("Use clara's bell to instantly acquire. Won't need fishy.");
-            ChecklistEntry entry = ChecklistEntryMake("__item ultimate mind destroyer", $location[The Sunken Party Yacht].getClickableURLForLocation(), ChecklistSubentryMake("Ultimate Mind Destroyer collectable", "free runs", description), $locations[The Sunken Party Yacht]);
-            entry.importance_level = 8;
-            resource_entries.listAppend(entry);
-        }
-    }
+    QSleazeAirportUMDGenerateTasks(task_entries);
 }
 
 //
@@ -1638,6 +1639,5 @@ void QAirportGenerateTasks(ChecklistEntry [int] task_entries, ChecklistEntry [in
 
 void QAirportGenerateResource(ChecklistEntry [int] resource_entries)
 {
-    QSleazeAirportGenerateResource(resource_entries);
     QHotAirportGenerateResource(resource_entries);
 }
