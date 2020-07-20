@@ -162,17 +162,10 @@ void IOTMGuzzlrTabletGenerateTask(ChecklistEntry [int] task_entries, ChecklistEn
         boolean canAcceptPlatinum = get_property_int("guzzlrGoldDeliveries") >= 5;
         boolean canAcceptGold = bronzeDeliveriesTotal >= 5;
         boolean hasShoes = lookupItem("Guzzlr shoes").available_amount() > 0;
-        int guzzlrQuestNumber = min(8, get_property_int("_guzzlrDeliveries") + 1);
 
-        string [int] guzzlrDeliveryTurnRange; //int= value of guzzlrQuestNumber
-            guzzlrDeliveryTurnRange [1] = hasShoes ? "7-10" : "10";
-            guzzlrDeliveryTurnRange [2] = hasShoes ? "8-12" : "12";
-            guzzlrDeliveryTurnRange [3] = hasShoes ? "9-13" : "13";
-            guzzlrDeliveryTurnRange [4] = hasShoes ? "10-15" : "15";
-            guzzlrDeliveryTurnRange [5] = hasShoes ? "12-17" : "17";
-            guzzlrDeliveryTurnRange [6] = hasShoes ? "15-20" : "20";
-            guzzlrDeliveryTurnRange [7] = hasShoes ? "17-25" : "25";
-            guzzlrDeliveryTurnRange [8] = hasShoes ? "25-34" : "34";
+        int guzzlrQuestIncrement = max(3, 10 - get_property_int("_guzzlrDeliveries"));
+        int guzzlrQuestShoedIncrement = floor(1.5 * guzzlrQuestIncrement);
+        string guzzlrDeliveryTurnRange = (hasShoes ? ceil(100.0 / guzzlrQuestShoedIncrement) + "-" : "") + ceil(100.0 / guzzlrQuestIncrement);
 
         // Title
         string main_title;
@@ -209,7 +202,7 @@ void IOTMGuzzlrTabletGenerateTask(ChecklistEntry [int] task_entries, ChecklistEn
 
                 if (chooseDeliveryMessage.count() > 0) {
                     description.listAppend("Start a delivery by choosing a client:" + chooseDeliveryMessage.HTMLGenerateIndentedText());
-                    description.listAppend("Will take " + guzzlrDeliveryTurnRange [guzzlrQuestNumber] + " fights.");
+                    description.listAppend("Will take " + guzzlrDeliveryTurnRange + " fights.");
                     if (canAbandonQuest)
                         description.listAppend("Can abandon 1 more quest today.");
                 }
