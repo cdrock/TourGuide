@@ -158,8 +158,9 @@ void IOTMGuzzlrTabletGenerateTask(ChecklistEntry [int] task_entries, ChecklistEn
         string questTier = get_property("guzzlrQuestTier");
         int platinumDeliveriesLeft = 1 - get_property_int("_guzzlrPlatinumDeliveries");
         int goldDeliveriesLeft = 3 - get_property_int("_guzzlrGoldDeliveries");
+        int bronzeDeliveriesTotal = get_property_int("guzzlrBronzeDeliveries");
         boolean canAcceptPlatinum = get_property_int("guzzlrGoldDeliveries") >= 5;
-        boolean canAcceptGold = get_property_int("guzzlrBronzeDeliveries") >= 5;
+        boolean canAcceptGold = bronzeDeliveriesTotal >= 5;
         boolean hasShoes = lookupItem("Guzzlr shoes").available_amount() > 0;
         int guzzlrQuestNumber = min(8, get_property_int("_guzzlrDeliveries") + 1);
 
@@ -195,19 +196,22 @@ void IOTMGuzzlrTabletGenerateTask(ChecklistEntry [int] task_entries, ChecklistEn
                 description.listAppend(canAbandonQuest ? "Then, abandon the quest." : "Will be stuck with this quest for the rest of the day.");
             } else if (!__misc_state["in run"]) {
                 main_title = "Accept a booze delivery quest";
-                string chooseDeliveryMessage = "Start a delivery by choosing a client:" + HTMLGenerateIndentedText("| • Bronze");
+                string [int] chooseDeliveryMessage;
 
-                if (goldDeliveriesLeft > 0 && canAcceptGold) {
-                    chooseDeliveryMessage += HTMLGenerateIndentedText("| • Gold " + HTMLGenerateSpanFont("(" + goldDeliveriesLeft + " available)", "grey")); 
-                }
+                if (bronzeDeliveriesTotal < 196)
+                    chooseDeliveryMessage.listAppend("• Bronze");
 
-                if (platinumDeliveriesLeft > 0 && canAcceptPlatinum) {
-                    chooseDeliveryMessage += HTMLGenerateIndentedText("| • Platinum " + HTMLGenerateSpanFont("(" + platinumDeliveriesLeft + " available)", "grey") + (canAbandonQuest ? " (Abandon for free cocktail set?)" : ""));
-                }
-                description.listAppend(chooseDeliveryMessage);
-                description.listAppend("Will take " + guzzlrDeliveryTurnRange [guzzlrQuestNumber] + " fights.");
-                if (canAbandonQuest) {
-                    description.listAppend("Can abandon 1 more quest today.");
+                if (goldDeliveriesLeft > 0 && canAcceptGold)
+                    chooseDeliveryMessage.listAppend("• Gold " + HTMLGenerateSpanFont("(" + goldDeliveriesLeft + " available)", "grey"));
+
+                if (platinumDeliveriesLeft > 0 && canAcceptPlatinum)
+                    chooseDeliveryMessage.listAppend("• Platinum " + HTMLGenerateSpanFont("(" + platinumDeliveriesLeft + " available)", "grey") + (canAbandonQuest ? " (Abandon for free cocktail set?)" : ""));
+
+                if (chooseDeliveryMessage.count() > 0) {
+                    description.listAppend("Start a delivery by choosing a client:" + chooseDeliveryMessage.HTMLGenerateIndentedText());
+                    description.listAppend("Will take " + guzzlrDeliveryTurnRange [guzzlrQuestNumber] + " fights.");
+                    if (canAbandonQuest)
+                        description.listAppend("Can abandon 1 more quest today.");
                 }
             }
         }
@@ -215,8 +219,6 @@ void IOTMGuzzlrTabletGenerateTask(ChecklistEntry [int] task_entries, ChecklistEn
         return ChecklistSubentryMake(main_title, subtitle, description);
     }
 
-
-    if (!lookupItem("Guzzlr tablet").have()) return;
 
     ChecklistEntry entry;
     entry.image_lookup_name = "__item Guzzlr tablet";
