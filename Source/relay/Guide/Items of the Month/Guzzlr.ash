@@ -11,17 +11,11 @@ void IOTMGuzzlrQuestGenerateTask(ChecklistEntry [int] task_entries, ChecklistEnt
             questBoozePlatinum [lookupItem(platinumDrink)] = true;
         }
 
-        int guzzlrQuestNumber = min(8, get_property_int("_guzzlrDeliveries") + 1);
-
-        int [int] [boolean] guzzlrDeliveryTurnRange; //int= value of guzzlrQuestNumber; boolean= using shoes
-            guzzlrDeliveryTurnRange [1] [false] = 10; guzzlrDeliveryTurnRange [1] [true] = 7;
-            guzzlrDeliveryTurnRange [2] [false] = 12; guzzlrDeliveryTurnRange [2] [true] = 8;
-            guzzlrDeliveryTurnRange [3] [false] = 13; guzzlrDeliveryTurnRange [3] [true] = 9;
-            guzzlrDeliveryTurnRange [4] [false] = 15; guzzlrDeliveryTurnRange [4] [true] = 10;
-            guzzlrDeliveryTurnRange [5] [false] = 17; guzzlrDeliveryTurnRange [5] [true] = 12;
-            guzzlrDeliveryTurnRange [6] [false] = 20; guzzlrDeliveryTurnRange [6] [true] = 15;
-            guzzlrDeliveryTurnRange [7] [false] = 25; guzzlrDeliveryTurnRange [7] [true] = 17;
-            guzzlrDeliveryTurnRange [8] [false] = 34; guzzlrDeliveryTurnRange [8] [true] = 25;
+        int guzzlrQuestProgressLeft = 100 - get_property_int("guzzlrDeliveryProgress");
+        float guzzlrQuestIncrement = max(3, 10 - get_property_int("_guzzlrDeliveries"));
+        float guzzlrQuestShoedIncrement = floor(1.5 * guzzlrQuestIncrement);
+        int guzzlrQuestFightsLeft = ceil(guzzlrQuestProgressLeft / guzzlrQuestIncrement);
+        int guzzlrQuestShoedFightsLeft = ceil(guzzlrQuestProgressLeft / guzzlrQuestShoedIncrement);
 
         boolean hasBooze;
         boolean hasBoozeSomewhere;
@@ -108,19 +102,21 @@ void IOTMGuzzlrQuestGenerateTask(ChecklistEntry [int] task_entries, ChecklistEnt
             }
         }
 
-        if (hasShoes) {
-            description.listAppend("Takes " + guzzlrDeliveryTurnRange [guzzlrQuestNumber] [true] + " fights if you always wear the shoes.");
-            description.listAppend("Takes " + guzzlrDeliveryTurnRange [guzzlrQuestNumber] [false] + " fights if you never wear the shoes.");
-        } else
-            description.listAppend("Takes " + guzzlrDeliveryTurnRange [guzzlrQuestNumber] [false] + " fights.");
-
-        if (hasShoes && !hasShoesEquipped) {
+        if (guzzlrQuestProgressLeft <= 0)
+            description.listAppend("Shouldn't this be over already?");
+        else if (!hasShoes || guzzlrQuestFightsLeft == guzzlrQuestShoedFightsLeft) // if no shoes or if doesn't matter at that point
+            description.listAppend("Takes " + pluralise(guzzlrQuestFightsLeft, "more fight", "more fights") + ".");
+        else if (hasShoesEquipped)
+            description.listAppend("Takes " + pluralise(guzzlrQuestShoedFightsLeft, "more fight", "more fights") + " (" + guzzlrQuestFightsLeft + " without shoes).");
+        else {
+            description.listAppend("Takes " + guzzlrQuestFightsLeft + " more fights (" + guzzlrQuestShoedFightsLeft + " with shoes).");
             description.listAppend(HTMLGenerateSpanFont("Equip your Guzzlr shoes for quicker deliveries.", "red"));
         }
 
-        if (hasPants && !hasPantsEquipped) {
-            description.listAppend(HTMLGenerateSpanFont("Equip your Guzzlr pants for more Guzzlrbucks.", "red"));
-        }
+        boolean oneFightRemains = hasShoesEquipped && guzzlrQuestShoedFightsLeft <= 1 || !hasShoesEquipped && guzzlrQuestFightsLeft <= 1;
+
+        if (hasPants && !hasPantsEquipped)
+            description.listAppend(HTMLGenerateSpanFont("Equip your Guzzlr pants for more Guzzlrbucks.", (oneFightRemains ? "red" : "dark")));
 
         if (!hasShoes) {
             description.listAppend(HTMLGenerateSpanFont("Could buy Guzzlr shoes for quicker deliveries.", "grey"));
