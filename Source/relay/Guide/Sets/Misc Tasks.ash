@@ -225,7 +225,7 @@ void SMiscTasksGenerateTasks(ChecklistEntry [int] task_entries, ChecklistEntry [
     {
         item dwelling = get_dwelling();
         item upgraded_dwelling = $item[none];
-        if ($item[Frobozz Real-Estate Company Instant House (TM)].available_amount() > 0 && (dwelling == $item[big rock] || dwelling == $item[Newbiesport&trade; tent] || get_dwelling() == $item[cottage]) && my_path_id() != PATH_G_LOVER)
+        if ($item[Frobozz Real-Estate Company Instant House (TM)].available_amount() > 0 && (dwelling == $item[big rock] || dwelling == $item[Newbiesport&trade; tent] || dwelling == $item[cottage]) && my_path_id() != PATH_G_LOVER)
         {
             upgraded_dwelling = $item[Frobozz Real-Estate Company Instant House (TM)];
         }
