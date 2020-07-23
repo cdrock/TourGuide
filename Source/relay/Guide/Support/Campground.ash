@@ -1,3 +1,5 @@
+import "relay/Guide/Support/HTML.ash"
+
 record RestingBonus
 {
     string header;
