@@ -225,7 +225,7 @@ void generateDailyResources(Checklist [int] checklists)
         entry.image_lookup_name = "__effect sleepy";
         entry.should_indent_after_first_subentry = true; //that feature is awesome!
         entry.importance_level = 10;
-        entry.subentries.listAppend(ChecklistSubentryMake(__misc_state_int["free rests remaining"], "free rest", "free rests").capitaliseFirstLetter()));
+        entry.subentries.listAppend(ChecklistSubentryMake(pluraliseWordy(__misc_state_int["free rests remaining"], "free rest", "free rests").capitaliseFirstLetter()));
 
         //Build the entries in an order dependant on user preferences
         boolean go_chateau = get_property_boolean("restUsingChateau");
