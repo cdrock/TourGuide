@@ -223,9 +223,7 @@ void generateDailyResources(Checklist [int] checklists)
     if (__misc_state_int["free rests remaining"] > 0) {
         ChecklistEntry entry;
         entry.image_lookup_name = "__effect sleepy";
-        entry.should_indent_after_first_subentry = true; //that feature is awesome!
         entry.importance_level = 10;
-        entry.subentries.listAppend(ChecklistSubentryMake(pluraliseWordy(__misc_state_int["free rests remaining"], "free rest", "free rests").capitaliseFirstLetter()));
 
         //Build the entries in an order dependant on user preferences
         boolean go_chateau = get_property_boolean("restUsingChateau");
@@ -237,6 +235,8 @@ void generateDailyResources(Checklist [int] checklists)
 
 
         string [int] url;
+        ChecklistSubentry [int] subentries_handle;
+        string [int] description;
 
         foreach i, loc in order {
             ChecklistSubentry subentry;
@@ -264,7 +264,7 @@ void generateDailyResources(Checklist [int] checklists)
                     if (items_equipping.count() > 0 && __misc_state["need to level"])
                         subentry.entries.listAppend("Could equip " + items_equipping.listJoinComponents(", ", "or") + " for more stats.");
 
-                    entry.subentries.listAppend(subentry);
+                    subentries_handle.listAppend(subentry);
                     break;
                 case loc == "Getaway Campsite" && __misc_state["Getaway Campsite available"]:
                     subentry.header = "At your Getaway Campsite:";
@@ -274,7 +274,7 @@ void generateDailyResources(Checklist [int] checklists)
                     effect tent_decoration_effect = $effect[none]; //Not actually used...
                     string tent_decoration_stat;
 
-                    switch tent_decoration {
+                    switch (tent_decoration) {
                         case 1:
                             tent_decoration_effect = $effect[Muscular Intentions];
                             tent_decoration_stat = "muscle";
@@ -294,7 +294,7 @@ void generateDailyResources(Checklist [int] checklists)
                     if (tent_decoration != 0)
                         subentry.entries.listAppend("Gives 20 turns of +3 " + tent_decoration_stat + " stats/fight.");
 
-                    entry.subentries.listAppend(subentry);
+                    subentries_handle.listAppend(subentry);
                     break;
                 case loc == "Your Campsite" && __misc_state["recommend resting at campsite"]:
                     subentry.header = "At your Campsite:";
@@ -345,21 +345,28 @@ void generateDailyResources(Checklist [int] checklists)
                         }
 
                         if (saw_a_limit) //tell the player that the tiles don't mean that the buffs are still obtainable today; we can't know if they reached the limits
-                            subentry.modifiers.listAppend("Can't tell if you used them today, sorry...");
+                            subentry.modifiers.listAppend("Can't tell if you got them, sorry...");
                         
                         if (bonus_messages.count() > 1)
-                            subentry.entries.listAppend("Will give:" + HTMLGenerateIndentedText(bonus_messages.listJoinComponents("|"))); //<hr>
+                            subentry.entries.listAppend("Will give:" + HTMLGenerateIndentedText(bonus_messages.listJoinComponents("<hr>")));
                         else if (bonus_messages.count() == 1)
-                            subentry.entries.listAppend("Will give " + bonus_messages);
+                            subentry.entries.listAppend("Will give " + bonus_messages[0]);
                     }
 
-                    entry.subentries.listAppend(subentry);
+                    subentries_handle.listAppend(subentry);
                     break;
             }
         }
 
         entry.url = url [0];
-        //FIXME count the amount of subentries, and find if it's worth it to indend after first entry
+
+        if (subentries_handle.count() > 1) {
+            entry.should_indent_after_first_subentry = true; //that feature is awesome!
+            entry.subentries = subentries_handle;
+            entry.subentries.listPrepend(ChecklistSubentryMake(pluraliseWordy(__misc_state_int["free rests remaining"], "free rest", "free rests").capitaliseFirstLetter()));
+        } else if (subentries_handle.count() == 1)
+            entry.subentries.listAppend(ChecklistSubentryMake(pluraliseWordy(__misc_state_int["free rests remaining"], "free rest", "free rests").capitaliseFirstLetter(), "", subentries_handle[0].entries));
+
         resource_entries.listAppend(entry);
     }
     
