@@ -255,7 +255,14 @@ void generateDailyResources(Checklist [int] checklists)
                     else if (chateau[$item[bowl of potpourri]] > 0)
                         nightstand_stat = $stat[moxie];
 
-                    subentry.entries.listAppend("250 HP, 125 MP" + (my_path_id() == PATH_THE_SOURCE || nightstand_stat == $stat[none] ? "" : ", " + clampi(12 * my_level(), 0, 100) + " " + nightstand_stat + " stats") + ".");
+                    string nightstand_message;
+                    if (nightstand_stat != $stat[none] && my_path_id() != PATH_THE_SOURCE) {
+                        float experience_multiplier = (100 + numeric_modifier(nightstand_stat + " Experience Percent")) / 100;
+                        int nightstand_statgain = clampi(12 * my_level(), 0, 100) * experience_multiplier;
+                        nightstand_message = ", " + nightstand_statgain + " " + nightstand_stat + " stats";
+                    }
+
+                    subentry.entries.listAppend("250 HP, 125 MP" + nightstand_message + ".");
                     
                     if (my_level() < 9 && my_path_id() != PATH_THE_SOURCE)
                         subentry.entries.listAppend("May want to wait until level 9(?) for more stats from resting.");
