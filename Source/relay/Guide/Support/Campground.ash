@@ -57,7 +57,9 @@ void RestingBonusInit()
     int holiday_bliss_givers = 0;
     int [int] holiday_bliss = {1:5, 2:10, 3:20, 4:50};
     foreach furniture in __campground {
-        switch (furniture) { //want to be sure I have EVERYTHING
+        switch (furniture) {
+            /*
+            //want to be sure I have EVERYTHING
             //The "useless to this situation"
             case $item[big rock]: case $item[Newbiesport&trade; tent]: case $item[Barskin tent]: case $item[Cottage]: case $item[Frobozz Real-Estate Company Instant House (TM)]: case $item[Sandcastle]: case $item[House of twigs and spit]:
             case $item[Beanbag chair]: case $item[bed of coals]: case $item[comfy coffin]: case $item[filth-encrusted futon]: case $item[frigid air mattress]: case $item[stained mattress]: case $item[gauze hammock]: case $item[sleeping stocking]: case $item[saltwaterbed]:
@@ -87,6 +89,10 @@ void RestingBonusInit()
             case $item[El Vibrato trapezoid]:
             case $item[packet of pumpkin seeds]: case $item[Peppermint Pip Packet]: case $item[packet of dragon's teeth]: case $item[packet of beer seeds]: case $item[packet of winter seeds]: case $item[packet of thanksgarden seeds]: case $item[packet of tall grass seeds]: case $item[packet of mushroom spores]:
                 break;
+            default:
+                __resting_bonuses[furniture] = RestingBonusMake(); //they are in a mafia version where mafia recognizes the campground furniture, but we didn't add it to this list yet
+                break;
+            */ //Bad idea. get_campground() also lists what you'd get out of your campground at any given point, as items, and that looks too boring to list. Was already getting a lot anyway. Not deleted just in case
             case $item[Giant pilgrim hat]:
                 __resting_bonuses[$item[Giant pilgrim hat]] = RestingBonusMake("a random effect", 15);
                 break;
@@ -141,8 +147,6 @@ void RestingBonusInit()
             case $item[Loudmouth Larry Lamprey]:
                 __resting_bonuses[$item[Loudmouth Larry Lamprey]] = RestingBonusMake("3-5 MP regen", $effect[In Tuna], 5).RestingBonusIsTasteful();
                 break;
-            default:
-                __resting_bonuses[furniture] = RestingBonusMake(); //they are in a mafia version where mafia recognizes the campground furniture, but we didn't add it to this list yet
         }
     }
 }

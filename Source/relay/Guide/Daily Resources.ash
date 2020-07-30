@@ -314,32 +314,29 @@ void generateDailyResources(Checklist [int] checklists)
                         foreach source, bonus in __resting_bonuses {
                             string message;
 
-                            if (bonus.header == "")
-                                message += "Unlisted furniture '" + source + "'";
-                            else if (source == $item[Confusing LED clock] && my_adventures() < 5)
+                            if (source == $item[Confusing LED clock] && my_adventures() < 5)
                                 continue; //won't activate
-                            else {
-                                if (bonus.duration > 0) {
-                                    if (source == $item[Lucky cat statue]) //SETS the remaining duration of that effect to 5 adv
-                                        message += pluralise(bonus.duration - bonus.given_effect.have_effect(), "turn", "turns") + " of ";
-                                    else if (bonus.tasteful && bonus.given_effect.have_effect() > 1)
-                                        continue; //won't activate
-                                    else
-                                        message += bonus.duration.pluralise("turn", "turns") + " of ";
-                                }
 
-                                message += bonus.given_effect == $effect[none] ? bonus.header : bonus.given_effect + " (" + bonus.header + ")";
-
-                                if (bonus.limit > 0) {
-                                    saw_a_limit = true;
-                                    message += ", " + bonus.limit + (bonus.limit > 1 ? "x" : "") + "/day";
-                                }
-
-                                //if (bonus.tasteful) //player should already be well aware of this; not relevant
-                                //  message += ", breaks after 3-5 uses";
-
-                                message += ".";
+                            if (bonus.duration > 0) {
+                                if (source == $item[Lucky cat statue]) //SETS the remaining duration of that effect to 5 adv
+                                    message += pluralise(bonus.duration - bonus.given_effect.have_effect(), "turn", "turns") + " of ";
+                                else if (bonus.tasteful && bonus.given_effect.have_effect() > 1)
+                                    continue; //won't activate
+                                else
+                                    message += bonus.duration.pluralise("turn", "turns") + " of ";
                             }
+
+                            message += bonus.given_effect == $effect[none] ? bonus.header : bonus.given_effect + " (" + bonus.header + ")";
+
+                            if (bonus.limit > 0) {
+                                saw_a_limit = true;
+                                message += ", " + bonus.limit + (bonus.limit > 1 ? "x" : "") + "/day";
+                            }
+
+                            //if (bonus.tasteful) //player should already be well aware of this; not relevant
+                            //  message += ", breaks after 3-5 uses";
+
+                            message += ".";
 
                             bonus_messages.listAppend(message);
                         }
