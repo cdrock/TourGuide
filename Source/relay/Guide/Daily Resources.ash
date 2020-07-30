@@ -462,9 +462,9 @@ void generateDailyResources(Checklist [int] checklists)
         if (subentries_handle.count() > 1) {
             entry.should_indent_after_first_subentry = true; //that feature is awesome!
             entry.subentries = subentries_handle;
-            entry.subentries.listPrepend(ChecklistSubentryMake(pluraliseWordy(__misc_state_int["free rests remaining"], "free rest", "free rests").capitaliseFirstLetter()));
+            entry.subentries.listPrepend(ChecklistSubentryMake(pluralise(__misc_state_int["free rests remaining"], "free rest", "free rests"))); //entire entry acts as a "title"
         } else if (subentries_handle.count() == 1)
-            entry.subentries.listAppend(ChecklistSubentryMake(pluraliseWordy(__misc_state_int["free rests remaining"], "free rest", "free rests").capitaliseFirstLetter(), "", subentries_handle[0].entries));
+            entry.subentries.listAppend(ChecklistSubentryMake(pluralise(__misc_state_int["free rests remaining"], "free rest", "free rests"), "", subentries_handle[0].entries));
 
         resource_entries.listAppend(entry);
     }
