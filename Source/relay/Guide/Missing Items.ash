@@ -279,7 +279,8 @@ void generateMissingItems(Checklist [int] checklists)
             items_needed_entries.listAppend(ChecklistEntryMake("__item vial of patchouli oil", "", subentry));
     }
                                
-    QHitsGenerateMissingItems(items_needed_entries);
+    if (my_path_id() != PATH_LOW_KEY_SUMMER)
+        QHitsGenerateMissingItems(items_needed_entries);
 	
 	checklists.listAppend(ChecklistMake("Required Items", items_needed_entries));
 }

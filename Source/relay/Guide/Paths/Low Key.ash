@@ -239,22 +239,7 @@ void PathLowKeyGenerateStandardKeys(ChecklistEntry [int] low_key_entries) {
 		}
 
         // Star key
-        if (!__misc_state["in run"] && !__misc_state["Example mode"])
-		    return;
-        if (__quest_state["Level 13"].state_boolean["Richard\'s star key used"])
-            return;
-
-        string url = $location[the hole in the sky].getClickableURLForLocation();
-        if (!$location[the hole in the sky].locationAvailable())
-            url = $location[The Castle in the Clouds in the Sky (basement)].getClickableURLForLocation();
-        if ($item[richard\'s star key].available_amount() == 0)
-        {
-            string [int] oh_my_stars_and_gauze_garters;
-            oh_my_stars_and_gauze_garters.listAppend(MIN(1, $item[star chart].available_amount()) + "/1 star chart");
-            oh_my_stars_and_gauze_garters.listAppend(MIN(8, $item[star].available_amount()) + "/8 stars");
-            oh_my_stars_and_gauze_garters.listAppend(MIN(7, $item[line].available_amount()) + "/7 lines");
-            low_key_entries.listAppend(ChecklistEntryMake("__item richard\'s star key", url, ChecklistSubentryMake("Richard\'s star key", "", oh_my_stars_and_gauze_garters.listJoinComponents(", ", "and"))));
-        }
+        QHitsGenerateMissingItems(low_key_entries);
 
         // Sneaky Pete key
 		string from_daily_dungeon_string = "From daily dungeon";
