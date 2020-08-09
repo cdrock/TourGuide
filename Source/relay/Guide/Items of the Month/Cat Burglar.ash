@@ -36,6 +36,9 @@ void IOTMCatBurglarGenerateResource(ChecklistEntry [int] resource_entries)
             if (get_property_int("zeppelinProtestors") < 80 && QuestState("questL11Ron").mafia_internal_step < 3) {
                 options.listAppend("Cigarette lighters, from the zeppelin protesters.");
             }
+            if ($item[pirate fledges].available_amount() == 0 && !have_outfit_components("Swashbuckling Getup") && __quest_state["Pirate Quest"].state_boolean["valid"]) {
+            	options.listAppend("Pirate outfit.");
+            }
             
             if ($item[S.O.C.K.].available_amount() == 0) {
                 string [int] airship_stealables;
