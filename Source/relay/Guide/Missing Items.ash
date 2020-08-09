@@ -1,6 +1,5 @@
 import "relay/Guide/Support/Checklist.ash";
 import "relay/Guide/QuestState.ash";
-import "relay/Guide/Sets.ash";
 
 void generateMissingItems(Checklist [int] checklists)
 {
@@ -280,7 +279,7 @@ void generateMissingItems(Checklist [int] checklists)
             items_needed_entries.listAppend(ChecklistEntryMake("__item vial of patchouli oil", "", subentry));
     }
                                
-    SetsGenerateMissingItems(items_needed_entries);
+    QHitsGenerateMissingItems(items_needed_entries);
 	
 	checklists.listAppend(ChecklistMake("Required Items", items_needed_entries));
 }
