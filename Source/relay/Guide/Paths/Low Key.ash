@@ -46,7 +46,7 @@ void PathLowKeyGenerateKeys(ChecklistEntry [int] low_key_entries) {
     keys.listAppend(new Key("Weremoose key", $location[Cobb\'s Knob Menagerie, Level 2], "cobbsknob.php?action=tomenagerie", "+3 Spooky Res, +15 Spooky Damage, +30 Spooky Spell Damage", "finding the  Cobb\'s Knob Menagerie key in the Cobb\'s Knob lab" + ($item[Cobb's Knob Menagerie key].available_amount() == 0 ? ", accessed by doing the Cobb\'s Knob quest" : "")));
 
     foreach index, key in keys {
-        if (__quest_state["Lair"].state_boolean[key.name + " used"] || lookupItem(key.name).available_amount() > 0) return;	
+        if (__quest_state["Lair"].state_boolean[key.name + " used"] || lookupItem(key.name).available_amount() > 0) continue;	
 
         ChecklistEntry entry;
         entry.image_lookup_name = "__item " + key.name;
