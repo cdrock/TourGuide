@@ -426,10 +426,7 @@ void QLevel12GenerateTasksSidequests(ChecklistEntry [int] task_entries, Checklis
         if (gunpowder_needed > 0)
         {
             modifiers = listMake("+combat", "copies");
-            if (gunpowder_needed == 1)
-                details.listAppend("Need " + gunpowder_needed + " more barrel of gunpowder.");
-            else
-                details.listAppend("Need " + gunpowder_needed + " more barrels of gunpowder.");
+            details.listAppend("Need " + gunpowder_needed.pluralise("more barrel", "more barrels") + " of gunpowder.");
             
             
             
@@ -472,6 +469,21 @@ void QLevel12GenerateTasksSidequests(ChecklistEntry [int] task_entries, Checklis
                         details.listAppend("Voting monster will appear in " + pluralise(turns_to_next_voting_monster, "more turn", "more turns") + ".");
                     }
                     
+                }
+            }
+
+            if (lookupItem("Fourth of May Cosplay Saber").available_amount() > 0 && get_property_int("_saberForceUses") < 5 && gunpowder_needed > 1)
+            {
+                int saber_fights_left = MIN(get_property_int("_saberForceMonsterCount"), 3);
+                boolean already_sabering_lfm = get_property_monster("_saberForceMonster") == $monster[lobsterfrogman] && saber_fights_left > 0;
+
+                if (!already_sabering_lfm || already_sabering_lfm && saber_fights_left < gunpowder_needed) {
+                    details.listAppend("Could Use the Force (friends) on a LFM to guarantee two more.");
+                    
+                    if (already_sabering_lfm && saber_fights_left > 1) //sabering now would waste some copies
+                        details.listAppend("Finish fighting " + (saber_fights_left - 1).pluralise("more copy", "more copies") + ", first.");
+                    else if (!lookupItem("Fourth of May Cosplay Saber").equipped())
+                        details.listAppend("Equip the Fourth of May saber, first.");
                 }
             }
         }
