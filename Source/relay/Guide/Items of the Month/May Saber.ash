@@ -54,7 +54,7 @@ void IOTMMaySaberGenerateResource(ChecklistEntry [int] resource_entries)
                 description.listAppend("Bonus! Use Meteor Shower + lightsaber skill to save a bunch of turns on weapon damage/spell damage/familiar weight tests.");
 
             //description.listAppend("Choose one of:|*" + options.listJoinComponents("|*"));
-            resource_entries.listAppend(ChecklistEntryMake("__item Fourth of May Cosplay Saber", url, ChecklistSubentryMake(uses_remaining.pluralise("force use", "forces uses"), "", description))); //"forces banishes"? typo or reference/joke?
+            resource_entries.listAppend(ChecklistEntryMake("__item Fourth of May Cosplay Saber", url, ChecklistSubentryMake(uses_remaining.pluralise("force use", "forces uses"), "", description))); //"forces uses"? typo or reference/joke?
         }
 
         if (true) {
