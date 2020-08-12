@@ -454,9 +454,19 @@ void QLevel12GenerateTasksSidequests(ChecklistEntry [int] task_entries, Checklis
             
             details.listAppend("~" + roundForOutput(turns_to_complete, 1) + " turns to complete quest at " + combat_rate_modifier().floor() + "% combat.|~" + roundForOutput(turns_per_lobster, 1) + " turns per lobster.");
             
+            string macrometeorite_source;
+
             if ($skill[meteor lore].have_skill() && get_property_int("_macrometeoriteUses") < 10)
+                macrometeorite_source = "macrometeorite";
+            else if (lookupItem("Powerful Glove").have() && 100 - get_property_int("_powerfulGloveBatteryPowerUsed") >= 10)
+                macrometeorite_source = "Replace Enemy";
+            
+            if (macrometeorite_source != "")
             {
-            	details.listAppend("Could use macrometeorite on a wandering monster (portscan, voting) to guarantee an LFM.");
+            	details.listAppend("Could use " + macrometeorite_source + " on a wandering monster (portscan, voting, holiday monster...) to guarantee an LFM.");
+                if (macrometeorite_source == "Replace Enemy" && !lookupItem("Powerful Glove").equipped())
+                    details.listAppend("Equip the Powerful Glove, first.");
+
                 if (lookupItem("&quot;I Voted!&quot; sticker").available_amount() > 0 && get_property_int("_voteFreeFights") >= 3)
                 {
                 	if (total_turns_played() % 11 == 1 && get_property_int("lastVoteMonsterTurn") < total_turns_played())
