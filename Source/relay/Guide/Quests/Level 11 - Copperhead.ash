@@ -1,4 +1,4 @@
-//Our strategy for the copperhead quest is probably not very good. Largely because it looks complicated and I made a few guesses.
+//Our strategy for the copperhead quest is probably not very good. Largely because it looks complicated and I (Ezandora) made a few guesses.
 
 void QLevel11CopperheadInit()
 {
@@ -74,7 +74,7 @@ void QLevel11RonGenerateTasks(ChecklistEntry [int] task_entries, ChecklistEntry 
     if (base_quest_state.finished)
         return;
     
-     
+    
     if (base_quest_state.mafia_internal_step <= 2 && base_quest_state.state_int["protestors remaining"] <= 1) {
         subentry.entries.listAppend("Adventure in the mob of protestors.");
     } else if (base_quest_state.mafia_internal_step <= 2) {
@@ -103,7 +103,7 @@ void QLevel11RonGenerateTasks(ChecklistEntry [int] task_entries, ChecklistEntry 
         if ($item[cigarette lighter].available_amount() > 0 && base_quest_state.state_boolean["need protestor speed tricks"] && my_path_id() != PATH_POCKET_FAMILIARS) {
             subentry.entries.listAppend(HTMLGenerateSpanFont("Use cigarette lighter in-combat.", "red"));
         }
-        if ($item[lynyrd snare].available_amount() > 0 && $items[lynyrdskin cap,lynyrdskin tunic,lynyrdskin breeches].items_missing().count() > 0 && $item[lynyrd snare].item_is_usable()) { //FIXME daily tracking
+        if ($item[lynyrd snare].available_amount() > 0 && $items[lynyrdskin cap,lynyrdskin tunic,lynyrdskin breeches].items_missing().count() > 0 && $item[lynyrd snare].item_is_usable() && get_property_int("_lynyrdSnareUses") < 3 && my_path_id() != PATH_G_LOVER) {
             subentry.entries.listAppend("Possibly use the lynyrd snare. (free combat)");
         }
         string [int] what_not_not_to_wear;
@@ -216,7 +216,7 @@ void QLevel11RonGenerateTasks(ChecklistEntry [int] task_entries, ChecklistEntry 
                 subentry.entries.listAppend("Already used all 5 glark cables for the day.");
             }
         }
-            
+        
         if ($item[priceless diamond].available_amount() > 0 && $item[red zeppelin ticket].available_amount() == 0) {
             subentry.modifiers.listClear();
             subentry.entries.listClear();
@@ -266,30 +266,63 @@ void QLevel11ShenGenerateTasks(ChecklistEntry [int] task_entries, ChecklistEntry
     if (!QLevel11ShouldOutputCopperheadRoute("shen"))
         return;
     QuestState base_quest_state = __quest_state["Level 11 Shen"];
+    
+    if (base_quest_state.finished)
+        return;
+    
     ChecklistSubentry subentry;
     subentry.header = base_quest_state.quest_name;
     
     item quest_item = get_property_item("shenQuestItem");
     
-    location [item] quest_items_to_locations = {$item[Murphy's Rancid Black Flag]:$location[The Castle in the Clouds in the Sky (Top Floor)],
-        $item[The Stankara Stone]:$location[The Batrat and Ratbat Burrow],
-        $item[The First Pizza]:$location[Lair of the Ninja Snowmen],
-        $item[The Eye of the Stars]:$location[The Hole in the Sky],
-        $item[The Lacrosse Stick of Lacoronado]:$location[The Smut Orc Logging Camp],
-        $item[The Shield of Brook]:$location[The VERY Unquiet Garves]};
-    location quest_location = quest_items_to_locations[quest_item]; 
+    record Snek {
+        monster snake;
+        location nest;
+    };
     
-    if (base_quest_state.finished)
-        return;
+    Snek [item] shen_assignment = {
+        $item[Murphy's Rancid Black Flag]:new Snek($monster[Burning Snake of Fire], $location[The Castle in the Clouds in the Sky (Top Floor)]),
+        $item[The Stankara Stone]:new Snek($monster[Batsnake], $location[The Batrat and Ratbat Burrow]),
+        $item[The First Pizza]:new Snek($monster[Frozen Solid Snake], $location[Lair of the Ninja Snowmen]),
+        $item[The Eye of the Stars]:new Snek($monster[The Snake With Like Ten Heads], $location[The Hole in the Sky]),
+        $item[The Lacrosse Stick of Lacoronado]:new Snek($monster[The Frattlesnake], $location[The Smut Orc Logging Camp]),
+        $item[The Shield of Brook]:new Snek($monster[Snakeleton], $location[The VERY Unquiet Garves])
+    };
+    
+    record ShenAssignments {//Shen's demands are seeded based on what day you're at when first meeting him. Ask for a property that records which day that was?
+        item first;
+        item second;
+        item third;
+    } current_assignments;
+    
+    ShenAssignments [int] start_day_to_assignments = {
+        1:new ShenAssignments($item[The Stankara Stone], $item[The First Pizza], $item[Murphy's Rancid Black Flag]),
+        2:new ShenAssignments($item[The Lacrosse Stick of Lacoronado], $item[The Shield of Brook], $item[The Eye of the Stars]),
+        3:new ShenAssignments($item[The First Pizza], $item[The Stankara Stone], $item[The Shield of Brook]),
+        4:new ShenAssignments($item[The Lacrosse Stick of Lacoronado], $item[The Stankara Stone], $item[The Shield of Brook]),
+        5:new ShenAssignments($item[Murphy's Rancid Black Flag], $item[The Lacrosse Stick of Lacoronado], $item[The Eye of the Stars]),
+        6:new ShenAssignments($item[Murphy's Rancid Black Flag], $item[The Stankara Stone], $item[The Eye of the Stars]),
+        7:new ShenAssignments($item[The Lacrosse Stick of Lacoronado], $item[The Shield of Brook], $item[The Eye of the Stars]),
+        8:new ShenAssignments($item[The Shield of Brook], $item[Murphy's Rancid Black Flag], $item[The Lacrosse Stick of Lacoronado]),
+        9:new ShenAssignments($item[The Shield of Brook], $item[The Lacrosse Stick of Lacoronado], $item[The Eye of the Stars]),
+        10:new ShenAssignments($item[The Eye of the Stars], $item[The Stankara Stone], $item[Murphy's Rancid Black Flag]),
+        11:new ShenAssignments($item[The First Pizza], $item[The Stankara Stone], $item[Murphy's Rancid Black Flag])
+    };
+    
+    if (my_path_id() == PATH_EXPLOSIONS)
+        current_assignments = new ShenAssignments($item[The Eye of the Stars], $item[The Lacrosse Stick of Lacoronado], $item[The First Pizza]);
+    
+    location quest_location = shen_assignment[quest_item].nest;
+    
     string url = $location[the copperhead club].getClickableURLForLocation();
     
     boolean want_club_details = false;
-    if (base_quest_state.mafia_internal_step <= 1) {
+    if (base_quest_state.mafia_internal_step <= 1) { //Need to meet shen for the first time.
         subentry.entries.listAppend("Adventure in the Copperhead Club and meet Shen.");
         subentry.entries.listAppend("This will give you unremovable -5 stat poison.");
         if (my_daycount() == 1 && my_path_id() != PATH_EXPLOSIONS)
             subentry.entries.listAppend("Perhaps wait until tomorrow before starting this; day 2's shen bosses are more favourable.");
-    } else if (base_quest_state.mafia_internal_step == 2) {
+    } else if (base_quest_state.mafia_internal_step == 2) { //shen met the first time, go do as he asks
         if (quest_location != $location[none]) {
             subentry.entries.listAppend("Adventure in " + quest_location + ".");
             url = quest_location.getClickableURLForLocation();
@@ -297,9 +330,9 @@ void QLevel11ShenGenerateTasks(ChecklistEntry [int] task_entries, ChecklistEntry
             subentry.entries.listAppend("Fight the first monster wherever Shen told you to go.");
             url = "";
         }
-    } else if (base_quest_state.mafia_internal_step == 3) {
+    } else if (base_quest_state.mafia_internal_step == 3) { //first monster done, now go find shen
         want_club_details = true;
-    } else if (base_quest_state.mafia_internal_step == 4) {
+    } else if (base_quest_state.mafia_internal_step == 4) { //shen met second time, go do as he asks
         if (quest_location != $location[none]) {
             subentry.entries.listAppend("Adventure in " + quest_location + ".");
             url = quest_location.getClickableURLForLocation();
@@ -307,9 +340,9 @@ void QLevel11ShenGenerateTasks(ChecklistEntry [int] task_entries, ChecklistEntry
             subentry.entries.listAppend("Fight the second monster wherever Shen told you to go.");
             url = "";
         }
-    } else if (base_quest_state.mafia_internal_step == 5) {
+    } else if (base_quest_state.mafia_internal_step == 5) { //second monster done, go now find shen
         want_club_details = true;
-    } else if (base_quest_state.mafia_internal_step == 6) {
+    } else if (base_quest_state.mafia_internal_step == 6) { //shen found, go find the third monster
         if (quest_location != $location[none]) {
             subentry.entries.listAppend("Adventure in " + quest_location + ".");
             url = quest_location.getClickableURLForLocation();
@@ -317,7 +350,7 @@ void QLevel11ShenGenerateTasks(ChecklistEntry [int] task_entries, ChecklistEntry
             subentry.entries.listAppend("Fight the third monster wherever Shen told you to go.");
             url = "";
         }
-    } else if (base_quest_state.mafia_internal_step == 7) {
+    } else if (base_quest_state.mafia_internal_step == 7) { //third monster defeated, shen find go
         want_club_details = true;
     }
     //FIXME is shen scheduled?
