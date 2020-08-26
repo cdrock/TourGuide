@@ -17,6 +17,8 @@ void QLevel11CopperheadInit()
         if (state.state_int["protestors remaining"] <= 1)
             state.state_boolean["need protestor speed tricks"] = false;
         
+        state.state_boolean["should output"] = state.in_progress && __quest_state["Level 11"].state_boolean["have diary"] && (__misc_state["in run"] || $location[the red zeppelin].turns_spent > 0 || __last_adventure_location == $location[a mob of zeppelin protesters]);
+        
         __quest_state["Level 11 Ron"] = state;
     }
     if (true) {
@@ -25,30 +27,47 @@ void QLevel11CopperheadInit()
         if (my_path_id() == PATH_COMMUNITY_SERVICE) QuestStateParseMafiaQuestPropertyValue(state, "finished");
         state.quest_name = "Copperhead Club Quest"; //"Of Mice and Shen";
         state.image_name = "__item copperhead charm"; //"__effect Ancient Annoying Serpent Poison";
+        
+        state.state_boolean["should output"] = state.in_progress && __quest_state["Level 11"].state_boolean["have diary"] && (__misc_state["in run"] || $location[the copperhead club].turns_spent > 0);
+        
+        
+        //other than in exploathing, if mafia_internal_step == 1, we haven't "locked" which items are going to be asked
+        if (state.state_boolean["should output"] && (state.mafia_internal_step > 1 || my_path_id() == PATH_KINGDOM_OF_EXPLOATHING)) {
+            /*for the purpose of "at which NC we're at in the club" and "which assignment we're at":
+                0: will meet Shen on first turn in the Copperhead club
+                1: when turns_spent >= 4 or 5. Could also burn delay in the club up to turn 12
+                2: when turns_spent >= 9 or 10. Could also burn delay in the club up to turn 13
+                3: when turns_spent >= 14 or 15
+            also for the purpose of "hold on before going there":
+                (3 - the value) = how many assignments you didn't get. You shouldn't go to these assignments' zones just yet:
+                    all three=> 1 (exploathing only) / last two=> 2, 3 / last one=> 4, 5 / none=> 6, 7*/
+            state.state_int["Shen meetings"] = state.mafia_internal_step / 2;
+            
+            /*for the purpose of "relevant locations": all three=> 1 (exploathing only), 2 / last two=> 3, 4 / last one=> 5, 6 / none=> 7*/
+            state.state_int["unfinished assignments"] = 3 - (state.mafia_internal_step - 1) / 2;//this is the one used the least
+            
+            
+            static boolean have_wrong_predictions;
+            
+            int daycount_when_first_met_Shen = get_property_int("shenInitiationDay");
+            
+            //If we are currently looking for a snake
+            if (state.mafia_internal_step % 2 == 0) { //2, 4 or 6
+                state.state_boolean["on an assignment"] = true;
+                
+                if (my_path_id() != PATH_KINGDOM_OF_EXPLOATHING) { //we know this path has a hardcoded set of requests
+                    //Verify if mafia's quest item matches the predicted one. If it doesn't, stop predicting assignments for the rest of the session
+                    item quest_item = get_property_item("shenQuestItem");
+                    item predicted_quest_item = __shen_start_day_to_assignments[daycount_when_first_met_Shen] [state.state_int["Shen meetings"]];
+                    if (quest_item != predicted_quest_item)
+                        have_wrong_predictions = true;
+                }
+            }
+            state.state_int["Shen initiation day"] = have_wrong_predictions ? 0 : daycount_when_first_met_Shen;
+        }
+        
         __quest_state["Level 11 Shen"] = state;
     }
-}
-
-boolean QLevel11ShouldOutputCopperheadRoute(string which_route)
-{
-    if (__quest_state["Level 11"].mafia_internal_step < 3) //need diary
-        return false;
-    
-    //want: output this in aftercore if they're adventuring there
-    //want: output this in-run by default
-    //soooo...
-    
-    if (__misc_state["in run"])
-        return true;
-    
-    if (which_route == "ron" && $location[the red zeppelin].turns_spent > 0)
-        return true;
-    if (which_route == "ron" && __last_adventure_location == $location[a mob of zeppelin protesters])
-        return true;
-    if (which_route == "shen" && $location[the copperhead club].turns_spent > 0)
-        return true;
-    
-    return false;
 }
 
 void QLevel11RonGenerateTasks(ChecklistEntry [int] task_entries, ChecklistEntry [int] optional_task_entries, ChecklistEntry [int] future_task_entries)
@@ -63,16 +82,14 @@ void QLevel11RonGenerateTasks(ChecklistEntry [int] task_entries, ChecklistEntry 
         step4 - Barge into Ron Copperhead's cabin in the Red Zeppelin and beat him up!
         finshed - You recovered half of the Talisman o' Nam from Ron Copperhead. Brilliant!
     */
-    if (!QLevel11ShouldOutputCopperheadRoute("ron"))
+    QuestState base_quest_state = __quest_state["Level 11 Ron"];
+    if (!base_quest_state.state_boolean["should output"])
         return;
     
-    QuestState base_quest_state = __quest_state["Level 11 Ron"];
     ChecklistSubentry subentry;
     subentry.header = base_quest_state.quest_name;
     
     string url = $location[A Mob of Zeppelin Protesters].getClickableURLForLocation();
-    if (base_quest_state.finished)
-        return;
     
     
     if (base_quest_state.mafia_internal_step <= 2 && base_quest_state.state_int["protestors remaining"] <= 1) {
@@ -263,99 +280,64 @@ void QLevel11ShenGenerateTasks(ChecklistEntry [int] task_entries, ChecklistEntry
         7 - third monster defeated, shen find go
         finished*/
     
-    if (!QLevel11ShouldOutputCopperheadRoute("shen"))
-        return;
     QuestState base_quest_state = __quest_state["Level 11 Shen"];
-    
-    if (base_quest_state.finished)
+    if (!base_quest_state.state_boolean["should output"])
         return;
+    
+    ChecklistEntry entry;
+    entry.url = $location[the copperhead club].getClickableURLForLocation();
+    entry.image_lookup_name = base_quest_state.image_name;
+    entry.should_highlight = $locations[the copperhead club] contains __last_adventure_location;
     
     ChecklistSubentry subentry;
+    entry.subentries.listAppend(subentry); //changes made to subentry past this line will still appear. Done now to make sure this one is above the club subentry.
     subentry.header = base_quest_state.quest_name;
     
-    item quest_item = get_property_item("shenQuestItem");
-    
-    record Snek {
-        monster snake;
-        location nest;
-    };
-    
-    Snek [item] shen_assignment = {
-        $item[Murphy's Rancid Black Flag]:new Snek($monster[Burning Snake of Fire], $location[The Castle in the Clouds in the Sky (Top Floor)]),
-        $item[The Stankara Stone]:new Snek($monster[Batsnake], $location[The Batrat and Ratbat Burrow]),
-        $item[The First Pizza]:new Snek($monster[Frozen Solid Snake], $location[Lair of the Ninja Snowmen]),
-        $item[The Eye of the Stars]:new Snek($monster[The Snake With Like Ten Heads], $location[The Hole in the Sky]),
-        $item[The Lacrosse Stick of Lacoronado]:new Snek($monster[The Frattlesnake], $location[The Smut Orc Logging Camp]),
-        $item[The Shield of Brook]:new Snek($monster[Snakeleton], $location[The VERY Unquiet Garves])
-    };
-    
-    record ShenAssignments {//Shen's demands are seeded based on what day you're at when first meeting him. Ask for a property that records which day that was?
-        item first;
-        item second;
-        item third;
-    } current_assignments;
-    
-    ShenAssignments [int] start_day_to_assignments = {
-        1:new ShenAssignments($item[The Stankara Stone], $item[The First Pizza], $item[Murphy's Rancid Black Flag]),
-        2:new ShenAssignments($item[The Lacrosse Stick of Lacoronado], $item[The Shield of Brook], $item[The Eye of the Stars]),
-        3:new ShenAssignments($item[The First Pizza], $item[The Stankara Stone], $item[The Shield of Brook]),
-        4:new ShenAssignments($item[The Lacrosse Stick of Lacoronado], $item[The Stankara Stone], $item[The Shield of Brook]),
-        5:new ShenAssignments($item[Murphy's Rancid Black Flag], $item[The Lacrosse Stick of Lacoronado], $item[The Eye of the Stars]),
-        6:new ShenAssignments($item[Murphy's Rancid Black Flag], $item[The Stankara Stone], $item[The Eye of the Stars]),
-        7:new ShenAssignments($item[The Lacrosse Stick of Lacoronado], $item[The Shield of Brook], $item[The Eye of the Stars]),
-        8:new ShenAssignments($item[The Shield of Brook], $item[Murphy's Rancid Black Flag], $item[The Lacrosse Stick of Lacoronado]),
-        9:new ShenAssignments($item[The Shield of Brook], $item[The Lacrosse Stick of Lacoronado], $item[The Eye of the Stars]),
-        10:new ShenAssignments($item[The Eye of the Stars], $item[The Stankara Stone], $item[Murphy's Rancid Black Flag]),
-        11:new ShenAssignments($item[The First Pizza], $item[The Stankara Stone], $item[Murphy's Rancid Black Flag])
-    };
-    
+    /*new fields:
+    state_boolean["should output"], 
+    state_int["Shen meetings"], 
+    --------state_int["unfinished assignments"] (for "relevant locations"), 
+    state_boolean["on an assignment"], 
+    state_int["Shen initiation day"] (straight from mafia property, set to 0 if incorrect) */
+    item [int] current_assignments; //always check if (current_assignments.count() > 0) before using
     if (my_path_id() == PATH_EXPLOSIONS)
-        current_assignments = new ShenAssignments($item[The Eye of the Stars], $item[The Lacrosse Stick of Lacoronado], $item[The First Pizza]);
+        current_assignments = __shen_exploathing_assignments;
+    else if (__shen_start_day_to_assignments contains base_quest_state.state_int["Shen initiation day"])
+        current_assignments = __shen_start_day_to_assignments[base_quest_state.state_int["Shen initiation day"]];
     
-    location quest_location = shen_assignment[quest_item].nest;
+    entry.should_highlight = entry.should_highlight || current_assignments.shenAssignmentsJoinLocationsStartingAfter(base_quest_state.state_int["unfinished assignments"]).listInvert() contains __last_adventure_location;
     
-    string url = $location[the copperhead club].getClickableURLForLocation();
     
-    boolean want_club_details = false;
     if (base_quest_state.mafia_internal_step <= 1) { //Need to meet shen for the first time.
         subentry.entries.listAppend("Adventure in the Copperhead Club and meet Shen.");
         subentry.entries.listAppend("This will give you unremovable -5 stat poison.");
+        if (my_path_id() == PATH_EXPLOSIONS)
+            subentry.entries.listAppend("Will always ask for " + current_assignments.shenAssignmentsJoinLocations().listJoinComponents(", ", "and") + " on this path.");
+        else {
+            int daycount = my_daycount();
+            if (__shen_start_day_to_assignments contains daycount)
+                subentry.entries.listAppend("Will send you to " + __shen_start_day_to_assignments[daycount].shenAssignmentsJoinLocations().listJoinComponents(", ", "and") + " if you meet him today.");
+            if (__shen_start_day_to_assignments contains ++daycount)
+                subentry.entries.listAppend("Will switch to " + __shen_start_day_to_assignments[daycount].shenAssignmentsJoinLocations().listJoinComponents(", ", "and") + " tomorrow.");
+        }
         if (my_daycount() == 1 && my_path_id() != PATH_EXPLOSIONS)
             subentry.entries.listAppend("Perhaps wait until tomorrow before starting this; day 2's shen bosses are more favourable.");
-    } else if (base_quest_state.mafia_internal_step == 2) { //shen met the first time, go do as he asks
-        if (quest_location != $location[none]) {
-            subentry.entries.listAppend("Adventure in " + quest_location + ".");
-            url = quest_location.getClickableURLForLocation();
-        } else {
-            subentry.entries.listAppend("Fight the first monster wherever Shen told you to go.");
-            url = "";
-        }
-    } else if (base_quest_state.mafia_internal_step == 3) { //first monster done, now go find shen
-        want_club_details = true;
-    } else if (base_quest_state.mafia_internal_step == 4) { //shen met second time, go do as he asks
-        if (quest_location != $location[none]) {
-            subentry.entries.listAppend("Adventure in " + quest_location + ".");
-            url = quest_location.getClickableURLForLocation();
-        } else {
-            subentry.entries.listAppend("Fight the second monster wherever Shen told you to go.");
-            url = "";
-        }
-    } else if (base_quest_state.mafia_internal_step == 5) { //second monster done, go now find shen
-        want_club_details = true;
-    } else if (base_quest_state.mafia_internal_step == 6) { //shen found, go find the third monster
-        if (quest_location != $location[none]) {
-            subentry.entries.listAppend("Adventure in " + quest_location + ".");
-            url = quest_location.getClickableURLForLocation();
-        } else {
-            subentry.entries.listAppend("Fight the third monster wherever Shen told you to go.");
-            url = "";
-        }
-    } else if (base_quest_state.mafia_internal_step == 7) { //third monster defeated, shen find go
-        want_club_details = true;
-    }
-    //FIXME is shen scheduled?
-    if (want_club_details) {
-        subentry.entries.listAppend("Find Shen in the Copperhead Club.");
+    } else {
+        int club_turns_spent = $location[the copperhead club].turns_spent;
+        int next_guaranteed_meeting = base_quest_state.state_int["Shen meetings"] * 5;
+        int total_delay_remaining = 15 - (3 - base_quest_state.state_int["Shen meetings"]) - club_turns_spent;
+        boolean is_disguised = $effect[Crappily Disguised as a Waiter].have_effect() > 0;
+        string club_hazard = get_property("copperheadClubHazard"); //none, gong, fire, ice
+        boolean need_diamond = $items[priceless diamond,Red Zeppelin ticket].available_amount() == 0 && __quest_state["Level 11 Ron"].mafia_internal_step < 5 && my_meat() < 5000 && my_path_id() != PATH_NUCLEAR_AUTUMN;
+        boolean need_flaming_whatshisname = __quest_state["Level 11 Ron"].state_boolean["need protestor speed tricks"];
+        
+        string [int] club_modifiers;
+        club_modifiers.listAppend("+234% item");
+        club_modifiers.listAppend("olfact ninja dressed as a waiter");
+        if (club_hazard != "gong")
+            club_modifiers.listAppend("-ML"); //hail of bullets damage is ~9 + your +ML
+
+        string [int] club_entries;
         //unnamed cocktail is 15%
         //ninja dressed as a waiter has 30% disguise
         //waiter dressed as a ninja has 20% disguise
@@ -373,25 +355,74 @@ void QLevel11ShenGenerateTasks(ChecklistEntry [int] task_entries, ChecklistEntry
         //alternatively, olfact the ninja, then use disguises to collect cocktails
         //each one saves up to seven protestors if you see the NC (at -25% combat, the likelyhood is 11.6% per turn)
         
-        boolean need_diamond = false;
-        boolean need_flaming_whathisname = false;
+        string line = "Use crappy waiter disguise for a free NC (doesn't burn delay).";
+        if (club_hazard == "" || club_hazard == "none" || club_hazard == "fire" && !need_flaming_whatshisname || club_hazard == "ice" && !need_diamond) {
+            if (need_diamond)
+                line += "|*<strong>Bucket:</strong> fights may give a priceless diamond.";
+            else if (need_flaming_whatshisname)
+                line += "|*<strong>Lanterns:</strong> fights turn Unnamed cocktails in inventory into Flaming whatshisname.";
+            else
+                line += "|*<strong>Gong:</strong> prevents the start of fight damage.";
+        } else if (club_hazard == "ice")
+            club_entries.listAppend("Fight club monsters (not wanderers) for a chance at a priceless diamond.");
+        else if (club_hazard == "fire")
+            club_entries.listAppend("Fight club monsters (not wanderers) with an Unnamed cocktail in inventory to turn it into a Flaming Whatshisname.");
+        line += "|*<strong>Steal:</strong> gain 1 Unnamed cocktail + 3-4 other things";
+        if (club_hazard == "fire" && need_flaming_whatshisname)
+            line += " (have " + $item[Flamin' Whatshisname].item_amount() + ")";
+        line += ".";
+        club_entries.listAppend(line);
+        club_entries.listAppend("Potentially save 1-2 disguises until the end to maybe save a turn.");
         
-        if ($items[priceless diamond,Red Zeppelin ticket].available_amount() == 0 && __quest_state["Level 11 Ron"].mafia_internal_step < 5)
-            need_diamond = true;
-        if (my_meat() >= 5000)
-            need_diamond = false;
-        if (__quest_state["Level 11 Ron"].state_boolean["need protestor speed tricks"])
-            need_flaming_whathisname = true;
         
-        if (need_diamond) {
-            subentry.entries.listAppend("Try to acquire a priceless diamond. (complicated)");
-        } else if (need_flaming_whathisname) {
-            subentry.entries.listAppend("Could try to acquire Flamin' Whatshisname. (complicated)");
+        
+        if (base_quest_state.state_boolean["on an assignment"]) { //2, 4 or 6
+            location assignment_location = __shen_items_to_locations[get_property_item("shenQuestItem")];
+            
+            if (assignment_location != $location[none]) {
+                entry.url = assignment_location.getClickableURLForLocation();
+                subentry.entries.listAppend("Adventure in " + assignment_location + (assignment_location == $location[The VERY Unquiet Garves] ? " (or the Unquiet Garves, but make a choice and stick to it)" : "") + ".");
+            } else {
+                subentry.entries.listAppend("Fight the " + base_quest_state.state_int["Shen meetings"].int_to_position_wordy() + " monster wherever Shen told you to go.");
+            }
+            
+            if (total_delay_remaining - 1 > 0) {
+                ChecklistSubentry club_subentry;
+                club_subentry.header = "Back at the club";
+                club_subentry.modifiers.listAppendList(club_modifiers);
+                
+                if (club_turns_spent < next_guaranteed_meeting)
+                    club_subentry.entries.listAppend("Delay for " + pluralise(next_guaranteed_meeting - club_turns_spent, "more turn", "more turns") + " in  the Copperhead Club.");
+                club_subentry.entries.listAppend((total_delay_remaining - 1) + "-" + total_delay_remaining + " total delay remaining in the club.");
+                club_subentry.entries.listAppendList(club_entries);
+                
+                entry.subentries.listAppend(club_subentry);
+            }
+        } else if (club_turns_spent >= next_guaranteed_meeting) {
+            subentry.entries.listAppend("Meet Shen in the Copperhead Club.|Will meet him next turn.");
+        } else {
+            subentry.entries.listAppend("Find Shen in the Copperhead Club.");
+            if (club_turns_spent == next_guaranteed_meeting - 1) {
+                subentry.entries.listAppend((is_disguised ? "~25" : "50") + "% chance of finding him next turn.");
+                if (base_quest_state.state_int["Shen meetings"] == 3) {
+                    if ($item[crappy waiter disguise].item_amount() > 0)
+                        subentry.entries.listAppend("Use waiter disguises to have a chance at getting it early.").HTMLGenerateSpanFont(is_disguised ? "red" : "dark");
+                    if (is_disguised)
+                        subentry.entries.listAppend("Have a disguise on; give it a go.");
+                }
+            } else {
+                subentry.modifiers.listAppendList(club_modifiers);
+                
+                string line;
+                line += "Can show up in " + (next_guaranteed_meeting - club_turns_spent - 1).pluralise("more turn", "more turns") + ";";
+                line += " ensured in " + (next_guaranteed_meeting - club_turns_spent) + ".";
+                line += "|" + (total_delay_remaining - 1) + "-" + total_delay_remaining + " total delay remaining.";
+                subentry.entries.listAppend(line);
+            }
+            subentry.entries.listAppendList(club_entries);
         }
     }
     
-    
-    ChecklistEntry entry = ChecklistEntryMake(base_quest_state.image_name, url, subentry, $locations[the copperhead club]);
     
     if (!__misc_state["in run"] || $item[talisman o' namsilat].available_amount() > 0)
         optional_task_entries.listAppend(entry);
