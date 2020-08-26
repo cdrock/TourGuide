@@ -34,7 +34,7 @@ void QLevel11CopperheadInit()
         //other than in exploathing, if mafia_internal_step == 1, we haven't "locked" which items are going to be asked
         if (state.state_boolean["should output"] && (state.mafia_internal_step > 1 || my_path_id() == PATH_KINGDOM_OF_EXPLOATHING)) {
             state.state_int["Shen meetings"] = state.mafia_internal_step / 2;
-            state.state_int["snakes slain"] = state.mafia_internal_step - 1 / 2;
+            state.state_int["snakes slain"] = (state.mafia_internal_step - 1) / 2;
             
             
             static boolean have_wrong_predictions;
