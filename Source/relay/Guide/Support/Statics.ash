@@ -235,7 +235,8 @@ static
         $item[The Lacrosse Stick of Lacoronado]:$location[The Smut Orc Logging Camp],
         $item[The Shield of Brook]:$location[The VERY Unquiet Garves]};
     
-    item [int] [int] __shen_start_day_to_assignments = { /*Shen's demands are seeded based on what day you're at when first meeting him. */
+    item [int] [int] __shen_start_day_to_assignments = {
+        //Shen's demands are seeded based on what day you're at when first meeting him.
         1:{1:$item[The Stankara Stone], 2:$item[The First Pizza], 3:$item[Murphy's Rancid Black Flag]},
         2:{1:$item[The Lacrosse Stick of Lacoronado], 2:$item[The Shield of Brook], 3:$item[The Eye of the Stars]},
         3:{1:$item[The First Pizza], 2:$item[The Stankara Stone], 3:$item[The Shield of Brook]},

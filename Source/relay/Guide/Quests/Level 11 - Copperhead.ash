@@ -33,18 +33,8 @@ void QLevel11CopperheadInit()
         
         //other than in exploathing, if mafia_internal_step == 1, we haven't "locked" which items are going to be asked
         if (state.state_boolean["should output"] && (state.mafia_internal_step > 1 || my_path_id() == PATH_KINGDOM_OF_EXPLOATHING)) {
-            /*for the purpose of "at which NC we're at in the club" and "which assignment we're at":
-                0: will meet Shen on first turn in the Copperhead club
-                1: when turns_spent >= 4 or 5. Could also burn delay in the club up to turn 12
-                2: when turns_spent >= 9 or 10. Could also burn delay in the club up to turn 13
-                3: when turns_spent >= 14 or 15
-            also for the purpose of "hold on before going there":
-                (3 - the value) = how many assignments you didn't get. You shouldn't go to these assignments' zones just yet:
-                    all three=> 1 (exploathing only) / last two=> 2, 3 / last one=> 4, 5 / none=> 6, 7*/
             state.state_int["Shen meetings"] = state.mafia_internal_step / 2;
-            
-            /*for the purpose of "relevant locations": all three=> 1 (exploathing only), 2 / last two=> 3, 4 / last one=> 5, 6 / none=> 7*/
-            state.state_int["unfinished assignments"] = 3 - (state.mafia_internal_step - 1) / 2;//this is the one used the least
+            state.state_int["snakes slain"] = state.mafia_internal_step - 1 / 2;
             
             
             static boolean have_wrong_predictions;
@@ -55,8 +45,8 @@ void QLevel11CopperheadInit()
             if (state.mafia_internal_step % 2 == 0) { //2, 4 or 6
                 state.state_boolean["on an assignment"] = true;
                 
+                //Verify if mafia's quest item matches the predicted one. If it doesn't, stop predicting assignments for the rest of the session
                 if (my_path_id() != PATH_KINGDOM_OF_EXPLOATHING) { //we know this path has a hardcoded set of requests
-                    //Verify if mafia's quest item matches the predicted one. If it doesn't, stop predicting assignments for the rest of the session
                     item quest_item = get_property_item("shenQuestItem");
                     item predicted_quest_item = __shen_start_day_to_assignments[daycount_when_first_met_Shen] [state.state_int["Shen meetings"]];
                     if (quest_item != predicted_quest_item)
@@ -293,19 +283,13 @@ void QLevel11ShenGenerateTasks(ChecklistEntry [int] task_entries, ChecklistEntry
     entry.subentries.listAppend(subentry); //changes made to subentry past this line will still appear. Done now to make sure this one is above the club subentry.
     subentry.header = base_quest_state.quest_name;
     
-    /*new fields:
-    state_boolean["should output"], 
-    state_int["Shen meetings"], 
-    --------state_int["unfinished assignments"] (for "relevant locations"), 
-    state_boolean["on an assignment"], 
-    state_int["Shen initiation day"] (straight from mafia property, set to 0 if incorrect) */
-    item [int] current_assignments; //always check if (current_assignments.count() > 0) before using
+    item [int] current_assignments;
     if (my_path_id() == PATH_EXPLOSIONS)
         current_assignments = __shen_exploathing_assignments;
     else if (__shen_start_day_to_assignments contains base_quest_state.state_int["Shen initiation day"])
         current_assignments = __shen_start_day_to_assignments[base_quest_state.state_int["Shen initiation day"]];
     
-    entry.should_highlight = entry.should_highlight || current_assignments.shenAssignmentsJoinLocationsStartingAfter(base_quest_state.state_int["unfinished assignments"]).listInvert() contains __last_adventure_location;
+    entry.should_highlight = entry.should_highlight || current_assignments.shenAssignmentsJoinLocationsStartingAfter(base_quest_state.state_int["snakes slain"]).listInvert() contains __last_adventure_location;
     
     
     if (base_quest_state.mafia_internal_step <= 1) { //Need to meet shen for the first time.
