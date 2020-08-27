@@ -296,13 +296,13 @@ void QLevel11ShenGenerateTasks(ChecklistEntry [int] task_entries, ChecklistEntry
         subentry.entries.listAppend("Adventure in the Copperhead Club and meet Shen.");
         subentry.entries.listAppend("This will give you unremovable -5 stat poison.");
         if (my_path_id() == PATH_EXPLOSIONS)
-            subentry.entries.listAppend("On this path, he'll always ask for: |*•" + current_assignments.shenAssignmentsJoinLocations().listJoinComponents("|*•"));
+            subentry.entries.listAppend("On this path, he'll always ask for: |*• " + current_assignments.shenAssignmentsJoinLocations().listJoinComponents("|*• "));
         else {
             int daycount = my_daycount();
             if (__shen_start_day_to_assignments contains daycount)
-                subentry.entries.listAppend("If you meet him today, he'll send you to:|*•" + __shen_start_day_to_assignments[daycount].shenAssignmentsJoinLocations().listJoinComponents("|*•"));
+                subentry.entries.listAppend("If you meet him today, he'll send you to:|*• " + __shen_start_day_to_assignments[daycount].shenAssignmentsJoinLocations().listJoinComponents("|*• "));
             if (__shen_start_day_to_assignments contains ++daycount)
-                subentry.entries.listAppend("Tomorrow will instead be:|*•" + __shen_start_day_to_assignments[daycount].shenAssignmentsJoinLocations().listJoinComponents("|*•"));
+                subentry.entries.listAppend("Tomorrow will instead be:|*• " + __shen_start_day_to_assignments[daycount].shenAssignmentsJoinLocations().listJoinComponents("|*• "));
         }
         if (my_daycount() == 1 && my_path_id() != PATH_EXPLOSIONS)
             subentry.entries.listAppend("Perhaps wait until tomorrow before starting this; day 2's shen bosses are more favourable.");
