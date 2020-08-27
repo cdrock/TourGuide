@@ -302,7 +302,7 @@ void QLevel11ShenGenerateTasks(ChecklistEntry [int] task_entries, ChecklistEntry
             if (__shen_start_day_to_assignments contains daycount)
                 subentry.entries.listAppend("If you meet him today, he'll send you to:|*•" + __shen_start_day_to_assignments[daycount].shenAssignmentsJoinLocations().listJoinComponents("|*•"));
             if (__shen_start_day_to_assignments contains ++daycount)
-                subentry.entries.listAppend("Tomorrow, he'll switch to:|*•" + __shen_start_day_to_assignments[daycount].shenAssignmentsJoinLocations().listJoinComponents("|*•"));
+                subentry.entries.listAppend("Tomorrow will instead be:|*•" + __shen_start_day_to_assignments[daycount].shenAssignmentsJoinLocations().listJoinComponents("|*•"));
         }
         if (my_daycount() == 1 && my_path_id() != PATH_EXPLOSIONS)
             subentry.entries.listAppend("Perhaps wait until tomorrow before starting this; day 2's shen bosses are more favourable.");
@@ -339,7 +339,7 @@ void QLevel11ShenGenerateTasks(ChecklistEntry [int] task_entries, ChecklistEntry
         //alternatively, olfact the ninja, then use disguises to collect cocktails
         //each one saves up to seven protestors if you see the NC (at -25% combat, the likelyhood is 11.6% per turn)
         
-        string line = "Use crappy waiter disguise for a free NC (doesn't burn delay).";
+        string line = "Use crappy waiter disguise (have " + $item[crappy waiter disguise].available_amount() + ") for a free NC (doesn't burn delay).";
         if (club_hazard == "" || club_hazard == "none" || club_hazard == "fire" && !need_flaming_whatshisname || club_hazard == "ice" && !need_diamond) {
             if (need_diamond)
                 line += "|*<strong>Bucket:</strong> fights may give a priceless diamond.";
@@ -356,7 +356,7 @@ void QLevel11ShenGenerateTasks(ChecklistEntry [int] task_entries, ChecklistEntry
             line += " (have " + $item[Flamin' Whatshisname].item_amount() + ")";
         line += ".";
         club_entries.listAppend(line);
-        club_entries.listAppend("Potentially save 1-2 disguises until the end to maybe save a turn.");
+        club_entries.listAppend("Potentially save some disguises until the end to maybe save a turn.");
         
         
         
