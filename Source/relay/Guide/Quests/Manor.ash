@@ -370,26 +370,25 @@ void QManorGenerateTasks(ChecklistEntry [int] task_entries, ChecklistEntry [int]
         
         //subentry.entries.listAppend("Run 9 " + HTMLGenerateSpanOfClass("hot", "r_element_hot") + " resistance and " + HTMLGenerateSpanOfClass("stench", "r_element_stench") + " resistance to search faster.");
         
-        drawers_per_turn = 0.5 * MIN(4.0, MAX(1.0, 1.0 + hot_resistance / 3.0)) + 0.5 * MIN(4.0, MAX(1.0, 1.0 + stench_resistance / 3.0));
-        drawers_per_turn = MAX(1.0, drawers_per_turn); //zero-divide safety backup
+        drawers_per_turn = 0.5 * clampf(1.0 + hot_resistance / 3.0, 1.0, 4.0) + 0.5 * clampf(1.0 + stench_resistance / 3.0, 1.0, 4.0);
         
         float drawers_needed = MAX(0, 21 - get_property_int("manorDrawerCount"));
         
         int total_turns = ceil(drawers_needed / drawers_per_turn) + 1;
         
-        if (needed_resists.count() > 0 && total_turns > 1)
+        if (needed_resists.count() > 0 && drawers_needed > 1.0)
             subentry.entries.listAppend("Run " + needed_resists.listJoinComponents(", ", "and") + " to search faster.");
         subentry.entries.listAppend(drawers_per_turn.roundForOutput(1) + " drawers searched per turn.|~" + pluralise(total_turns, "turn", "turns") + " remaining.");
         
 		if (__misc_state["have hipster"])
 			subentry.modifiers.listAppend(__misc_state_string["hipster name"]);
-        if (total_turns > 1)
+        if (drawers_needed > 1.0)
         {
             subentry.modifiers.listAppend(HTMLGenerateSpanOfClass("hot res", "r_element_hot_desaturated"));
             subentry.modifiers.listAppend(HTMLGenerateSpanOfClass("stench res", "r_element_stench_desaturated"));
         }
         
-        if (!__misc_state["familiars temporarily blocked"] && $familiar[exotic parrot].familiar_is_usable() && my_familiar() != $familiar[exotic parrot] && (hot_resistance < 9.0 || stench_resistance < 9.0) && total_turns > 1)
+        if (!__misc_state["familiars temporarily blocked"] && $familiar[exotic parrot].familiar_is_usable() && my_familiar() != $familiar[exotic parrot] && (hot_resistance < 9.0 || stench_resistance < 9.0) && drawers_needed > 1.0)
         {
             subentry.entries.listAppend("Possibly bring along your exotic parrot.");
         }
