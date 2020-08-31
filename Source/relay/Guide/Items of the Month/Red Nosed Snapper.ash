@@ -61,143 +61,150 @@ void IOTMRedNosedSnapperResource(ChecklistEntry [int] resource_entries)
     boolean fighting_filthworms = __quest_state["Island War"].state_boolean["War in progress"] && !__quest_state["Island War"].state_boolean["Orchard Finished"] && my_path_id() != PATH_2CRS;
     boolean CS_need_to_pass_hot_res_test = my_path_id() == PATH_COMMUNITY_SERVICE && !(get_property("csServicesPerformed").split_string_alternate(",").listInvert() contains "Clean Steam Tunnels");
 
-    boolean [phylum] want_phylum_drop;
-    if (true) {
-        if (true) { //always up for those if available:
-            want_phylum_drop[$phylum[constellation]] = true; //yellow-ray
-            want_phylum_drop[$phylum[dude]] = true; //banish
-            want_phylum_drop[$phylum[horror]] = true; //free kill
-            want_phylum_drop[$phylum[hobo]] = true; //+100% meat
+
+    boolean canReachPhylum(phylum phyl) {
+        if (phyl == $phylum[constellation] && !$location[the hole in the sky].locationAvailable())
+            return false;
+
+        if (!__misc_state["in run"])
+            return true;
+
+        switch (phyl) {
+            case $phylum[beast]: //twin peak topiary animals (is that really all there is to "good" beasts locations?)
+                return past_chasm_bridge && want_more_rusty_hedge_trimmers;
+
+            case $phylum[bug]: //desert and filthworms
+                return exploring_desert || fighting_filthworms;
+
+            case $phylum[constellation]: //Hole in the Sky, and nothing else
+                return going_in_the_HITS;
+
+            case $phylum[construct]: //monstrous boiler and wine rack
+                return making_wine_bomb && $item[bottle of Chateau de Vinegar].available_amount() == 0;
+
+            case $phylum[demon]: //(some) hellseals and demons from friars and hey-deze
+                return my_class() == $class[seal clubber] || __quest_state["Friars"].in_progress || Azazel_quest_is_in_progress;
+
+            case $phylum[dude]: //they're everywhere!!!! (I'm not even gonna TRY to do anything past that.)
+                return true;
+
+            case $phylum[elemental]: //ninja snowmen, not really worth it, though..?
+                return they_may_be_ninjas && !__quest_state["Trapper"].state_boolean["Mountain climbed"];
+
+            case $phylum[elf]: //can't reach, nor want, in-run
+                return false;
+
+            case $phylum[fish]: //can't reach, nor want, in-run
+                return false;
+
+            case $phylum[goblin]: //kramco & cobbs knob
+                return lookupItem("Kramco Sausage-o-Matic&trade;").available_amount() > 0 || !__quest_state["Knob Goblin King"].finished;
+
+            case $phylum[hippy]: //hippy camp
+                return __misc_state["mysterious island available"] && __quest_state["Island War"].state_string["Side seemingly fighting for"] != "hippy";
+
+            case $phylum[hobo]: //no hobos in one's normal path. There's some in the wrong side of the track, but we don't recommend they go there for that.
+                return false;
+
+            case $phylum[horror]: //(some) hellseals and clowns
+                return my_class() == $class[seal clubber] || nemesis_quest_at_clown_house;
+
+            case $phylum[humanoid]: //Degrassi Knoll, castle giants, old landfill, 7-foot dwarves, Junkyard gremlins
+                return going_in_Degrassi_Knoll || have_access_to_giant_castle && !top_floor_done || making_Junk_Junk || looking_for_mining_gear || helping_Yossarian;
+
+            case $phylum[mer-kin]: //can't reach, nor want, in-run
+                return false;
+
+            case $phylum[orc]: //smut orc logging camp and frat boys/warriors
+                return at_chasm_bridge || __misc_state["mysterious island available"] && __quest_state["Island War"].state_string["Side seemingly fighting for"] != "frat boys";
+
+            case $phylum[penguin]: //can't reach, nor want, in-run
+                return false;
+
+            case $phylum[pirate]: //pirate cove
+                return have_some_pirating_to_do;
+
+            case $phylum[plant]: //fungal nethers and dense lianas
+                return nemesis_quest_at_Fungal_Nethers || have_more_dense_lianas_to_fight;
+
+            case $phylum[slime]: //oil peak (yes, I KNOW that the +5 sleaze res is supposed to be for the BRIDGE BUILDING, but there's just no consistent source of slimes before that; go cry me a river won't you)
+                return past_chasm_bridge && __quest_state["Highland Lord"].state_float["oil peak pressure"] > 0.0;
+
+            case $phylum[undead]: //The whole spookyraven manor, or the cyrpt
+                return __quest_state["Manor Unlock"].in_progress || __quest_state["Cyrpt"].in_progress;
+
+            case $phylum[weird]: //I've got nuthin', they are too rare in-run
+                return false;
         }
-
-        if (false) { //those just... don't have an use
-            want_phylum_drop[$phylum[elf]] = true; //+50% candy drop
-            want_phylum_drop[$phylum[penguin]] = true; //an envelope which gives some meat...
-            want_phylum_drop[$phylum[bug]] = true; //+100% HP, ~9HP regen (not really worth it...)
-        }
-
-        if (__misc_state["in run"]) {
-            if (__misc_state["need to level"])
-                switch (my_primestat()) { //+50% <stat> gains
-                    case $stat[muscle]:
-                        want_phylum_drop[$phylum[humanoid]] = true; break;
-                    case $stat[mysticality]:
-                        want_phylum_drop[$phylum[weird]] = true; break;
-                    case $stat[moxie]:
-                        want_phylum_drop[$phylum[pirate]] = true; break;
-                }
-
-            if (!__quest_state["Level 13"].state_boolean["Init race completed"] || cyrpt_modern_zmobies_are_appreciated)
-                want_phylum_drop[$phylum[construct]] = true; //+150% initiative
-
-            if (my_path_id() != PATH_COMMUNITY_SERVICE && $item[Spookyraven billiards room key].available_amount() == 0 && get_property_int("manorDrawerCount") < 20) {
-                if (numeric_modifier("hot resistance") < 7)
-                    want_phylum_drop[$phylum[demon]] = true; //+5 hot res
-                if (numeric_modifier("stench resistance") < 7)
-                    want_phylum_drop[$phylum[hippy]] = true; //+5 stench res
-            } else if (CS_need_to_pass_hot_res_test)
-                want_phylum_drop[$phylum[demon]] = true; //demon again; +5 hot res
-
-            if (past_chasm_bridge) {
-                if (__quest_state["Highland Lord"].state_boolean["can complete twin peaks quest quickly"] && !__quest_state["Highland Lord"].state_boolean["Peak Stench Completed"] && numeric_modifier("stench resistance") <= 1.0) //if they have 2 or 3, they don't need a plus-FIVE
-                    want_phylum_drop[$phylum[hippy]] = true; //hippy again; +5 stench res
-                
-                if (__quest_state["Highland Lord"].state_int["a-boo peak hauntedness"] > 2) {
-                    want_phylum_drop[$phylum[beast]] = true; //+5 cold res
-                    want_phylum_drop[$phylum[undead]] = true; //+5 spooky res
-                }
-            } else if (at_chasm_bridge)
-                want_phylum_drop[$phylum[slime]] = true; //+5 sleaze res
-
-            if (they_may_be_ninjas && !__quest_state["Trapper"].state_boolean["Groar defeated"] && numeric_modifier("cold resistance") < 3.0) //if they have 3 or 4, they don't need a plus-FIVE
-                want_phylum_drop[$phylum[beast]] = true; //beast again; +5 cold res
-
-            if (!lookupItem("Eight Days a Week Pill Keeper").have())
-                want_phylum_drop[$phylum[elemental]] = true; //+50% MP, ~4MP regen
-
-            if (__quest_state["Lair"].state_boolean["shadow will need to be defeated"])
-                want_phylum_drop[$phylum[plant]] = true;
-        } else if (__quest_state["Sea Monkees"].in_progress || __quest_state["Sea Temple"].in_progress || __quest_state["Sea Monkees"].state_string["skate park status"] == "war") {
-            want_phylum_drop[$phylum[fish]] = true; //fishy
-            want_phylum_drop[$phylum[mer-kin]] = true; //+30% underwater items (meh...)
-        }
-
-        if (in_ronin() && my_path_id() != PATH_NUCLEAR_AUTUMN) {
-            if (fullness_limit() >= 3)
-                want_phylum_drop[$phylum[goblin]] = true; //size 3 awesome food
-            if (inebriety_limit() >= 3)
-                want_phylum_drop[$phylum[orc]] = true; //size 3 awesome booze
-        }
+        return false;
     }
 
 
-    boolean [phylum] can_reach_phylum;
+    boolean [phylum] want_phylum_drop;
+    if (true) { //always up for those if available:
+        want_phylum_drop[$phylum[constellation]] = true; //yellow-ray
+        want_phylum_drop[$phylum[dude]] = true; //banish
+        want_phylum_drop[$phylum[horror]] = true; //free kill
+        want_phylum_drop[$phylum[hobo]] = true; //+100% meat
+    }
+
+    if (false) { //those just... don't have an use
+        want_phylum_drop[$phylum[elf]] = true; //+50% candy drop
+        want_phylum_drop[$phylum[penguin]] = true; //an envelope which gives some meat...
+        want_phylum_drop[$phylum[bug]] = true; //+100% HP, ~9HP regen (not really worth it...)
+    }
+
     if (__misc_state["in run"]) {
-        if (past_chasm_bridge && want_more_rusty_hedge_trimmers)
-            can_reach_phylum[$phylum[beast]] = true; //twin peak topiary animals (is that really all there is to "good" beasts locations?)
+        if (__misc_state["need to level"])
+            switch (my_primestat()) { //+50% <stat> gains
+                case $stat[muscle]:
+                    want_phylum_drop[$phylum[humanoid]] = true; break;
+                case $stat[mysticality]:
+                    want_phylum_drop[$phylum[weird]] = true; break;
+                case $stat[moxie]:
+                    want_phylum_drop[$phylum[pirate]] = true; break;
+            }
 
-        if (exploring_desert || fighting_filthworms)
-            can_reach_phylum[$phylum[bug]] = true; //desert and filthworms
+        if (!__quest_state["Level 13"].state_boolean["Init race completed"] || cyrpt_modern_zmobies_are_appreciated)
+            want_phylum_drop[$phylum[construct]] = true; //+150% initiative
 
-        if (going_in_the_HITS)
-            can_reach_phylum[$phylum[constellation]] = true;
+        if (my_path_id() != PATH_COMMUNITY_SERVICE && $item[Spookyraven billiards room key].available_amount() == 0 && get_property_int("manorDrawerCount") < 20) {
+            if (numeric_modifier("hot resistance") < 7)
+                want_phylum_drop[$phylum[demon]] = true; //+5 hot res
+            if (numeric_modifier("stench resistance") < 7)
+                want_phylum_drop[$phylum[hippy]] = true; //+5 stench res
+        } else if (CS_need_to_pass_hot_res_test)
+            want_phylum_drop[$phylum[demon]] = true; //demon again; +5 hot res
 
-        if (making_wine_bomb && $item[bottle of Chateau de Vinegar].available_amount() == 0)
-            can_reach_phylum[$phylum[construct]] = true; //monstrous boiler and wine rack
+        if (past_chasm_bridge) {
+            if (__quest_state["Highland Lord"].state_boolean["can complete twin peaks quest quickly"] && !__quest_state["Highland Lord"].state_boolean["Peak Stench Completed"] && numeric_modifier("stench resistance") <= 1.0) //if they have 2 or 3, they don't need a plus-FIVE
+                want_phylum_drop[$phylum[hippy]] = true; //hippy again; +5 stench res
+            
+            if (__quest_state["Highland Lord"].state_int["a-boo peak hauntedness"] > 2) {
+                want_phylum_drop[$phylum[beast]] = true; //+5 cold res
+                want_phylum_drop[$phylum[undead]] = true; //+5 spooky res
+            }
+        } else if (at_chasm_bridge)
+            want_phylum_drop[$phylum[slime]] = true; //+5 sleaze res
 
-        if (my_class() == $class[seal clubber] || __quest_state["Friars"].in_progress || Azazel_quest_is_in_progress)
-            can_reach_phylum[$phylum[demon]] = true; //(some) hellseals and demons from friars and hey-deze
+        if (they_may_be_ninjas && !__quest_state["Trapper"].state_boolean["Groar defeated"] && numeric_modifier("cold resistance") < 3.0) //if they have 3 or 4, they don't need a plus-FIVE
+            want_phylum_drop[$phylum[beast]] = true; //beast again; +5 cold res
 
-        if (true)
-            can_reach_phylum[$phylum[dude]] = true; //they're everywhere!!!! (I'm not even gonna TRY to do anything past that.)
+        if (!lookupItem("Eight Days a Week Pill Keeper").have())
+            want_phylum_drop[$phylum[elemental]] = true; //+50% MP, ~4MP regen
 
-        if (they_may_be_ninjas && !__quest_state["Trapper"].state_boolean["Mountain climbed"])
-            can_reach_phylum[$phylum[elemental]] = true; //ninja snowmen, not really worth it, though..?
+        if (__quest_state["Lair"].state_boolean["shadow will need to be defeated"])
+            want_phylum_drop[$phylum[plant]] = true;
+    } else if (__quest_state["Sea Monkees"].in_progress || __quest_state["Sea Temple"].in_progress || __quest_state["Sea Monkees"].state_string["skate park status"] == "war") {
+        want_phylum_drop[$phylum[fish]] = true; //fishy
+        want_phylum_drop[$phylum[mer-kin]] = true; //+30% underwater items (meh...)
+    }
 
-        if (false)
-            can_reach_phylum[$phylum[elf]] = true; //can't reach, nor want, in-run
-
-        if (false)
-            can_reach_phylum[$phylum[fish]] = true; //can't reach, nor want, in-run
-
-        if (lookupItem("Kramco Sausage-o-Matic&trade;").available_amount() > 0 || !__quest_state["Knob Goblin King"].finished)
-            can_reach_phylum[$phylum[goblin]] = true; //kramco & cobbs knob
-
-        if (__misc_state["mysterious island available"] && __quest_state["Island War"].state_string["Side seemingly fighting for"] != "hippy")
-            can_reach_phylum[$phylum[hippy]] = true;
-
-        if (false)
-            can_reach_phylum[$phylum[hobo]] = true; //no hobos in one's normal path. There's some in the wrong side of the track, but we don't recommend they go there for that.
-
-        if (my_class() == $class[seal clubber] || nemesis_quest_at_clown_house)
-            can_reach_phylum[$phylum[horror]] = true; //(some) hellseals and clowns
-
-        if (going_in_Degrassi_Knoll || have_access_to_giant_castle && !top_floor_done || making_Junk_Junk || looking_for_mining_gear || helping_Yossarian)
-            can_reach_phylum[$phylum[humanoid]] = true; //Degrassi Knoll, castle giants, old landfill, 7-foot dwarves, Junkyard gremlins
-
-        if (false)
-            can_reach_phylum[$phylum[mer-kin]] = true; //can't reach, nor want, in-run
-
-        if (at_chasm_bridge || __misc_state["mysterious island available"] && __quest_state["Island War"].state_string["Side seemingly fighting for"] != "frat boys")
-            can_reach_phylum[$phylum[orc]] = true; //smut orc logging camp and war frats
-
-        if (false)
-            can_reach_phylum[$phylum[penguin]] = true; //can't reach, nor want, in-run
-
-        if (have_some_pirating_to_do)
-            can_reach_phylum[$phylum[pirate]] = true;
-
-        if (nemesis_quest_at_Fungal_Nethers || have_more_dense_lianas_to_fight)
-            can_reach_phylum[$phylum[plant]] = true; //fungal nethers and dense lianas
-
-        if (past_chasm_bridge && __quest_state["Highland Lord"].state_float["oil peak pressure"] > 0.0)
-            can_reach_phylum[$phylum[slime]] = true; //oil peak (yes, I KNOW that the +5 sleaze res is supposed to be for the BRIDGE BUILDING, but there's just no consistent source of slimes before that; go cry me a river won't you)
-
-        if (__quest_state["Manor Unlock"].in_progress || __quest_state["Cyrpt"].in_progress)
-            can_reach_phylum[$phylum[undead]] = true; //The whole spookyraven manor, or the cyrpt
-
-        if (false)
-            can_reach_phylum[$phylum[weird]] = true; //I've got nuthin', they are too rare in-run
+    if (in_ronin() && my_path_id() != PATH_NUCLEAR_AUTUMN) {
+        if (fullness_limit() >= 3)
+            want_phylum_drop[$phylum[goblin]] = true; //size 3 awesome food
+        if (inebriety_limit() >= 3)
+            want_phylum_drop[$phylum[orc]] = true; //size 3 awesome booze
     }
 
 
@@ -216,7 +223,7 @@ void IOTMRedNosedSnapperResource(ChecklistEntry [int] resource_entries)
             phylum_display_list[phyl] = true;
         else if (current_location_phylums contains phyl) //show those in the current location
             phylum_display_list[phyl] = true;
-        else if (want_phylum_drop[phyl] && (can_reach_phylum[phyl] || !__misc_state["in run"]))
+        else if (want_phylum_drop[phyl] && phyl.canReachPhylum())
             phylum_display_list[phyl] = true;
     }
 
