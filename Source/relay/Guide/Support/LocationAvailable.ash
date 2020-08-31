@@ -9,23 +9,6 @@ import "relay/Guide/Settings.ash"
 import "relay/Guide/QuestState.ash"
 
 
-//Version compatibility locations:
-
-boolean __location_compatibility_inited = false;
-//Should probably be called manually, as a backup:
-void locationCompatibilityInit()
-{
-    //Different versions refer to locations by different names.
-    //For instance, pre-13878 versions refer to the palindome as "The Palindome". Versions after that refer it to "Inside the Palindome".
-    //This method provides correct lookups for both versions, without warnings.
-    if (__location_compatibility_inited)
-        return;
-    __location_compatibility_inited = true;
-    
-}
-
-locationCompatibilityInit(); //not sure if calling functions like this is intended. may break in the future?
-
 boolean [location] __la_location_is_available;
 boolean [string] __la_zone_is_unlocked;
 
@@ -46,11 +29,10 @@ float [monster] appearance_rates_adjusted(location l)
         source[$monster[none]] = MIN(MAX(0, 20 - combat_rate_modifier()), 100);
     
     float minimum_monster_appearance = 1000000000.0;
-    foreach m in source
+    foreach m, v in source
     {
         if (m == $monster[none])
             continue;
-        float v = source[m];
         if (v > 0.0)
         {
             if (v < minimum_monster_appearance)
@@ -59,16 +41,10 @@ float [monster] appearance_rates_adjusted(location l)
     }
     
     float [monster] source_altered;
-    foreach m in source
+    foreach m, v in source
     {
-        float v = source[m];
         if (m == $monster[none])
-        {
-            if (v < 0.0)
-                source_altered[m] = 0.0;
-            else
-                source_altered[m] = v;
-        }
+            source_altered[m] = MAX(0.0, v);
         else
             source_altered[m] = v / minimum_monster_appearance;
     }
@@ -258,9 +234,8 @@ float [monster] appearance_rates_adjusted(location l)
     float total = 0.0;
     float nc_rate = clampf(source_altered[$monster[none]], 0.0, 100.0);
     float combat_rate = clampf(100.0 - nc_rate, 0.0, 100.0);
-    foreach m in source_altered
+    foreach m, v in source_altered
     {
-        float v = source_altered[m];
         if (m == $monster[none])
             continue;
         if (v > 0)
@@ -276,11 +251,10 @@ float [monster] appearance_rates_adjusted(location l)
     //oil peak goes here?
     if (total > 0.0)
     {
-        foreach m in source_altered
+        foreach m, v in source_altered
         {
             if (m == $monster[none])
                 continue;
-            float v = source_altered[m];
             source_altered[m] = v / total * combat_rate;
         }
     }

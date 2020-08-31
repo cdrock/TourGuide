@@ -51,7 +51,6 @@ void runMain(string relay_filename)
         print_html("Form fields: " + form_fields.to_json());
 	
     
-    locationCompatibilityInit();
 	PageInit();
 	ChecklistInit();
 	setUpCSSStyles();
