@@ -653,11 +653,11 @@ static
 buffer generateLocationPopup(float bottom_coordinates, boolean location_bar_location_name_is_centre_aligned)
 {
     buffer buf;
+    if (!__setting_enable_location_popup_box)
+        return buf;
     location l = __last_adventure_location;
     if (!__setting_location_bar_uses_last_location && !get_property_boolean("_relay_guide_setting_ignore_next_adventure_for_location_bar") && get_property_location("nextAdventure") != $location[none])
         l = get_property_location("nextAdventure");
-    if (!__setting_enable_location_popup_box)
-        return buf;
     
     string transition_time = "0.5s";
     buf.append(HTMLGenerateTagWrap("div", "", mapMake("id", "r_location_popup_blackout", "style", "position:fixed;z-index:5;width:100%;height:100%;background:rgba(0,0,0,0.5);opacity:0;pointer-events:none;visibility:hidden;")));
@@ -666,8 +666,8 @@ buffer generateLocationPopup(float bottom_coordinates, boolean location_bar_loca
     buf.append(HTMLGenerateTagPrefix("div", mapMake("id", "r_location_popup_box", "style", "height:auto;transition:bottom " + transition_time + ";z-index:5;opacity:0;pointer-events:none;bottom:-10000px", "class", "r_bottom_outer_container")));
     buf.append(HTMLGenerateTagPrefix("div", mapMake("class", "r_bottom_inner_container", "style", "background:white;height:auto;")));
     
-    float [monster] appearance_rates_adjusted = l.appearance_rates_adjusted();
-    float [monster] appearance_rates_next_turn = l.appearance_rates(true);
+    float [monster] appearance_rates_adjusted = l.appearance_rates_adjusted(false).appearance_rates_cancel_nc();
+    float [monster] appearance_rates_next_turn = l.appearance_rates_adjusted(true).appearance_rates_cancel_nc();
     
     string [monster] monsters_that_we_cannot_encounter;
     if ($effect[Ancient Annoying Serpent Poison].have_effect() == 0)
@@ -720,7 +720,20 @@ buffer generateLocationPopup(float bottom_coordinates, boolean location_bar_loca
         }
         else if (evilness > 0)
         {
-            foreach m in $monsters[spiny skelelton,toothy sklelton]
+            foreach m in $monsters[spiny skelelton,toothy sklelton,party skelteon]
+                monsters_that_we_cannot_encounter[m] = "boss up";
+        }
+    }
+    else if (l == $location[the defiled alcove])
+    {
+        int evilness = __quest_state["Level 7"].state_int["alcove evilness"];
+        if (evilness > 25)
+        {
+            monsters_that_we_cannot_encounter[$monster[conjoined zmombie]] = "evilness too high";
+        }
+        else if (evilness > 0)
+        {
+            foreach m in $monsters[grave rober zmobie,corpulent zobmie,modern zmobie]
                 monsters_that_we_cannot_encounter[m] = "boss up";
         }
     }
@@ -742,7 +755,6 @@ buffer generateLocationPopup(float bottom_coordinates, boolean location_bar_loca
                 monsters_that_we_cannot_encounter[m] = "ML based";
         }
     }
-    //FIXME other defileds
     
     boolean banishes_are_possible = true;
     if ($locations[the secret government laboratory,sloppy seconds diner] contains l)
@@ -752,28 +764,8 @@ buffer generateLocationPopup(float bottom_coordinates, boolean location_bar_loca
     
     foreach m in appearance_rates_next_turn
     {
-        if (monsters_that_we_cannot_encounter contains m)// || m.is_banished())
+        if (monsters_that_we_cannot_encounter contains m)
             remove appearance_rates_next_turn[m];
-    }
-    //l.appearance_rates(true) doesn't seem to take into account banished monsters, so correct:
-    appearance_rates_next_turn[$monster[none]] = 0.0; //ignore
-    float arnt_sum = 0.0;
-    foreach m, rate in appearance_rates_next_turn
-    {
-        if (m.is_banished() && banishes_are_possible)
-            appearance_rates_next_turn[m] = MIN(appearance_rates_next_turn[m], 0.0);
-        else if (rate > 0.0)
-            arnt_sum += appearance_rates_next_turn[m];
-    }
-    if (arnt_sum != 100.0 && arnt_sum != 0.0)
-    {
-        float inverse = 1.0 / (arnt_sum / 100.0);
-        
-        foreach m, rate in appearance_rates_next_turn
-        {
-            if (rate > 0.0)
-                appearance_rates_next_turn[m] *= inverse;
-        }
     }
     
     monster [int] monster_display_order;
@@ -790,7 +782,7 @@ buffer generateLocationPopup(float bottom_coordinates, boolean location_bar_loca
         if (rate <= 0.0 && l == $location[Investigating a Plaintive Telegram])
             continue;
         monster_display_order.listAppend(m);
-        if (rate > 0.0 && m != $monster[none])
+        if (rate > 0.0)
         {
             if (last_rate == -1.0)
                 last_rate = rate;
@@ -800,7 +792,7 @@ buffer generateLocationPopup(float bottom_coordinates, boolean location_bar_loca
             }
         }
         
-        if (next_rate > 0.0 && m != $monster[none])
+        if (next_rate > 0.0)
         {
             if (last_next_rate == -1.0)
                 last_next_rate = next_rate;
@@ -856,14 +848,6 @@ buffer generateLocationPopup(float bottom_coordinates, boolean location_bar_loca
         }
     }*/
     
-    float rate_nc_cancel_multiplier = 1.0;
-    if (appearance_rates_adjusted[$monster[none]] > 0.0)
-    {
-        float divisor = (1.0 - appearance_rates_adjusted[$monster[none]] / 100.0);
-        if (divisor != 0.0)
-            rate_nc_cancel_multiplier = 1.0 / divisor;
-    }
-    
     boolean [monster] monsters_to_display_items_minimally;
     int item_minimal_display_limit = 6;
     foreach key, m in monster_display_order
@@ -894,8 +878,8 @@ buffer generateLocationPopup(float bottom_coordinates, boolean location_bar_loca
         if (m.image.length() == 0)
             monster_image_url = "";
         ServerImageStats monster_image_stats = ServerImageStatsOfImageURL(monster_image_url);
-        float rate = appearance_rates_adjusted[m] * rate_nc_cancel_multiplier;
-        float next_rate = appearance_rates_next_turn[m]; //already normalised for monsters
+        float rate = appearance_rates_adjusted[m];
+        float next_rate = appearance_rates_next_turn[m];
         if (entries_displayed > 0)
             buf.append(HTMLGenerateTagPrefix("hr", mapMake("style", "margin:0px;")));
         entries_displayed += 1;
@@ -1081,6 +1065,7 @@ buffer generateLocationPopup(float bottom_coordinates, boolean location_bar_loca
         //seen values for rate:
         //0.0 for bosses
         //-1.0 for ultra-rares
+        //-3.0 for (properly) banished
         
         if (rate_buffer.length() > 0)
         {
