@@ -219,6 +219,7 @@ buffer generateItemInformationMethod2(location l, monster m, boolean try_for_min
 
             float effective_drop_rate = adjusted_base_drop_rate;
             float item_modifier = l.item_drop_modifier_for_location();
+            Error error;
             if (it.fullness > 0 || (__items_that_craft_food contains it))
             {
                 item_modifier += numeric_modifier("Food Drop");
@@ -272,6 +273,10 @@ buffer generateItemInformationMethod2(location l, monster m, boolean try_for_min
             if (it == $item[black picnic basket] && $skill[Bear Essence].have_skill())
             {
                 item_modifier += 20.0 * MAX(1, get_property_int("skillLevel134"));
+            }
+            if (l.environment == "underwater") //FIXME underwater drops are complicated and I'd have to look deeply into this to verify
+            {
+                item_modifier -= l.pressurePenaltyForLocation(error);
             }
             if (item_is_pickpockable_only)
             {
@@ -336,7 +341,7 @@ buffer generateItemInformationMethod2(location l, monster m, boolean try_for_min
             effective_drop_rate = clampf(floor(effective_drop_rate), 0.0, 100.0);
             adjusted_base_drop_rate = effective_drop_rate;
             
-            if (l.environment == "underwater") //FIXME underwater drops are complicated and I'd have to look deeply into this to verify, so we just list a ? for now
+            if (error.was_error)
                 adjusted_base_drop_rate = -1;
         }
 
@@ -359,7 +364,7 @@ buffer generateItemInformationMethod2(location l, monster m, boolean try_for_min
             else if (adjusted_base_drop_rate < 100 || base_drop_rate < 100)
             {
                 info.should_display_drop_current = true;
-                if (drop_rate_is_guess)
+                if (drop_rate_is_guess || l.environment == "underwater")
                     info.item_drop_current_information = adjusted_base_drop_rate + "?%";
                 else
                     info.item_drop_current_information = adjusted_base_drop_rate + "%";
