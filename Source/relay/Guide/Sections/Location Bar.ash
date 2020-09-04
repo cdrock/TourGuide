@@ -360,7 +360,7 @@ buffer generateLocationBar(boolean displaying_navbar)
     
     //easy list: $locations[Pump Up Muscle,Pump Up Mysticality,Pump Up Moxie,The Shore\, Inc. Travel Agency,Goat Party,Pirate Party,Lemon Party,The Roulette Tables,The Poker Room,Anemone Mine (Mining),The Knob Shaft (Mining),Friar Ceremony Location,Itznotyerzitz Mine (in Disguise),The Prince's Restroom,The Prince's Dance Floor,The Prince's Kitchen,The Prince's Balcony,The Prince's Lounge,The Prince's Canapes table,Portal to Terrible Parents,fernswarthy's basement]
     //ashq foreach l in $locations[] if (l.appearance_rates().count() == 1 && l.appearance_rates()[$monster[none]] == 100.0) print(l);
-    boolean [location] nc_blacklist = $locations[fernswarthy's basement];
+    boolean [location] nc_blacklist = {$location[fernswarthy's basement]:true};
     foreach l in $locations[]
         if (l.appearance_rates().count() == 1 && l.appearance_rates()[$monster[none]] == 100.0)
             nc_blacklist[l] = true;
