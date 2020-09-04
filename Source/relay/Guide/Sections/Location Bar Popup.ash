@@ -106,6 +106,7 @@ buffer createItemInformationTableMethod2(int columns, LBPItemInformation [int] i
             output_buffer.append(" ");
         }
         output_buffer.append(info.item_name);
+        output_buffer.append("</span>");
         
         string [int] secondary_line;
         if (info.should_display_drop_base)
@@ -137,7 +138,6 @@ buffer createItemInformationTableMethod2(int columns, LBPItemInformation [int] i
             output_buffer.append(HTMLGenerateTagSuffix(wrap_type));
         }
         
-        output_buffer.append("</span>");
         output_buffer.append("</div>");
     }
     output_buffer.append("</div>"); //row
