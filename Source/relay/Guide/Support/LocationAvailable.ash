@@ -156,7 +156,8 @@ float [monster] appearance_rates_adjusted(location l, boolean account_for_queue)
         {
             if (m == $monster[none])
                 continue;
-            source[m] = rate * ratio;
+            if (rate > 0.0)
+                source[m] = rate * ratio;
         }
     }
     
@@ -183,7 +184,8 @@ float [monster] appearance_rates_adjusted(location l, boolean account_for_queue)
         {
             if (m == $monster[none] || m == superlikely_monster)
                 continue;
-            source[m] = v / excess_ratio * combat_rate / 100.0;
+            if (v > 0.0)
+                source[m] = v / excess_ratio * combat_rate / 100.0;
         }
     }
 

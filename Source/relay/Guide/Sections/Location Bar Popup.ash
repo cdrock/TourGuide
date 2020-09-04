@@ -888,9 +888,9 @@ buffer generateLocationPopup(float bottom_coordinates, boolean location_bar_loca
         boolean avoid_outputting_conditional = false;
         boolean monster_cannot_be_encountered = false;
         string reason_monster_cannot_be_encountered = "";
-        if (m.is_banished() && banishes_are_possible)
+        if (rate == -3.0 && banishes_are_possible) //-3.0 => is (properly) banished
         {
-            monster_cannot_be_encountered = m.is_banished();
+            monster_cannot_be_encountered = true;
             reason_monster_cannot_be_encountered = "banished";
         }
         else if (monsters_that_we_cannot_encounter contains m)
@@ -998,47 +998,13 @@ buffer generateLocationPopup(float bottom_coordinates, boolean location_bar_loca
         
         //FIXME handle canceling NC
         buffer rate_buffer;
-        if (m.is_banished() && banishes_are_possible)
-        {
-            rate_buffer.append("banished");
-            Banish banish_information = m.BanishForMonster();
-            if (banish_information.banish_source != "")
-            {
-                rate_buffer.append(" by ");
-                rate_buffer.append(banish_information.banish_source);
-            }
-            if (banish_information.custom_reset_conditions != "")
-            {
-                rate_buffer.append(" until ");
-                rate_buffer.append(banish_information.custom_reset_conditions);
-            }
-            else if (banish_information.banish_turn_length == -1)
-                rate_buffer.append(" forever");
-            else if (banish_information.banish_turn_length > 0)
-            {
-                int turns_left = banish_information.BanishTurnsLeft();
-                rate_buffer.append(" for ");
-                rate_buffer.append(pluralise(turns_left, "more turn", "more turns"));
-            }
-            rate_buffer.append(" ");
-            avoid_outputting_conditional = true;
-        }
-        else if (m.attributes.contains_text("SEMIRARE"))
-        {
+        if (m.attributes.contains_text("SEMIRARE"))
             rate_buffer.append("semi-rare ");
-            avoid_outputting_conditional = true;
-        }
         else if (m.attributes.contains_text("ULTRARARE"))
-        {
             rate_buffer.append("ultra rare ");
-            avoid_outputting_conditional = true;
-        }
         else if (m.boss)
-        {
             rate_buffer.append("boss ");
-            avoid_outputting_conditional = true;
-        }
-        if (rate > 0 && !(m.is_banished() && banishes_are_possible) && !monster_cannot_be_encountered)
+        else if (rate > 0 && !monster_cannot_be_encountered)
         {
             if (!rates_are_equal)
             {
@@ -1055,7 +1021,7 @@ buffer generateLocationPopup(float bottom_coordinates, boolean location_bar_loca
                 rate_buffer.append("%");
             }
         }
-        else if (rate <= 0)
+        else if (rate <= 0 && !(m.is_banished() && banishes_are_possible))
         {
             if (possible_alien_monsters contains m)
                 rate_buffer.append("elsewhere");
@@ -1066,6 +1032,49 @@ buffer generateLocationPopup(float bottom_coordinates, boolean location_bar_loca
         //0.0 for bosses
         //-1.0 for ultra-rares
         //-3.0 for (properly) banished
+        if (m.is_banished() && banishes_are_possible)
+        {
+            Banish banish_information = m.BanishForMonster();
+            if (rate == -3.0)
+            {
+                rate_buffer.append("banished");
+                if (banish_information.banish_source != "")
+                {
+                    rate_buffer.append(" by ");
+                    rate_buffer.append(banish_information.banish_source);
+                }
+                if (banish_information.custom_reset_conditions != "")
+                {
+                    rate_buffer.append(" until ");
+                    rate_buffer.append(banish_information.custom_reset_conditions);
+                }
+                else if (banish_information.banish_turn_length == -1)
+                    rate_buffer.append(" forever");
+                else if (banish_information.banish_turn_length > 0)
+                {
+                    int turns_left = banish_information.BanishTurnsLeft();
+                    rate_buffer.append(" for ");
+                    rate_buffer.append(pluralise(turns_left, "more turn", "more turns"));
+                }
+            }
+            else if (rate > 0.0)
+            {
+                //monster was banished, but they are olfacting it (only base copies of the monsters are removed by banishes)
+                if (!rates_are_equal || !next_rates_are_equal)
+                    rate_buffer.append("<br>");
+                rate_buffer.append("banished");
+                if (banish_information.banish_source != "")
+                {
+                    rate_buffer.append(" by ");
+                    rate_buffer.append(banish_information.banish_source);
+                }
+                //want to avoid cluttering, so don't show until when
+                rate_buffer.append("<br>");
+                rate_buffer.append("brought back by copies"); //.HTMLGenerateSpanFont("red"); .HTMLGenerateSpanOfClass("r_element_important"); //doesn't work??
+                
+            }
+            rate_buffer.append(" ");
+        }
         
         if (rate_buffer.length() > 0)
         {
@@ -1111,10 +1120,12 @@ buffer generateLocationPopup(float bottom_coordinates, boolean location_bar_loca
             if (m.max_meat > 0)
             {
                 float average_meat = (m.min_meat + m.max_meat) * 0.5;
-                average_meat *= (1.0 + meat_drop_modifier() / 100.0);
+                Error error;
+                float pressure_penalty = l.environment == "underwater" ? -l.pressurePenaltyForLocation(error) : 0.0;
+                average_meat *= 1.0 + (meat_drop_modifier() + pressure_penalty) / 100.0;
                 if (average_meat >= 25) //ignore really low amounts
                 {
-                    if (l.environment == "underwater") //FIXME calculate this properly
+                    if (error.was_error)
                         stats_l1.listAppend("? meat");
                     else
                         stats_l1.listAppend(average_meat.round() + " meat");
