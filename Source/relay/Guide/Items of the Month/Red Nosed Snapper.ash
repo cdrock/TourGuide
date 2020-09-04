@@ -4,9 +4,35 @@ void IOTMRedNosedSnapperTask(ChecklistEntry [int] task_entries, ChecklistEntry [
 {
     if (!lookupFamiliar("Red Nosed Snapper").familiar_is_usable()) return;
     if (my_familiar() != lookupFamiliar("Red Nosed Snapper")) return;
-    if (get_property("redSnapperPhylum") != "") return;
 
-    optional_task_entries.listAppend(ChecklistEntryMake("__familiar red-nosed snapper", "familiar.php?action=guideme&pwd=" + my_hash(), ChecklistSubentryMake("Track monsters", "+ of them and gives items", "Choose a phylum".HTMLGenerateSpanOfClass("r_element_important")), 8));
+    phylum current_snapper_phylum = get_property("redSnapperPhylum").to_phylum();
+
+    if (current_snapper_phylum == $phylum[none]) {
+        optional_task_entries.listAppend(ChecklistEntryMake("__familiar red-nosed snapper", "familiar.php?action=guideme&pwd=" + my_hash(), ChecklistSubentryMake("Track monsters", "+ of them and gives items", "Choose a phylum".HTMLGenerateSpanOfClass("r_element_important")), 8));
+        return;
+    }
+
+
+    //Check if the currently tracked phylum is undoing a banish
+    location l = __last_adventure_location;
+    if (!__setting_location_bar_uses_last_location && !get_property_boolean("_relay_guide_setting_ignore_next_adventure_for_location_bar") && get_property_location("nextAdventure") != $location[none]) //want to mimic location bar popup, so they can look at it for information
+        l = get_property_location("nextAdventure");
+
+    monster [int] banishes_undone_by_snapper;
+    foreach index, monstr in l.get_monsters()
+        if (monstr.phylum == current_snapper_phylum && monstr.is_banished())
+            banishes_undone_by_snapper.listAppend(monstr);
+
+    if (banishes_undone_by_snapper.count() > 0) {
+        string title = "Your Snapper is undoing a banish".HTMLGenerateSpanOfClass("r_element_important");
+        task_entries.listAppend(ChecklistEntryMake("__familiar red-nosed snapper", "familiar.php?action=guideme&pwd=" + my_hash(), ChecklistSubentryMake(title, "Change tracked phylum or switch familiar", "Bringing your snapper while it is tracking <b>" + current_snapper_phylum + "</b> is unbanishing " + banishes_undone_by_snapper.listJoinComponents(", ", "and")), -10));
+
+        ChecklistEntry pop_up_reminder_entry = ChecklistEntryMake("__familiar red-nosed snapper", "", ChecklistSubentryMake(title), -11);
+        pop_up_reminder_entry.only_show_as_extra_important_pop_up = true;
+        pop_up_reminder_entry.container_div_attributes["onclick"] = "navbarClick(0, 'Tasks_checklist_container')";
+        pop_up_reminder_entry.container_div_attributes["class"] = "r_clickable";
+        task_entries.listAppend(pop_up_reminder_entry);
+    }
 }
 
 RegisterResourceGenerationFunction("IOTMRedNosedSnapperResource");
