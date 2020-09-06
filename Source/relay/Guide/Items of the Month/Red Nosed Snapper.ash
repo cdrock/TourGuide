@@ -39,7 +39,10 @@ RegisterResourceGenerationFunction("IOTMRedNosedSnapperResource");
 void IOTMRedNosedSnapperResource(ChecklistEntry [int] resource_entries)
 {
     if (!lookupFamiliar("Red Nosed Snapper").familiar_is_usable()) return;
-    if (my_familiar() != lookupFamiliar("Red Nosed Snapper") && !__misc_state["in run"]) return;
+
+    boolean always_display = false; //user-preference
+
+    if (my_familiar() != lookupFamiliar("Red Nosed Snapper") && !__misc_state["in run"] && !always_display) return;
 
     //beast = +5 cold res (not a lot of places to go for those, esp. since it's for a quite optional effect...)
     //bug = +100% HP, 8-10 HP regen (spleen) (not really... useful enough to mention those outside of the zones having them..?)
@@ -88,81 +91,137 @@ void IOTMRedNosedSnapperResource(ChecklistEntry [int] resource_entries)
     boolean CS_need_to_pass_hot_res_test = my_path_id() == PATH_COMMUNITY_SERVICE && !(get_property("csServicesPerformed").split_string_alternate(",").listInvert() contains "Clean Steam Tunnels");
 
 
-    boolean canReachPhylum(phylum phyl) {
+    string [int] currentlyReachableInstancesOfPhylum(phylum phyl) {
+        string [int] reachable_instances;
         if (phyl == $phylum[constellation] && !$location[the hole in the sky].locationAvailable())
-            return false;
-
-        if (!__misc_state["in run"])
-            return true;
+            reachable_instances.listAppend("Unreachable");
 
         switch (phyl) {
             case $phylum[beast]: //twin peak topiary animals (is that really all there is to "good" beasts locations?)
-                return past_chasm_bridge && want_more_rusty_hedge_trimmers;
+                if (past_chasm_bridge && want_more_rusty_hedge_trimmers)
+                    reachable_instances.listAppend("twin peak topiary animals");
+                break;
 
             case $phylum[bug]: //desert and filthworms
-                return exploring_desert || fighting_filthworms;
+                if (exploring_desert)
+                    reachable_instances.listAppend("arid, extra-dry desert");
+                if (fighting_filthworms)
+                    reachable_instances.listAppend("filthworms");
+                break;
 
             case $phylum[constellation]: //Hole in the Sky, and nothing else
-                return going_in_the_HITS;
+                if (going_in_the_HITS)
+                    reachable_instances.listAppend("hole in the sky");
+                break;
 
             case $phylum[construct]: //monstrous boiler and wine rack
-                return making_wine_bomb && $item[bottle of Chateau de Vinegar].available_amount() == 0;
+                if (making_wine_bomb) {
+                    if ($item[unstable fulminate].available_amount() == 0 && $item[bottle of Chateau de Vinegar].available_amount() == 0)
+                        reachable_instances.listAppend("wine rack");
+                    reachable_instances.listAppend("monstrous boiler");
+                }
+                break;
 
             case $phylum[demon]: //(some) hellseals and demons from friars and hey-deze
-                return my_class() == $class[seal clubber] || __quest_state["Friars"].in_progress || Azazel_quest_is_in_progress;
+                if (my_class() == $class[seal clubber] && my_level() >= 5)
+                    reachable_instances.listAppend("figurine of " + (my_level() >= 6 ? "ancient" : "cute baby") + " seal");
+                if (__quest_state["Friars"].in_progress)
+                    reachable_instances.listAppend("dark X of the woods (friars)");
+                if (Azazel_quest_is_in_progress)
+                    reachable_instances.listAppend("Hey Deze");
+                break;
 
             case $phylum[dude]: //they're everywhere!!!! (I'm not even gonna TRY to do anything past that.)
-                return true;
+                reachable_instances.listAppend("too many to count");
+                break;
 
             case $phylum[elemental]: //ninja snowmen, not really worth it, though..?
-                return they_may_be_ninjas && !__quest_state["Trapper"].state_boolean["Mountain climbed"];
+                if (they_may_be_ninjas && !__quest_state["Trapper"].state_boolean["Mountain climbed"])
+                    reachable_instances.listAppend("ninja snowmen");
+                break;
 
             case $phylum[elf]: //can't reach, nor want, in-run
-                return false;
+                break;
 
             case $phylum[fish]: //can't reach, nor want, in-run
-                return false;
+                break;
 
             case $phylum[goblin]: //kramco & cobbs knob
-                return lookupItem("Kramco Sausage-o-Matic&trade;").available_amount() > 0 || !__quest_state["Knob Goblin King"].finished;
+                if (lookupItem("Kramco Sausage-o-Matic&trade;").available_amount() > 0)
+                    reachable_instances.listAppend("kramco sausage goblins");
+                if (!__quest_state["Knob Goblin King"].finished)
+                    reachable_instances.listAppend("cobbs knob");
+                break;
 
             case $phylum[hippy]: //hippy camp
-                return __misc_state["mysterious island available"] && __quest_state["Island War"].state_string["Side seemingly fighting for"] != "hippy";
+                if (__misc_state["mysterious island available"] && __quest_state["Island War"].state_string["Side seemingly fighting for"] != "hippy")
+                    reachable_instances.listAppend(__quest_state["Island War"].state_boolean["War in progress"] ? "war hippies" : "hippy camp");
+                break;
 
             case $phylum[hobo]: //no hobos in one's normal path. There's some in the wrong side of the track, but we don't recommend they go there for that.
-                return false;
+                break;
 
             case $phylum[horror]: //(some) hellseals and clowns
-                return my_class() == $class[seal clubber] || nemesis_quest_at_clown_house;
+                if (my_class() == $class[seal clubber])
+                    reachable_instances.listAppend("figurine of wretched-looking" + (my_level() >= 9 ? "/armored" : "") + " seal");
+                if (nemesis_quest_at_clown_house)
+                    reachable_instances.listAppend("clown fun house");
+                break;
 
             case $phylum[humanoid]: //Degrassi Knoll, castle giants, old landfill, 7-foot dwarves, Junkyard gremlins
-                return going_in_Degrassi_Knoll || have_access_to_giant_castle && !top_floor_done || making_Junk_Junk || looking_for_mining_gear || helping_Yossarian;
+                if (going_in_Degrassi_Knoll)
+                    reachable_instances.listAppend("Degrassi Knoll");
+                if (have_access_to_giant_castle && !top_floor_done)
+                    reachable_instances.listAppend("castle giants");
+                if (making_Junk_Junk)
+                    reachable_instances.listAppend("old landfill");
+                if (looking_for_mining_gear)
+                    reachable_instances.listAppend("7-foot dwarves");
+                if (helping_Yossarian)
+                    reachable_instances.listAppend("island junkyard");
+                break;
 
             case $phylum[mer-kin]: //can't reach, nor want, in-run
-                return false;
+                break;
 
             case $phylum[orc]: //smut orc logging camp and frat boys/warriors
-                return at_chasm_bridge || __misc_state["mysterious island available"] && __quest_state["Island War"].state_string["Side seemingly fighting for"] != "frat boys";
+                if (at_chasm_bridge)
+                    reachable_instances.listAppend("smut orcs");
+                if (__misc_state["mysterious island available"] && __quest_state["Island War"].state_string["Side seemingly fighting for"] != "frat boys")
+                    reachable_instances.listAppend("frat " + (__quest_state["Island War"].state_boolean["War in progress"] ? "warriors" : "boys"));
+                break;
 
             case $phylum[penguin]: //can't reach, nor want, in-run
-                return false;
+                break;
 
             case $phylum[pirate]: //pirate cove
-                return have_some_pirating_to_do;
+                if (have_some_pirating_to_do)
+                    reachable_instances.listAppend("pirate cove");
+                break;
 
             case $phylum[plant]: //fungal nethers and dense lianas
-                return nemesis_quest_at_Fungal_Nethers || have_more_dense_lianas_to_fight;
+                if (nemesis_quest_at_Fungal_Nethers)
+                    reachable_instances.listAppend("fungal nethers");
+                if (have_more_dense_lianas_to_fight)
+                    reachable_instances.listAppend("dense lianas");
+                break;
 
             case $phylum[slime]: //oil peak (yes, I KNOW that the +5 sleaze res is supposed to be for the BRIDGE BUILDING, but there's just no consistent source of slimes before that; go cry me a river won't you)
-                return past_chasm_bridge && __quest_state["Highland Lord"].state_float["oil peak pressure"] > 0.0;
+                if (past_chasm_bridge && __quest_state["Highland Lord"].state_float["oil peak pressure"] > 0.0)
+                    reachable_instances.listAppend("oil peak");
+                break;
 
             case $phylum[undead]: //The whole spookyraven manor, or the cyrpt
-                return __quest_state["Manor Unlock"].in_progress || __quest_state["Cyrpt"].in_progress;
+                if (__quest_state["Manor Unlock"].in_progress)
+                    reachable_instances.listAppend("Spookyraven manor");
+                if (__quest_state["Cyrpt"].in_progress)
+                    reachable_instances.listAppend("Cyrpt");
+                break;
 
             case $phylum[weird]: //I've got nuthin', they are too rare in-run
-                return false;
+                break;
         }
-        return false;
+        return reachable_instances;
     }
 
 
@@ -243,21 +302,31 @@ void IOTMRedNosedSnapperResource(ChecklistEntry [int] resource_entries)
     //The selection presented to the player. The currently tracked phylum and those present in the current locations will always be in there
     //This is meant to inform the player on the DROPS they can get, NOT on which phylum they could track to help progress (at least it's not the focus here)
     boolean [phylum] phylum_display_list;
+    string [phylum] [int] reachable_options;
 
     foreach phyl in $phylums[] {
+        string [int] options = currentlyReachableInstancesOfPhylum(phyl);
+
         if (phyl == current_snapper_phylum) //obviously show the one they are tracking
             phylum_display_list[phyl] = true;
         else if (current_location_phylums contains phyl) //show those in the current location
             phylum_display_list[phyl] = true;
-        else if (want_phylum_drop[phyl] && phyl.canReachPhylum())
+        else if (want_phylum_drop[phyl] && (options.count() > 0 || !__misc_state["in run"]) && options[0] != "Unreachable")
             phylum_display_list[phyl] = true;
+
+        reachable_options[phyl] = options;
     }
 
+    int progress = get_property_int("redSnapperProgress");
+
+    string title = "Track monsters";
+    if (current_snapper_phylum != $phylum[none])
+        title = (11 - progress).pluralise(current_snapper_phylum + " kill", current_snapper_phylum + " kills") + " until next Snapper drop";
 
     string [int] description;
 
-    if (get_property_int("redSnapperProgress") > 0)
-        description.listAppend("Next drop in " + (11 - get_property_int("redSnapperProgress")) + " " + current_snapper_phylum + " kills.");
+    if (progress > 0)
+        description.listAppend("Changing phylum resets progress.");
 
     string [phylum] snapper_drop = {
         $phylum[beast]:"+5 " + "cold".HTMLGenerateSpanOfClass("r_element_cold") + " res (20 turns)",
@@ -293,8 +362,19 @@ void IOTMRedNosedSnapperResource(ChecklistEntry [int] resource_entries)
         line += capitaliseFirstLetter(phyl + ": ").HTMLGenerateSpanOfClass("r_bold");
         line += snapper_drop[phyl];
 
+
+        //FIXME Is there a "good" way to add reachable_options to this?
+
+        //remember to add a string HTMLGenerateSimpleTableLines(string [int] lines) to page.ash if ending up using this
+        /*if (reachable_options[phyl].count() > 0 && false) {
+            buffer tooltip;
+            tooltip.append(reachable_options[phyl].HTMLGenerateSimpleTableLines().HTMLGenerateSpanOfClass("r_tooltip_inner_class r_tooltip_inner_class_margin"));
+            tooltip.append(line);
+            line = tooltip.HTMLGenerateSpanOfClass("r_tooltip_outer_class");
+        }*/
+
         description.listAppend(line);
     }
 
-    resource_entries.listAppend(ChecklistEntryMake("__familiar red-nosed snapper", "familiar.php?action=guideme&pwd=" + my_hash(), ChecklistSubentryMake("Track monsters", "+1 item / 11 kill of tracked phylum", description)));
+    resource_entries.listAppend(ChecklistEntryMake("__familiar red-nosed snapper", "familiar.php?action=guideme&pwd=" + my_hash(), ChecklistSubentryMake(title, "+1 item / 11 kills of tracked phylum", description)));
 }
