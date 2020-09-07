@@ -1,7 +1,7 @@
 
 void QManorInit()
 {
-	QuestState state;
+    QuestState state;
     
     
     state.state_boolean["need ballroom song set"] = false;
@@ -50,49 +50,49 @@ void QManorInit()
     
     
     
-	if (locationAvailable($location[the haunted ballroom]) && !(state.state_boolean["need ballroom song set"] || state.state_boolean["ballroom needs delay burned"]))
-		QuestStateParseMafiaQuestPropertyValue(state, "finished");
-	else
+    if (locationAvailable($location[the haunted ballroom]) && !(state.state_boolean["need ballroom song set"] || state.state_boolean["ballroom needs delay burned"]))
+        QuestStateParseMafiaQuestPropertyValue(state, "finished");
+    else
     {
-		QuestStateParseMafiaQuestPropertyValue(state, "started");
+        QuestStateParseMafiaQuestPropertyValue(state, "started");
     }
     if (my_path_id() == PATH_COMMUNITY_SERVICE) QuestStateParseMafiaQuestPropertyValue(state, "finished");
-	state.quest_name = "Spookyraven Manor Unlock";
-	state.image_name = "Spookyraven Manor";
+    state.quest_name = "Spookyraven Manor Unlock";
+    state.image_name = "Spookyraven Manor";
     
-	
-	/*location zone_to_work_on = $location[none];
-	if (!locationAvailable($location[the haunted billiards room]))
-	{
-		zone_to_work_on = $location[the haunted billiards room];
-	}
-	else if (!locationAvailable($location[the haunted library]))
-	{
-		zone_to_work_on = $location[the haunted library];
-	}
-	else if (!locationAvailable($location[the haunted bedroom]))
-	{
-		zone_to_work_on = $location[the haunted bedroom];
-	}
-	else if (!locationAvailable($location[the haunted ballroom]))
-	{
-		zone_to_work_on = $location[the haunted ballroom];
-	}
-	state.state_string["zone to work on"] = zone_to_work_on;*/
-	
-	__quest_state["Manor Unlock"] = state;
+    
+    /*location zone_to_work_on = $location[none];
+    if (!locationAvailable($location[the haunted billiards room]))
+    {
+        zone_to_work_on = $location[the haunted billiards room];
+    }
+    else if (!locationAvailable($location[the haunted library]))
+    {
+        zone_to_work_on = $location[the haunted library];
+    }
+    else if (!locationAvailable($location[the haunted bedroom]))
+    {
+        zone_to_work_on = $location[the haunted bedroom];
+    }
+    else if (!locationAvailable($location[the haunted ballroom]))
+    {
+        zone_to_work_on = $location[the haunted ballroom];
+    }
+    state.state_string["zone to work on"] = zone_to_work_on;*/
+    
+    __quest_state["Manor Unlock"] = state;
 }
 
 
 void QManorGenerateTasks(ChecklistEntry [int] task_entries, ChecklistEntry [int] optional_task_entries, ChecklistEntry [int] future_task_entries)
 {
-	if (!__quest_state["Manor Unlock"].in_progress && __misc_state["in run"])
-		return;
+    if (!__quest_state["Manor Unlock"].in_progress && __misc_state["in run"])
+        return;
     if (my_level() < 5 && my_ascensions() == 0 && !QuestState("questM21Dance").in_progress) return; //not yet possible
     
     boolean should_output_optionally = false;
     boolean should_output_futurally = false;
-	QuestState base_quest_state = __quest_state["Manor Unlock"];
+    QuestState base_quest_state = __quest_state["Manor Unlock"];
     
     boolean [location] relevant_locations = $locations[the haunted kitchen, the haunted library, the haunted billiards room, the haunted bedroom, the haunted ballroom, the haunted gallery, the haunted bathroom];
     //$locations[the haunted kitchen, the haunted library, the haunted billiards room, the haunted bedroom, the haunted ballroom];
@@ -100,14 +100,14 @@ void QManorGenerateTasks(ChecklistEntry [int] task_entries, ChecklistEntry [int]
     
     if (!__misc_state["in run"] && !(relevant_locations contains __last_adventure_location))
         return;
-	ChecklistSubentry subentry;
-	//subentry.header = "Unlock Spookyraven Manor";
+    ChecklistSubentry subentry;
+    //subentry.header = "Unlock Spookyraven Manor";
     
     //This is currently very incomplete, sorry.
-	
-	string url = "";
-	
-	string image_name;
+    
+    string url = "";
+    
+    string image_name;
     
     boolean ballroom_probably_open = false;
     if ($location[the haunted ballroom].turnsAttemptedInLocation() > 0)
@@ -401,8 +401,8 @@ void QManorGenerateTasks(ChecklistEntry [int] task_entries, ChecklistEntry [int]
             subentry.entries.listAppend(line);
         }
         
-		if (__misc_state["have hipster"])
-			subentry.modifiers.listAppend(__misc_state_string["hipster name"]);
+        if (__misc_state["have hipster"])
+            subentry.modifiers.listAppend(__misc_state_string["hipster name"]);
         
         if (inebriety_limit() > 10 && my_inebriety() < 10)
             subentry.entries.listAppend("Try not to drink past ten, the billiards room is next.");
@@ -533,7 +533,7 @@ void QManorGenerateTasks(ChecklistEntry [int] task_entries, ChecklistEntry [int]
         }
         
     }
-	if (subentry.header != "")
+    if (subentry.header != "")
     {
         if (image_name.length() == 0)
             image_name = base_quest_state.image_name;
