@@ -378,7 +378,12 @@ void QManorGenerateTasks(ChecklistEntry [int] task_entries, ChecklistEntry [int]
         if (drawers_needed == 0.0)
             subentry.entries.listAppend("Find the key next turn.");
         else {
-            string line = drawers_per_turn.roundForOutput(1).pluralise("drawer", "drawers") + " searched per turn.|";
+            string line;
+            if (hot_resistance <= 0 && stench_resistance <= 0)
+                line = "1 drawer"; //roundForOutput returns a string, incompatible with pluralise()
+            else
+                line = drawers_per_turn.roundForOutput(1) + " drawers";
+            line += " searched per turn.|";
             
             if (drawers_needed > drawers_per_turn.floor()) {
                 subentry.modifiers.listAppend(HTMLGenerateSpanOfClass("hot res", "r_element_hot_desaturated"));
