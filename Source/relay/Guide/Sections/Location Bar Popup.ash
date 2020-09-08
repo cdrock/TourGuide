@@ -276,7 +276,7 @@ buffer generateItemInformationMethod2(location l, monster m, boolean try_for_min
             }
             if (l.environment == "underwater") //FIXME underwater drops are complicated and I'd have to look deeply into this to verify
             {
-                item_modifier -= l.pressurePenaltyForLocation(error);
+                //item_modifier -= l.pressurePenaltyForLocation(error); //pressure is actually already included in item_drop_modifier_for_location()
             }
             if (item_is_pickpockable_only)
             {
