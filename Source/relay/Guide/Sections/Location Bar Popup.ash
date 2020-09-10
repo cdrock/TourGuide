@@ -1126,8 +1126,8 @@ buffer generateLocationPopup(float bottom_coordinates, boolean location_bar_loca
             {
                 float average_meat = (m.min_meat + m.max_meat) * 0.5;
                 Error error;
-                float pressure_penalty = l.environment == "underwater" ? -l.pressurePenaltyForLocation(error) : 0.0;
-                average_meat *= 1.0 + (meat_drop_modifier() + pressure_penalty) / 100.0;
+                // float pressure_penalty = l.environment == "underwater" ? -l.pressurePenaltyForLocation(error) : 0.0; //already accounted for in meat_drop_modifier()
+                average_meat *= 1.0 + meat_drop_modifier() / 100.0;
                 if (average_meat >= 25) //ignore really low amounts
                 {
                     if (error.was_error)
