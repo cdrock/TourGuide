@@ -1075,7 +1075,7 @@ buffer generateLocationPopup(float bottom_coordinates, boolean location_bar_loca
                 }
                 //want to avoid cluttering, so don't show until when
                 rate_buffer.append("<br>");
-                rate_buffer.append("brought back by copies"); //.HTMLGenerateSpanFont("red"); .HTMLGenerateSpanOfClass("r_element_important"); //doesn't work??
+                rate_buffer.append("brought back by copies".HTMLGenerateSpanOfClass("r_element_important"));
                 
             }
             rate_buffer.append(" ");
