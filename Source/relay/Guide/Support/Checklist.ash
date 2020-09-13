@@ -274,6 +274,7 @@ void ChecklistInit()
 	PageAddCSSClass("div", "r_cl_l_container_highlighted", gradient + "padding-top:5px;padding-bottom:5px;");
     
 	PageAddCSSClass("div", "r_cl_l_left", "float:left;width:" + __setting_image_width_large + "px;margin-left:20px;overflow:hidden;");
+    PageAddCSSClass("div", "r_cl_l_far_right_minimize_toggle", "float:right;overflow:hidden;width:10px;vertical-align:top;");
 	PageAddCSSClass("div", "r_cl_l_right_container", "width:100%;margin-left:" + (-__setting_image_width_large - 20) + "px;float:right;text-align:left;vertical-align:top;");
 	PageAddCSSClass("div", "r_cl_l_right_content", "margin-left:" + (__setting_image_width_large + 20 + 2) + "px;display:inline-block;margin-right:20px;");
     
@@ -423,6 +424,16 @@ buffer ChecklistGenerateEntryHTML(ChecklistEntry entry, ChecklistSubentry [int] 
     }
     
     result.append(HTMLGenerateDivOfClass(image_container, "r_cl_l_left"));
+    //result.append(HTMLGenerateTagWrap("div", "", string [string] {"class":"r_cl_l_far_right_minimize_toggle"}));
+    if (true) { //minimize button
+        buffer minimize_container;
+        //this part will probs be to tell what action to take, and which image to adopt?
+
+
+        //end
+        minimize_container.append(HTMLGenerateTagPrefix("img", string [string] {"class":"r_button","width":"10","height":"10","src":__new_window_image_data,"alt":"minimize","title":"minimize","id":"minimize_" + entry.subentries[0].header})); //onclick, style,"visibility":"visible"
+        result.append(minimize_container.HTMLGenerateDivOfClass("r_cl_l_far_right_minimize_toggle"));
+    }
     result.append(HTMLGenerateTagPrefix("div", mapMake("class", "r_cl_l_right_container")));
     
     if (outputting_anchor && !__setting_entire_area_clickable) {
