@@ -274,13 +274,14 @@ void ChecklistInit()
 	PageAddCSSClass("div", "r_cl_l_container_highlighted", gradient + "padding-top:5px;padding-bottom:5px;");
     
 	PageAddCSSClass("div", "r_cl_l_left", "float:left;width:" + __setting_image_width_large + "px;margin-left:20px;overflow:hidden;");
-    PageAddCSSClass("div", "r_cl_l_far_right_minimize_toggle", "float:right;overflow:hidden;width:10px;vertical-align:top;");
 	PageAddCSSClass("div", "r_cl_l_right_container", "width:100%;margin-left:" + (-__setting_image_width_large - 20) + "px;float:right;text-align:left;vertical-align:top;");
-	PageAddCSSClass("div", "r_cl_l_right_content", "margin-left:" + (__setting_image_width_large + 20 + 2) + "px;display:inline-block;margin-right:20px;");
+	PageAddCSSClass("div", "r_cl_l_right_content", "margin-left:" + (__setting_image_width_large + 20 + 2) + "px;display:inline-block;margin-right:20px;"); //block?
     
     PageAddCSSClass("hr", "r_cl_hr", "padding:0px;margin-top:0px;margin-bottom:0px;width:auto; margin-left:" + __setting_indention_width + ";margin-right:" + __setting_indention_width +";");
     PageAddCSSClass("hr", "r_cl_hr_extended", "padding:0px;margin-top:0px;margin-bottom:0px;width:auto; margin-left:" + __setting_indention_width + ";margin-right:0px;");
 	PageAddCSSClass("div", "r_cl_holding_container", "display:inline-block;");
+    PageAddCSSClass("div","r_cl_holding_container.r_cl_collapsed","display:none;");
+    PageAddCSSClass("img", "r_cl_minimize_button", "float:right;position:static;border:1px solid;cursor:pointer;color:#7F7F7F;padding:2px;width:5px;height:5px;");
 	
     
     PageAddCSSClass("", "r_cl_image_container_large", "display:block;");
@@ -407,6 +408,8 @@ buffer ChecklistGenerateEntryHTML(ChecklistEntry entry, ChecklistSubentry [int] 
 
     buffer result;
     buffer image_container;
+    string entry_id_raw = entry.subentries[0].header + entry.importance_level.to_string().replace_string("-","minus");
+    string entry_id = create_matcher("[^0-9a-zA-Z]", entry_id_raw).replace_all(""); //remove characters that break the .js
     
     if (outputting_anchor && !__setting_entire_area_clickable) {
         image_container.append(anchor_prefix_html);
@@ -424,17 +427,28 @@ buffer ChecklistGenerateEntryHTML(ChecklistEntry entry, ChecklistSubentry [int] 
     }
     
     result.append(HTMLGenerateDivOfClass(image_container, "r_cl_l_left"));
-    //result.append(HTMLGenerateTagWrap("div", "", string [string] {"class":"r_cl_l_far_right_minimize_toggle"}));
-    if (true) { //minimize button
-        buffer minimize_container;
-        //this part will probs be to tell what action to take, and which image to adopt?
-
-
-        //end
-        minimize_container.append(HTMLGenerateTagPrefix("img", string [string] {"class":"r_button","width":"10","height":"10","src":__new_window_image_data,"alt":"minimize","title":"minimize","id":"minimize_" + entry.subentries[0].header})); //onclick, style,"visibility":"visible"
-        result.append(minimize_container.HTMLGenerateDivOfClass("r_cl_l_far_right_minimize_toggle"));
-    }
     result.append(HTMLGenerateTagPrefix("div", mapMake("class", "r_cl_l_right_container")));
+    
+    if (setting_use_holding_containers_per_subentry) { //minimize button
+        boolean entry_has_content_to_minimize = false;
+        foreach j, subentry in subentries {
+            if (subentry.header != "" && subentry.entries.count() > 0) {
+                entry_has_content_to_minimize = true;
+                break;
+            }
+        }
+
+        if (entry_has_content_to_minimize) {
+            //buffer minimize_container;
+            //this part will probs be to tell what action to take, and which image to adopt?
+            // src: __expand_image / __minimize_image
+            // alt & title: "minimize" / "expand"
+
+
+            //end
+            result.append(HTMLGenerateTagPrefix("img", "", string [string] {"class":"r_cl_minimize_button","src":__minimize_image,"alt":"Minimize","title":"Minimize","id":"toggle_" + entry_id,"onclick":"alterSubentryMinimization(event)"}));
+        }
+    }
     
     if (outputting_anchor && !__setting_entire_area_clickable) {
         result.append(anchor_prefix_html);
@@ -478,7 +492,7 @@ buffer ChecklistGenerateEntryHTML(ChecklistEntry entry, ChecklistSubentry [int] 
         {
             int intra_k = 0;
             if (setting_use_holding_containers_per_subentry)
-                result.append(HTMLGenerateTagPrefix("div", mapMake("class", "r_cl_holding_container"))); //HRs
+                result.append(HTMLGenerateTagPrefix("div", mapMake("class", "r_cl_holding_container " + entry_id))); //HRs
             while (intra_k < subentry.entries.count())
             { 
                 if (intra_k > 0)

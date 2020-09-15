@@ -533,6 +533,57 @@ function buttonRightRightClicked(event)
     installFrame(3);
 }
 
+function buttonExpandAllClicked(event)
+{
+    //hide this button (only shows if at least 1 tile is minimized)
+    document.getElementById('button_expand_all').style.visibility = "";
+    
+    //expand every currently minimized tile
+    const every_toggle_boxen = document.getElementsByClassName( "r_cl_minimize_button" );
+    for (const element of every_toggle_boxen)
+    {
+        if (element.title == "Minimize") continue;
+        
+        element.title = "Minimize";
+        element.alt = "Minimize";
+        element.src = "data:image/gif;base64,R0lGODlhgACAAHAAACH5BAEAAP8ALAAAAACAAIAAhwAAAH9/f+Pj4wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAj/AP8JHEiwoMGDCBMqXMiwocOHECNKnEixosWLGDNq3Mixo8ePIEOKHEmypMmTKFOqXMmypcuXMGPKnEmzps2bOHPq3Mmzp8+fQIMKHUq0qNGjSJMqXcq0qdOnUKNKnUq1qtWrWLNq3cq1q9evYMOKHUu2rNmzaNOqXcu2rdu3cOPKNSugrt27ePPq3cu3r9+/gAMLzitQQIDDiBMrXsy4sePHkCNLnkw5sYDClTNr3sy5s+TL/wx7Hk26tGnEoEWfXs26dePUrmPLXg17tu3bmmvj3s37NebewIPrDk789vDiyF0fT87c9PLm0Ds/j0698vTq2CFfz8598fbu4AN8MQ/PfTx57ObPU0+vHjr79szfw0eeerD9+/jz6w88t7///wAGKOCABBZo4IEIJqjgggwqNujggxBGKOGEFFZo4YUYZqjhhhx26OGHIIYo4ogklmjiiSimqOKKCQUEADs=";
+    }
+    
+    const currently_minimized_tiles = Array.from( document.getElementsByClassName( "r_cl_collapsed" ) );
+    for (const element of currently_minimized_tiles)
+    {
+        element.classList.remove("r_cl_collapsed");
+    }
+    
+    //delete the minimized tiles cache
+    try
+    {
+        localStorage.setItem( "TourGuide_collapsed_tiles", "[]" );
+    }
+    catch (e) {}
+}
+
+function updateExpandAllButtonVisibility()
+{
+    var expandAllButton = document.getElementById('button_expand_all');
+    
+    var currently_minimized_tiles = document.getElementsByClassName( "r_cl_collapsed" );
+    let stored_minimized_tiles;
+    try
+    {
+        stored_minimized_tiles = JSON.parse(localStorage.getItem("TourGuide_collapsed_tiles"));
+    }
+    catch (e)
+    {
+        stored_minimized_tiles = [];
+    }
+    
+    if (currently_minimized_tiles.length == 0 && stored_minimized_tiles.length == 0)
+        expandAllButton.style.visibility = "";
+    else
+        expandAllButton.style.visibility = "visible";
+}
+
 function installFrameDefault(event)
 {
     if (getChatIsCurrentlyActive())
@@ -658,6 +709,24 @@ function writePageExtras()
 	}
     var refresh_status = document.getElementById("refresh_status");
     refresh_status.innerHTML = ""; //clear out disabled message
+    
+    //Minimize tiles based on localStorage
+    let groups_to_minimize;
+    try
+    {
+        groups_to_minimize = JSON.parse(localStorage.getItem("TourGuide_collapsed_tiles"));
+    }
+    catch (e) //was security exception
+    {
+        groups_to_minimize = [];
+    }
+    for (const group_to_minimize of groups_to_minimize)
+    {
+        var toggle_box = document.getElementById("toggle_" + group_to_minimize);
+        if (toggle_box != null)
+            toggle_tile_display(toggle_box, true);
+    }
+    updateExpandAllButtonVisibility();
     
     var importance_container = document.getElementById("importance_bar");
     if (importance_container != undefined)
@@ -939,6 +1008,78 @@ function browserProbablySupportsPointerEvents()
         __tested_pointer_events = true;
     }
     return __browser_probably_supports_pointer_events;
+}
+
+function alterSubentryMinimization(event)
+{
+    toggle_tile_display(event.target, event.target.title == "Minimize");
+}
+
+function toggle_tile_display(toggle_box, want_collapsed)
+{
+    var class_to_toggle = toggle_box.id.substring(7); //remove the "toggle_"
+    var entry_group = document.getElementsByClassName( class_to_toggle );
+    
+    let current_stored_collapsed;
+    let to_write;
+    try
+    {
+        current_stored_collapsed = JSON.parse(localStorage.getItem("TourGuide_collapsed_tiles"));
+    }
+    catch (e)
+    {
+        current_stored_collapsed = [];
+    }
+    if (current_stored_collapsed == null || !Array.isArray(current_stored_collapsed))
+        current_stored_collapsed = [];
+    
+    if (want_collapsed)
+    {
+        if (!(current_stored_collapsed.includes( class_to_toggle )))
+        {
+            try
+            {
+                current_stored_collapsed.push( class_to_toggle );
+                to_write = JSON.stringify(current_stored_collapsed);
+                localStorage.setItem( "TourGuide_collapsed_tiles", to_write );
+            }
+            catch (e) {}
+        }
+        toggle_box.title = "Expand";
+        toggle_box.alt = "Expand";
+        toggle_box.src = "data:image/gif;base64,R0lGODlhgACAAHAAACH5BAEAAP8ALAAAAACAAIAAhwAAAH9/f+Pj4wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAj/AP8JHEiwoMGDCBMqXMiwocOHECNKnEixosWLGBEK2Mixo8ePHDOKHClSQICTKFOqXBlAAMmXMCOaZElzpcuYOHMenFmzZ0udQIHy9EnzZtCjL4cStYm06UilS1MadUqVItSoJ6dW3frwKlatXMMq9BoVrNizBckuNYu2rVqibNuefeszrtywdHvavbs1b829fKn6LRr47mCWgAsjPcxUMVrGKhM7FooV8eS5lRtf5gpZ6ma8mSN/5hza8+iqnVFKPk0ydVbWgkurhu3U9U/ai2W/xn3U9mreFn0DDyp8uM7ixnEiTw5zOfPWum8/Txr993SHzq9jzK49ePXuT7+D38/IfbzE8uYhok+PXTx7q+7fn48vXz39+u11W8f/b31fkAAGKOCAH1VH4IEIEiiQbdE16OCDhPUH4YQUVljWghZmqGGGNzG44YcfdgjiiCRWJmKJKKbYmIcqtpjZiS7GCCKMMtZoIY025vggjjr2KBuPPgb5FYZCFmkikUYmWReSSja5opNQiiZhlFQCSaWRVl4pZJZa+shllzp+CaaNHSZo5pkcGYjmmgcG5h9/Br0JJ0FyzslkaPvhV6ede87ZJ5x/8heonvfZqVGhhsaJaKJ0LsronS8+Opajjw5an6Vc8mH6nqbscZqep+aBOp6o4JHananaoXqdqtOx+pyrzMGanKzG0TqcrcDhypuuuPFKm6+wAcuasKcRO5qxnyG7mbKXMTuZs45Bq5i0hVHrJqWMWsuXtoaxGdJdAQEAOw==";
+    }
+    else
+    {
+        if (current_stored_collapsed.includes( class_to_toggle ))
+        {
+            try
+            {
+                current_stored_collapsed.splice( current_stored_collapsed.indexOf( class_to_toggle ), 1 );
+                to_write = JSON.stringify(current_stored_collapsed);
+                localStorage.setItem( "TourGuide_collapsed_tiles", to_write );
+            }
+            catch (e) {}
+        }
+        toggle_box.title = "Minimize";
+        toggle_box.alt = "Minimize";
+        toggle_box.src = "data:image/gif;base64,R0lGODlhgACAAHAAACH5BAEAAP8ALAAAAACAAIAAhwAAAH9/f+Pj4wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAj/AP8JHEiwoMGDCBMqXMiwocOHECNKnEixosWLGDNq3Mixo8ePIEOKHEmypMmTKFOqXMmypcuXMGPKnEmzps2bOHPq3Mmzp8+fQIMKHUq0qNGjSJMqXcq0qdOnUKNKnUq1qtWrWLNq3cq1q9evYMOKHUu2rNmzaNOqXcu2rdu3cOPKNSugrt27ePPq3cu3r9+/gAMLzitQQIDDiBMrXsy4sePHkCNLnkw5sYDClTNr3sy5s+TL/wx7Hk26tGnEoEWfXs26dePUrmPLXg17tu3bmmvj3s37NebewIPrDk789vDiyF0fT87c9PLm0Ds/j0698vTq2CFfz8598fbu4AN8MQ/PfTx57ObPU0+vHjr79szfw0eeerD9+/jz6w88t7///wAGKOCABBZo4IEIJqjgggwqNujggxBGKOGEFFZo4YUYZqjhhhx26OGHIIYo4ogklmjiiSimqOKKCQUEADs=";
+    }
+
+    for (const element of entry_group)
+    {
+
+        if (want_collapsed)
+        {
+            if (!element.classList.contains("r_cl_collapsed"))
+                element.classList.add("r_cl_collapsed");
+        }
+        else
+        {
+            element.classList.remove("r_cl_collapsed");
+        }
+    }
+    updateExpandAllButtonVisibility();
 }
 
 function alterLocationPopupBarVisibility(event, visibility)

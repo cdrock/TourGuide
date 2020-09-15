@@ -169,6 +169,15 @@ void runMain(string relay_filename)
         image_map["title"] = image_map["alt"];
         PageWrite(HTMLGenerateTagPrefix("img", image_map));
         
+        image_map = mapCopy(base_image_map);
+        image_map["src"] = __expand_image; //FIXME to see...
+        image_map["id"] = "button_expand_all";
+        image_map["onclick"] = "buttonExpandAllClicked(event)";
+        image_map["style"] = "right:5px;top:30px;";
+        image_map["alt"] = "Expand all";
+        image_map["title"] = image_map["alt"];
+        PageWrite(HTMLGenerateTagPrefix("img", image_map));
+        
         PageWrite("</div>");
     }
     
