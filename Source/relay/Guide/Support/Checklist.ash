@@ -275,13 +275,14 @@ void ChecklistInit()
     
 	PageAddCSSClass("div", "r_cl_l_left", "float:left;width:" + __setting_image_width_large + "px;margin-left:20px;overflow:hidden;");
 	PageAddCSSClass("div", "r_cl_l_right_container", "width:100%;margin-left:" + (-__setting_image_width_large - 20) + "px;float:right;text-align:left;vertical-align:top;");
-	PageAddCSSClass("div", "r_cl_l_right_content", "margin-left:" + (__setting_image_width_large + 20 + 2) + "px;display:inline-block;margin-right:20px;"); //block?
+	PageAddCSSClass("div", "r_cl_l_right_content", "margin-left:" + (__setting_image_width_large + 20 + 2) + "px;display:inline-block;margin-right:20px;");
     
     PageAddCSSClass("hr", "r_cl_hr", "padding:0px;margin-top:0px;margin-bottom:0px;width:auto; margin-left:" + __setting_indention_width + ";margin-right:" + __setting_indention_width +";");
     PageAddCSSClass("hr", "r_cl_hr_extended", "padding:0px;margin-top:0px;margin-bottom:0px;width:auto; margin-left:" + __setting_indention_width + ";margin-right:0px;");
 	PageAddCSSClass("div", "r_cl_holding_container", "display:inline-block;");
-    PageAddCSSClass("div","r_cl_holding_container.r_cl_collapsed","display:none;");
-    PageAddCSSClass("img", "r_cl_minimize_button", "float:right;position:static;border:1px solid;cursor:pointer;color:#7F7F7F;padding:2px;width:5px;height:5px;");
+    //PageAddCSSClass("div", "r_cl_holding_container.r_cl_collapsed","display:none;");
+    PageAddCSSClass("div", "r_cl_collapsed","display:none;");
+    PageAddCSSClass("div", "r_cl_minimize_button", "width:0px;height:0px;float:right;direction:rtl;position:relative;z-index:2;user-select:none;color:#7F7F7F;margin-right:" + __setting_indention_width + ";");
 	
     
     PageAddCSSClass("", "r_cl_image_container_large", "display:block;");
@@ -306,6 +307,7 @@ void ChecklistInit()
         PageAddCSSClass("div", "r_cl_l_container", "padding-top:4px;padding-bottom:4px;", 0, __setting_media_query_medium_size);
         PageAddCSSClass("hr", "r_cl_hr", "margin-left:" + (__setting_indention_width_in_em / 2.0) + "em;margin-right:" + (__setting_indention_width_in_em / 2.0) +"em;", 0, __setting_media_query_medium_size);
         PageAddCSSClass("hr", "r_cl_hr_extended", "margin-left:" + (__setting_indention_width_in_em / 2.0) + "em;", 0, __setting_media_query_medium_size);
+        PageAddCSSClass("div", "r_cl_minimize_button", "margin-right:" + (__setting_indention_width_in_em / 2.0) + "em;", 0, __setting_media_query_medium_size);
         
         
         PageAddCSSClass("div", "r_cl_l_left", "width:" + (__setting_image_width_small) + "px;margin-left:5px;", 0, __setting_media_query_small_size);
@@ -314,6 +316,7 @@ void ChecklistInit()
         PageAddCSSClass("hr", "r_cl_hr", "margin-left:0px;margin-right:0px;", 0, __setting_media_query_small_size);
         PageAddCSSClass("hr", "r_cl_hr_extended", "margin-left:0px;", 0, __setting_media_query_small_size);
         PageAddCSSClass("div", "r_cl_l_container", "padding-top:3px;padding-bottom:3px;", 0, __setting_media_query_small_size);
+        PageAddCSSClass("div", "r_cl_minimize_button", "margin-right:0px;", 0, __setting_media_query_small_size);
         
         
         PageAddCSSClass("div", "r_cl_l_left", "width:" + (0) + "px;margin-left:3px;", 0, __setting_media_query_tiny_size);
@@ -322,6 +325,7 @@ void ChecklistInit()
         PageAddCSSClass("hr", "r_cl_hr", "margin-left:0px;margin-right:0px;", 0, __setting_media_query_tiny_size);
         PageAddCSSClass("hr", "r_cl_hr_extended", "margin-left:0px;", 0, __setting_media_query_tiny_size);
         PageAddCSSClass("div", "r_cl_l_container", "padding-top:3px;padding-bottom:3px;", 0, __setting_media_query_tiny_size);
+        PageAddCSSClass("div", "r_cl_minimize_button", "margin-right:0px;", 0, __setting_media_query_tiny_size);
         
         
         
@@ -429,24 +433,23 @@ buffer ChecklistGenerateEntryHTML(ChecklistEntry entry, ChecklistSubentry [int] 
     result.append(HTMLGenerateDivOfClass(image_container, "r_cl_l_left"));
     result.append(HTMLGenerateTagPrefix("div", mapMake("class", "r_cl_l_right_container")));
     
-    if (setting_use_holding_containers_per_subentry) { //minimize button
+    if (true) { //minimize button
         boolean entry_has_content_to_minimize = false;
+        int indented_entries;
         foreach j, subentry in subentries {
-            if (subentry.header != "" && subentry.entries.count() > 0) {
+            if (subentry.header == "")
+                continue;
+            
+            if (entry.should_indent_after_first_subentry)
+                indented_entries++;
+            if (subentry.entries.count() > 0 || indented_entries >= 2) {
                 entry_has_content_to_minimize = true;
                 break;
             }
         }
 
         if (entry_has_content_to_minimize) {
-            //buffer minimize_container;
-            //this part will probs be to tell what action to take, and which image to adopt?
-            // src: __expand_image / __minimize_image
-            // alt & title: "minimize" / "expand"
-
-
-            //end
-            result.append(HTMLGenerateTagPrefix("img", "", string [string] {"class":"r_cl_minimize_button","src":__minimize_image,"alt":"Minimize","title":"Minimize","id":"toggle_" + entry_id,"onclick":"alterSubentryMinimization(event)"}));
+            result.append(HTMLGenerateTagWrap("div", "&#9660;", string [string] {"class":"r_cl_minimize_button","alt":"Minimize","title":"Minimize","id":"toggle_" + entry_id,"onclick":"alterSubentryMinimization(event)","style":"cursor:zoom-out;"}));
         }
     }
     
@@ -462,37 +465,37 @@ buffer ChecklistGenerateEntryHTML(ChecklistEntry entry, ChecklistSubentry [int] 
     }
     
     boolean first = true;
+    boolean indented_after_first_subentry = false;
     foreach j in subentries {
         ChecklistSubentry subentry = subentries[j];
         if (subentry.header == "")
             continue;
         string subheader = subentry.header;
         
-        boolean indent_this_entry = false;
         if (first)
         {
             first = false;
         }
-        else if (entry.should_indent_after_first_subentry)
+        else if (entry.should_indent_after_first_subentry && !indented_after_first_subentry)
         {
-            indent_this_entry = true;
+            result.append(HTMLGenerateTagPrefix("div", mapMake("class", "r_indention " + entry_id)));
+            indented_after_first_subentry = true;
         }
         
-        if (indent_this_entry)
-            result.append(HTMLGenerateTagPrefix("div", mapMake("class", "r_indention")));
-        
         result.append(HTMLGenerateSpanOfClass(subheader, "r_cl_subheader"));
-        if (__setting_small_size_uses_full_width)
-            result.append(HTMLGenerateTagPrefix("div", mapMake("class", "r_indention_not_small")));
-        else
-            result.append(HTMLGenerateTagPrefix("div", mapMake("class", "r_indention")));
-        if (subentry.modifiers.count() > 0)
-            result.append(ChecklistGenerateModifierSpan(listJoinComponents(subentry.modifiers, ", ")));
+        string content_indention = __setting_small_size_uses_full_width ? "r_indention_not_small" : "r_indention";
+        result.append( //this mini-abomination is necessary; an empty r_indention is the only thing preventing chaining headers from being in a single file, when minimized
+            (subentry.modifiers.count() > 0 ?
+                    subentry.modifiers.listJoinComponents(", ").ChecklistGenerateModifierSpan() : ""
+            ).HTMLGenerateDivOfClass(content_indention)
+        );
+
+        result.append(HTMLGenerateTagPrefix("div", mapMake("class", content_indention + (indented_after_first_subentry ? "" : " " + entry_id) )));
         if (subentry.entries.count() > 0)
         {
             int intra_k = 0;
             if (setting_use_holding_containers_per_subentry)
-                result.append(HTMLGenerateTagPrefix("div", mapMake("class", "r_cl_holding_container " + entry_id))); //HRs
+                result.append(HTMLGenerateTagPrefix("div", mapMake("class", "r_cl_holding_container"))); //HRs
             while (intra_k < subentry.entries.count())
             { 
                 if (intra_k > 0)
@@ -510,9 +513,9 @@ buffer ChecklistGenerateEntryHTML(ChecklistEntry entry, ChecklistSubentry [int] 
                 result.append("</div>");
         }
         result.append("</div>");
-        if (indent_this_entry)
-            result.append("</div>");
     }
+    if (indented_after_first_subentry)
+        result.append("</div>");
     result.append("</div>");
     if (outputting_anchor && !__setting_entire_area_clickable)
         result.append(anchor_suffix_html);
@@ -700,6 +703,7 @@ buffer ChecklistGenerate(Checklist cl, boolean output_borders) {
 			
 				
 			boolean first = true;
+            boolean indented_after_first_subentry = false;
 			foreach j in entry.subentries
 			{
 				ChecklistSubentry subentry = entry.subentries[j];
@@ -707,17 +711,15 @@ buffer ChecklistGenerate(Checklist cl, boolean output_borders) {
 					continue;
 				string subheader = subentry.header;
 				
-				boolean indent_this_entry = false;
 				if (first)
 				{
 					first = false;
 				}
-				else if (entry.should_indent_after_first_subentry)
+				else if (entry.should_indent_after_first_subentry && !indented_after_first_subentry)
 				{
-					indent_this_entry = true;
-				}
-				if (indent_this_entry)
 					result.append(HTMLGenerateTagPrefix("div", mapMake("class", "r_indention")));
+					indented_after_first_subentry = true;
+				}
 				
 				result.append("<table cellpadding=0 cellspacing=0><tr><td colspan=2>");
 			
@@ -750,9 +752,9 @@ buffer ChecklistGenerate(Checklist cl, boolean output_borders) {
 				result.append("</td></tr>");
 				
 				result.append("</table>");
-				if (indent_this_entry)
-					result.append("</div>");
-			}		
+			}
+			if (indent_this_entry)
+				result.append("</div>");
 			result.append("</td>");
 			result.append("</tr></table>");
 		}
