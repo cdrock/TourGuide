@@ -282,7 +282,9 @@ void ChecklistInit()
 	PageAddCSSClass("div", "r_cl_holding_container", "display:inline-block;");
     //PageAddCSSClass("div", "r_cl_holding_container.r_cl_collapsed","display:none;");
     PageAddCSSClass("div", "r_cl_collapsed","display:none;");
-    PageAddCSSClass("div", "r_cl_minimize_button", "width:0px;height:0px;float:right;direction:rtl;position:relative;z-index:2;user-select:none;color:#7F7F7F;margin-right:" + __setting_indention_width + ";");
+    //PageAddCSSClass("div", "r_cl_minimize_button", "width:0px;height:0px;float:right;direction:rtl;position:relative;z-index:2;user-select:none;color:#7F7F7F;margin-right:" + __setting_indention_width + ";");
+    PageAddCSSClass("button", "r_cl_minimize_button", "background-color:antiquewhite;padding:0px;float:right;position:relative;z-index:2;color:#7F7F7F;cursor:pointer;margin-right:" + __setting_indention_width + ";");
+    PageAddCSSClass("button", "r_cl_minimize_button:hover", "background-color:black;");
 	
     
     PageAddCSSClass("", "r_cl_image_container_large", "display:block;");
@@ -307,7 +309,7 @@ void ChecklistInit()
         PageAddCSSClass("div", "r_cl_l_container", "padding-top:4px;padding-bottom:4px;", 0, __setting_media_query_medium_size);
         PageAddCSSClass("hr", "r_cl_hr", "margin-left:" + (__setting_indention_width_in_em / 2.0) + "em;margin-right:" + (__setting_indention_width_in_em / 2.0) +"em;", 0, __setting_media_query_medium_size);
         PageAddCSSClass("hr", "r_cl_hr_extended", "margin-left:" + (__setting_indention_width_in_em / 2.0) + "em;", 0, __setting_media_query_medium_size);
-        PageAddCSSClass("div", "r_cl_minimize_button", "margin-right:" + (__setting_indention_width_in_em / 2.0) + "em;", 0, __setting_media_query_medium_size);
+        PageAddCSSClass("button", "r_cl_minimize_button", "margin-right:" + (__setting_indention_width_in_em / 2.0) + "em;", 0, __setting_media_query_medium_size);
         
         
         PageAddCSSClass("div", "r_cl_l_left", "width:" + (__setting_image_width_small) + "px;margin-left:5px;", 0, __setting_media_query_small_size);
@@ -316,7 +318,7 @@ void ChecklistInit()
         PageAddCSSClass("hr", "r_cl_hr", "margin-left:0px;margin-right:0px;", 0, __setting_media_query_small_size);
         PageAddCSSClass("hr", "r_cl_hr_extended", "margin-left:0px;", 0, __setting_media_query_small_size);
         PageAddCSSClass("div", "r_cl_l_container", "padding-top:3px;padding-bottom:3px;", 0, __setting_media_query_small_size);
-        PageAddCSSClass("div", "r_cl_minimize_button", "margin-right:0px;", 0, __setting_media_query_small_size);
+        PageAddCSSClass("button", "r_cl_minimize_button", "margin-right:0px;", 0, __setting_media_query_small_size);
         
         
         PageAddCSSClass("div", "r_cl_l_left", "width:" + (0) + "px;margin-left:3px;", 0, __setting_media_query_tiny_size);
@@ -325,7 +327,7 @@ void ChecklistInit()
         PageAddCSSClass("hr", "r_cl_hr", "margin-left:0px;margin-right:0px;", 0, __setting_media_query_tiny_size);
         PageAddCSSClass("hr", "r_cl_hr_extended", "margin-left:0px;", 0, __setting_media_query_tiny_size);
         PageAddCSSClass("div", "r_cl_l_container", "padding-top:3px;padding-bottom:3px;", 0, __setting_media_query_tiny_size);
-        PageAddCSSClass("div", "r_cl_minimize_button", "margin-right:0px;", 0, __setting_media_query_tiny_size);
+        PageAddCSSClass("button", "r_cl_minimize_button", "margin-right:0px;", 0, __setting_media_query_tiny_size);
         
         
         
@@ -449,7 +451,7 @@ buffer ChecklistGenerateEntryHTML(ChecklistEntry entry, ChecklistSubentry [int] 
         }
 
         if (entry_has_content_to_minimize) {
-            result.append(HTMLGenerateTagWrap("div", "&#9660;", string [string] {"class":"r_cl_minimize_button","alt":"Minimize","title":"Minimize","id":"toggle_" + entry_id,"onclick":"alterSubentryMinimization(event)","style":"cursor:zoom-out;"}));
+            result.append(HTMLGenerateTagWrap("button", "&#9660;", string [string] {"class":"r_cl_minimize_button","alt":"Minimize","title":"Minimize","id":"toggle_" + entry_id,"onclick":"alterSubentryMinimization(event)"}));
         }
     }
     
@@ -753,7 +755,7 @@ buffer ChecklistGenerate(Checklist cl, boolean output_borders) {
 				
 				result.append("</table>");
 			}
-			if (indent_this_entry)
+			if (indented_after_first_subentry) //if (indent_this_entry) //FIXME ??
 				result.append("</div>");
 			result.append("</td>");
 			result.append("</tr></table>");

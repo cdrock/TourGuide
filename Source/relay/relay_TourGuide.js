@@ -547,7 +547,6 @@ function buttonExpandAllClicked(event)
         element.title = "Minimize";
         element.alt = "Minimize";
         element.innerHTML = "&#9660;";
-        element.style.cursor = "zoom-out";
     }
     
     const currently_minimized_tiles = Array.from( document.getElementsByClassName( "r_cl_collapsed" ) );
@@ -1049,7 +1048,6 @@ function toggle_tile_display(toggle_box, want_collapsed)
         toggle_box.title = "Expand";
         toggle_box.alt = "Expand";
         toggle_box.innerHTML = "&#9650;";
-        toggle_box.style.cursor = "zoom-in";
     }
     else
     {
@@ -1066,7 +1064,6 @@ function toggle_tile_display(toggle_box, want_collapsed)
         toggle_box.title = "Minimize";
         toggle_box.alt = "Minimize";
         toggle_box.innerHTML = "&#9660;";
-        toggle_box.style.cursor = "zoom-out";
     }
 
     for (const element of entry_group)

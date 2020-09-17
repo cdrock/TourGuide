@@ -155,7 +155,7 @@ void runMain(string relay_filename)
         image_map["src"] = __left_arrow_image_data;
         image_map["id"] = "button_arrow_right_left";
         image_map["onclick"] = "buttonRightLeftClicked(event)";
-        image_map["style"] = "right:5px;top:30px;";
+        image_map["style"] = "right:30px;top:5px;";
         image_map["alt"] = "Show chat pane";
         image_map["title"] = image_map["alt"];
         PageWrite(HTMLGenerateTagPrefix("img", image_map));
@@ -164,19 +164,27 @@ void runMain(string relay_filename)
         image_map["src"] = __right_arrow_image_data;
         image_map["id"] = "button_arrow_right_right";
         image_map["onclick"] = "buttonRightRightClicked(event)";
-        image_map["style"] = "right:5px;top:30px;";
+        image_map["style"] = "right:30px;top:5px;";
         image_map["alt"] = "Hide chat pane";
         image_map["title"] = image_map["alt"];
         PageWrite(HTMLGenerateTagPrefix("img", image_map));
         
         image_map = mapCopy(base_image_map);
-        image_map["src"] = __expand_image; //FIXME to see...
         image_map["id"] = "button_expand_all";
         image_map["onclick"] = "buttonExpandAllClicked(event)";
         image_map["style"] = "right:5px;top:30px;";
         image_map["alt"] = "Expand all";
-        image_map["title"] = image_map["alt"];
-        PageWrite(HTMLGenerateTagPrefix("img", image_map));
+        //image_map["title"] = image_map["alt"]; //useless here
+        image_map["aria-hidden"] = "true";
+        image_map["focusable"] = "false";
+        image_map["data-prefix"] = "fas";
+        image_map["data-icon"] = "angle-double-down";
+        image_map["role"] = "img";
+        image_map["class"] = image_map["class"] + " svg-inline--fa fa-angle-double-down fa-w-10";
+        image_map["xmlns"] = "http://www.w3.org/2000/svg";
+        image_map["viewBox"] = "0 50 320 400";
+        remove image_map["width"];
+        PageWrite(HTMLGenerateTagWrap("svg", '<title>Expand all</title><path fill="currentColor" d="M143 256.3L7 120.3c-9.4-9.4-9.4-24.6 0-33.9l22.6-22.6c9.4-9.4 24.6-9.4 33.9 0l96.4 96.4 96.4-96.4c9.4-9.4 24.6-9.4 33.9 0L313 86.3c9.4 9.4 9.4 24.6 0 33.9l-136 136c-9.4 9.5-24.6 9.5-34 .1zm34 192l136-136c9.4-9.4 9.4-24.6 0-33.9l-22.6-22.6c-9.4-9.4-24.6-9.4-33.9 0L160 352.1l-96.4-96.4c-9.4-9.4-24.6-9.4-33.9 0L7 278.3c-9.4 9.4-9.4 24.6 0 33.9l136 136c9.4 9.5 24.6 9.5 34 .1z"><title>Expand all</title></path>', image_map)); //https://fontawesome.com/license
         
         PageWrite("</div>");
     }
