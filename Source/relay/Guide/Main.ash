@@ -107,40 +107,49 @@ void runMain(string relay_filename)
         PageWrite(navbar);
 	}
     
-    if (__setting_show_location_bar)
+    boolean displaying_location_bar = __setting_show_location_bar;
+    if (displaying_location_bar)
     {
         buffer location_bar = generateLocationBar(displaying_navbar);
-        PageWrite(location_bar);
+        if (location_bar.length() == 0)
+            displaying_location_bar = false;
+        else
+            PageWrite(location_bar);
     }
 	
 
 	int max_width_setting = __setting_horizontal_width;
 	
-	PageWrite(HTMLGenerateTagPrefix("div", mapMake("class", "r_centre", "style", "max-width:" + max_width_setting + "px;"))); //centre holding container
-	
+    string bottom_margin;
+    float bottom_offset = (__setting_navbar_height_in_em - 0.05) * (displaying_navbar.to_int() + displaying_location_bar.to_int());
+    if (bottom_offset > 0.0)
+        bottom_margin = "margin-bottom:" + bottom_offset + "em;";
+    
+    PageWrite(HTMLGenerateTagPrefix("div", mapMake("class", "r_centre", "id", "Guide_horizontal_container", "style", "max-width:" + max_width_setting + "px;" + bottom_margin))); //centre holding container
     
     
     
     if (true)
     {
         //Buttons.
-        //position:absolute holding container, so we can absolutely position these, absolutely:
-        PageWrite(HTMLGenerateTagPrefix("div", mapMake("style", "position:absolute;" + "width:100%;max-width:" + max_width_setting + "px;")));
-        
         string [string] base_image_map;
         base_image_map["width"] = "12";
         base_image_map["height"] = "12";
         base_image_map["class"] = "r_button";
         
+        //position:fixed holding container for the Close button:
         string [string] image_map = mapCopy(base_image_map);
         image_map["src"] = __close_image_data;
         image_map["onclick"] = "buttonCloseClicked(event)";
-        image_map["style"] = "left:5px;top:5px;position:fixed;z-index:4;";
+        image_map["style"] = "left:5px;top:5px;z-index:4;";
         image_map["id"] = "button_close_box";
         image_map["alt"] = "Close";
         image_map["title"] = image_map["alt"];
-        PageWrite(HTMLGenerateTagPrefix("img", image_map));
+        PageWrite(HTMLGenerateTagWrap("div", HTMLGenerateTagPrefix("img", image_map), string [string] {"id":"close_button_position_reference", "style":"position:fixed;width:100%;max-width:" + max_width_setting + "px;"}));
         
+        
+        //position:absolute holding container, so we can absolutely position these, absolutely:
+        PageWrite(HTMLGenerateTagPrefix("div", mapMake("id", "top_buttons_position_reference", "style", "position:absolute;" + "width:100%;max-width:" + max_width_setting + "px;")));
         
         image_map = mapCopy(base_image_map);
         image_map["src"] = __new_window_image_data;
@@ -193,7 +202,7 @@ void runMain(string relay_filename)
     {
         //Holding container:
         string style = "";
-        style += "max-width:" + max_width_setting + "px;padding-top:5px;padding-bottom:0.25em;";
+        style += "padding-top:5px;padding-bottom:0.25em;";
         if (!__setting_fill_vertical)
             style += "background-color:" + __setting_page_background_colour + ";";
         if (!__setting_side_negative_space_is_dark && !__setting_fill_vertical)
@@ -201,12 +210,34 @@ void runMain(string relay_filename)
             style += "border:1px solid;border-top:0px;border-bottom:1px solid;";
             style += "border-color:" + __setting_line_colour + ";";
         }
-        PageWrite(HTMLGenerateTagPrefix("div", mapMake("style", style)));
+        PageWrite(HTMLGenerateTagPrefix("div", mapMake("id", "Guide_body", "style", style)));
     }
     
+    if (true)
+    {
+        // Head text
     
-	PageWrite(HTMLGenerateSpanOfStyle(guide_title, "font-weight:bold; font-size:1.5em"));
-	
+        // Title
+        PageWrite(HTMLGenerateSpanOfStyle(guide_title, "font-weight:bold; font-size:1.5em"));
+        // Day + Turn Count
+        if (__misc_state["in run"] && playerIsLoggedIn()) {
+            PageWrite(HTMLGenerateDivOfClass("Day " + my_daycount() + ". " + pluralise(my_turncount(), "turn", "turns") + " played.", "r_bold"));
+        }
+        // Path
+        if (my_path() != "" && my_path() != "None" && playerIsLoggedIn()) {
+            PageWrite(HTMLGenerateDivOfClass(my_path(), "r_bold"));
+        }
+        // Random Message (which we'll have to remove :c )
+        PageWrite(HTMLGenerateDivOfStyle(generateRandomMessage(), "padding-left:20px;padding-right:20px;"));
+        PageWrite(HTMLGenerateTagWrap("div", "", mapMake("id", "extra_words_at_top")));
+        // Example mode
+        if (__misc_state["Example mode"]) {
+            PageWrite("<br>");
+            PageWrite(HTMLGenerateDivOfStyle("Example ascension", "text-align:center; font-weight:bold;"));
+        }
+    }
+    
+ 
 	outputChecklists(ordered_output_checklists);
 	
     
@@ -215,10 +246,11 @@ void runMain(string relay_filename)
         //Gray text at the bottom:
         string line;
         line = HTMLGenerateTagWrap("span", "<br>Automatic refreshing disabled.", mapMake("id", "refresh_status"));
-        line += HTMLGenerateTagWrap("a", "<br>Created by Ezandora and cdrock", generateMainLinkMap("showplayer.php?who=1557284"));
+        line += HTMLGenerateTagWrap("a", "<br>Created by the almighty Ezandora", generateMainLinkMap("showplayer.php?who=1557284"));
+        line += "<br> Forked and maintained by the ASS team";
         line += "<br>" + __version;
         
-        PageWrite(HTMLGenerateDivOfStyle(line, "font-size:0.777em;color:gray;"));
+        PageWrite(HTMLGenerateTagWrap("div", line, mapMake("style", "font-size:0.777em;color:gray;margin-top:-12px;", "id", "Guide_foot")));
         
         if (true)
         {
@@ -233,7 +265,7 @@ void runMain(string relay_filename)
             image_map["style"] = "position:relative;top:-12px;right:3px;visibility:visible;";
             image_map["alt"] = "Refresh";
             image_map["title"] = image_map["alt"];
-            PageWrite(HTMLGenerateDivOfStyle(HTMLGenerateTagPrefix("img", image_map), "max-height:0px;width:100%;text-align:right;"));
+            PageWrite(HTMLGenerateTagWrap("div", HTMLGenerateTagPrefix("img", image_map), mapMake("style", "max-height:0px;width:100%;text-align:right;", "id", "refresh_button_position_reference")));
         }
     }
     boolean matrix_enabled = false;
@@ -269,15 +301,11 @@ void runMain(string relay_filename)
     
 	PageWrite("</div>");
 	PageWrite("</div>");
-	if (displaying_navbar) //in-div spacing at bottom for navbar
-		PageWrite(HTMLGenerateDivOfStyle("", "height:" + (__setting_navbar_height_in_em - 0.05) + "em;"));
-    if (__setting_show_location_bar) //in-div spacing at bottom for location bar
-		PageWrite(HTMLGenerateDivOfStyle("", "height:" + (__setting_navbar_height_in_em - 0.05) + "em;"));
     
     if (__setting_fill_vertical)
     {
-        PageWrite(HTMLGenerateTagWrap("div", "", mapMake("class", "r_vertical_fill", "style", "z-index:-1;background-color:" + __setting_page_background_colour + ";max-width:" + __setting_horizontal_width + "px;"))); //Color fill
-        PageWrite(HTMLGenerateTagWrap("div", "", mapMake("class", "r_vertical_fill", "style", "z-index:-11;border-left:1px solid;border-right:1px solid;border-color:" + __setting_line_colour + ";width:" + (__setting_horizontal_width) + "px;"))); //Vertical border lines, empty background
+        PageWrite(HTMLGenerateTagWrap("div", "", mapMake("id", "color_fill", "class", "r_vertical_fill", "style", "z-index:-1;background-color:" + __setting_page_background_colour + ";max-width:" + __setting_horizontal_width + "px;"))); //Color fill
+        PageWrite(HTMLGenerateTagWrap("div", "", mapMake("id", "vertical_border_lines", "class", "r_vertical_fill", "style", "z-index:-11;border-left:1px solid;border-right:1px solid;border-color:" + __setting_line_colour + ";width:" + (__setting_horizontal_width) + "px;"))); //Vertical border lines, empty background
     }
     PageWriteHead("<script type=\"text/javascript\" src=\"relay_TourGuide.js\"></script>");
     

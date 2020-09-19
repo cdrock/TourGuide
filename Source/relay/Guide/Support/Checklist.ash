@@ -253,9 +253,9 @@ string ChecklistGenerateModifierSpan(string [int] modifiers)
 	return HTMLGenerateSpanOfClass(modifiers.listJoinComponents(", "), "r_cl_modifier");
 }
 
-string ChecklistGenerateModifierSpan(string modifier)
+string ChecklistGenerateModifierSpan(string modifier) //no longer span, but I'm sure as hell not gonna change every instance of it :V
 {
-	return HTMLGenerateSpanOfClass(modifier, "r_cl_modifier");
+	return HTMLGenerateDivOfClass(modifier, "r_cl_modifier");
 }
 
 
@@ -267,23 +267,19 @@ void ChecklistInit()
 	
 	PageAddCSSClass("", "r_cl_header", "text-align:center; font-size:1.15em; font-weight:bold;");
 	PageAddCSSClass("", "r_cl_subheader", "font-size:1.07em; font-weight:bold;");
-	PageAddCSSClass("div", "r_cl_inter_spacing_divider", "width:100%; height:12px;");
-	PageAddCSSClass("div", "r_cl_l_container", "padding-top:5px;padding-bottom:5px;");
+    PageAddCSSClass("div", "r_cl_entry_first_subheader", "display:flex;flex-direction:row;justify-content:space-between;align-items:flex-start;width:100%;");
+    PageAddCSSClass("div", "r_cl_entry_container", "display:flex;flex-direction:row;align-items:flex-start;padding-top:5px;padding-bottom:5px;");
     
     string gradient = "background: #ffffff;background: -moz-linear-gradient(left, #ffffff 50%, #F0F0F0 75%, #F0F0F0 100%);background: -webkit-gradient(linear, left top, right top, color-stop(50%,#ffffff), color-stop(75%,#F0F0F0), color-stop(100%,#F0F0F0));background: -webkit-linear-gradient(left, #ffffff 50%,#F0F0F0 75%,#F0F0F0 100%);background: -o-linear-gradient(left, #ffffff 50%,#F0F0F0 75%,#F0F0F0 100%);background: -ms-linear-gradient(left, #ffffff 50%,#F0F0F0 75%,#F0F0F0 100%);background: linear-gradient(to right, #ffffff 50%,#F0F0F0 75%,#F0F0F0 100%);filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#F0F0F0',GradientType=1 );"; //help
-	PageAddCSSClass("div", "r_cl_l_container_highlighted", gradient + "padding-top:5px;padding-bottom:5px;");
+    PageAddCSSClass("", "container_highlighted", gradient + "margin-right:-" + __setting_indention_width + ";padding-right:" + __setting_indention_width + ";"); //counter the checklist_container's padding, so that the gradient won't stop mid-way
     
-	PageAddCSSClass("div", "r_cl_l_left", "float:left;width:" + __setting_image_width_large + "px;margin-left:20px;overflow:hidden;");
-	PageAddCSSClass("div", "r_cl_l_right_container", "width:100%;margin-left:" + (-__setting_image_width_large - 20) + "px;float:right;text-align:left;vertical-align:top;");
-	PageAddCSSClass("div", "r_cl_l_right_content", "margin-left:" + (__setting_image_width_large + 20 + 2) + "px;display:inline-block;margin-right:20px;");
+    PageAddCSSClass("div", "r_cl_entry_image", "width:" + __setting_image_width_large + "px;flex:none;");
+    PageAddCSSClass("div", "r_cl_entry_content_container", "flex-grow:1;display:flex;flex-direction:column;text-align:left;align-items:flex-start;");
     
-    PageAddCSSClass("hr", "r_cl_hr", "padding:0px;margin-top:0px;margin-bottom:0px;width:auto; margin-left:" + __setting_indention_width + ";margin-right:" + __setting_indention_width +";");
-    PageAddCSSClass("hr", "r_cl_hr_extended", "padding:0px;margin-top:0px;margin-bottom:0px;width:auto; margin-left:" + __setting_indention_width + ";margin-right:0px;");
-	PageAddCSSClass("div", "r_cl_holding_container", "display:inline-block;");
-    //PageAddCSSClass("div", "r_cl_holding_container.r_cl_collapsed","display:none;");
+    PageAddCSSClass("hr", "r_cl_hr", "padding:0px;margin:0px;width:auto;"); // could replace by manually adding a border-top to any r_cl_entry_container other than the top one?
+    PageAddCSSClass("hr", "r_cl_hr_extended", "padding:0px;margin:0px;width:auto; margin-right: -" + __setting_indention_width + ";");
     PageAddCSSClass("div", "r_cl_collapsed","display:none;");
-    //PageAddCSSClass("div", "r_cl_minimize_button", "width:0px;height:0px;float:right;direction:rtl;position:relative;z-index:2;user-select:none;color:#7F7F7F;margin-right:" + __setting_indention_width + ";");
-    PageAddCSSClass("button", "r_cl_minimize_button", "background-color:antiquewhite;padding:0px;float:right;position:relative;z-index:2;color:#7F7F7F;cursor:pointer;margin-right:" + __setting_indention_width + ";");
+    PageAddCSSClass("button", "r_cl_minimize_button", "background-color:antiquewhite;padding:0px;font-size:11px;height:18px;width:18px;position:relative;z-index:2;color:#7F7F7F;cursor:pointer;");
     PageAddCSSClass("button", "r_cl_minimize_button:hover", "background-color:black;");
 	
     
@@ -291,43 +287,30 @@ void ChecklistInit()
     PageAddCSSClass("", "r_cl_image_container_medium", "display:none;");
     PageAddCSSClass("", "r_cl_image_container_small", "display:none;");
     
-	if (true)
-	{
-		string div_style = "";
-		div_style = "margin:0px; border:1px; border-style: solid; border-color:" + __setting_line_colour + ";";
-        div_style += "border-left:0px; border-right:0px;";
-        div_style += "background-color:#FFFFFF; width:100%; padding-top:5px;";
-		PageAddCSSClass("div", "r_cl_checklist_container", div_style);
-	}
+	PageAddCSSClass("div", "r_cl_checklist_container", "margin:0px; padding-left:" + __setting_indention_width + "; padding-right:" + __setting_indention_width + "; border:1px; border-style: solid; border-color:" + __setting_line_colour + ";border-left:0px; border-right:0px;background-color:#FFFFFF; padding-top:5px;");
     
     //media queries:
-    if (!__use_table_based_layouts)
+    if (true)
     {
-        PageAddCSSClass("div", "r_cl_l_left", "width:" + __setting_image_width_medium + "px;margin-left:5px;", 0, __setting_media_query_medium_size);
-        PageAddCSSClass("div", "r_cl_l_right_container", "margin-left:" + (-__setting_image_width_medium - 5) + "px;", 0, __setting_media_query_medium_size);
-        PageAddCSSClass("div", "r_cl_l_right_content", "margin-left:" + (__setting_image_width_medium + 5 + 2) + "px;margin-right:10px;", 0, __setting_media_query_medium_size);
-        PageAddCSSClass("div", "r_cl_l_container", "padding-top:4px;padding-bottom:4px;", 0, __setting_media_query_medium_size);
-        PageAddCSSClass("hr", "r_cl_hr", "margin-left:" + (__setting_indention_width_in_em / 2.0) + "em;margin-right:" + (__setting_indention_width_in_em / 2.0) +"em;", 0, __setting_media_query_medium_size);
-        PageAddCSSClass("hr", "r_cl_hr_extended", "margin-left:" + (__setting_indention_width_in_em / 2.0) + "em;", 0, __setting_media_query_medium_size);
-        PageAddCSSClass("button", "r_cl_minimize_button", "margin-right:" + (__setting_indention_width_in_em / 2.0) + "em;", 0, __setting_media_query_medium_size);
+        PageAddCSSClass("div", "r_cl_checklist_container", "padding-left:" + (__setting_indention_width_in_em / 2.0) + "em; padding-right:" + (__setting_indention_width_in_em / 2.0) + "em;", 0, __setting_media_query_medium_size);
+        PageAddCSSClass("div", "r_cl_entry_container", "padding-top:4px;padding-bottom:4px;", 0, __setting_media_query_medium_size);
+        PageAddCSSClass("div", "r_cl_entry_image", "width:" + __setting_image_width_medium + "px;", 0, __setting_media_query_medium_size);
+        PageAddCSSClass("hr", "r_cl_hr_extended", "margin-right: -" + (__setting_indention_width_in_em / 2.0) + "em;", 0, __setting_media_query_medium_size);
+        PageAddCSSClass("", "container_highlighted", "margin-right:-" + (__setting_indention_width_in_em / 2.0) + "em;padding-right:" + (__setting_indention_width_in_em / 2.0) + "em;", 0, __setting_media_query_medium_size);
         
         
-        PageAddCSSClass("div", "r_cl_l_left", "width:" + (__setting_image_width_small) + "px;margin-left:5px;", 0, __setting_media_query_small_size);
-        PageAddCSSClass("div", "r_cl_l_right_container", "margin-left:" + (-(__setting_image_width_small) - 10) + "px;", 0, __setting_media_query_small_size);
-        PageAddCSSClass("div", "r_cl_l_right_content", "margin-left:" + ((__setting_image_width_small) + 10) + "px;margin-right:3px;", 0, __setting_media_query_small_size);
-        PageAddCSSClass("hr", "r_cl_hr", "margin-left:0px;margin-right:0px;", 0, __setting_media_query_small_size);
-        PageAddCSSClass("hr", "r_cl_hr_extended", "margin-left:0px;", 0, __setting_media_query_small_size);
-        PageAddCSSClass("div", "r_cl_l_container", "padding-top:3px;padding-bottom:3px;", 0, __setting_media_query_small_size);
-        PageAddCSSClass("button", "r_cl_minimize_button", "margin-right:0px;", 0, __setting_media_query_small_size);
+        PageAddCSSClass("div", "r_cl_checklist_container", "padding-left:5px; padding-right:0px;", 0, __setting_media_query_small_size);
+        PageAddCSSClass("hr", "r_cl_hr_extended", "margin-right:0px;", 0, __setting_media_query_small_size);
+        PageAddCSSClass("", "container_highlighted", "margin-right:0px;padding-right:0px;", 0, __setting_media_query_small_size);
+        PageAddCSSClass("div", "r_cl_entry_container", "padding-top:3px;padding-bottom:3px;", 0, __setting_media_query_small_size);
+        PageAddCSSClass("div", "r_cl_entry_image", "width:" + __setting_image_width_small + "px;", 0, __setting_media_query_small_size);
         
         
-        PageAddCSSClass("div", "r_cl_l_left", "width:" + (0) + "px;margin-left:3px;", 0, __setting_media_query_tiny_size);
-        PageAddCSSClass("div", "r_cl_l_right_container", "margin-left:" + (-(0) - 3) + "px;", 0, __setting_media_query_tiny_size);
-        PageAddCSSClass("div", "r_cl_l_right_content", "margin-left:" + ((0) + 3 + 2) + "px;margin-right:3px;", 0, __setting_media_query_tiny_size);
-        PageAddCSSClass("hr", "r_cl_hr", "margin-left:0px;margin-right:0px;", 0, __setting_media_query_tiny_size);
-        PageAddCSSClass("hr", "r_cl_hr_extended", "margin-left:0px;", 0, __setting_media_query_tiny_size);
-        PageAddCSSClass("div", "r_cl_l_container", "padding-top:3px;padding-bottom:3px;", 0, __setting_media_query_tiny_size);
-        PageAddCSSClass("button", "r_cl_minimize_button", "margin-right:0px;", 0, __setting_media_query_tiny_size);
+        PageAddCSSClass("div", "r_cl_checklist_container", "padding-left:3px; padding-right:0px;", 0, __setting_media_query_tiny_size);
+        PageAddCSSClass("hr", "r_cl_hr_extended", "margin-right:0px;", 0, __setting_media_query_tiny_size);
+        PageAddCSSClass("", "container_highlighted", "margin-right:0px;padding-right:0px;", 0, __setting_media_query_tiny_size);
+        PageAddCSSClass("div", "r_cl_entry_container", "padding-top:3px;padding-bottom:3px;", 0, __setting_media_query_tiny_size);
+        PageAddCSSClass("div", "r_cl_entry_image", "width:0px;", 0, __setting_media_query_tiny_size);
         
         
         
@@ -343,21 +326,9 @@ void ChecklistInit()
         PageAddCSSClass("", "r_cl_image_container_medium", "display:none;", 0, __setting_media_query_tiny_size);
         PageAddCSSClass("", "r_cl_image_container_small", "display:none;", 0, __setting_media_query_tiny_size);
         
-        PageAddCSSClass("", "r_small_float_indention", "display:none");
         
-        PageAddCSSClass("", "r_indention_not_small", "margin-left:" + __setting_indention_width + ";");
-        if (__setting_small_size_uses_full_width)
-        {
-            PageAddCSSClass("div", "r_cl_l_right_content", "margin-left:10px;margin-right:3px;min-width:80%;", 0, __setting_media_query_small_size);
-            PageAddCSSClass("", "r_cl_image_container_small", "display:block;float:left;", 0, __setting_media_query_small_size);
-            PageAddCSSClass("", "r_small_float_indention", "display:inline;width:0.5em;float:left;", 0, __setting_media_query_small_size);
-            PageAddCSSClass("", "r_indention_not_small", "margin-left:0.75em;", 0, __setting_media_query_small_size);
-            PageAddCSSClass("", "r_indention_not_small", "margin-left:0.75em;", 0, __setting_media_query_tiny_size);
-        }
-        
-        
-        PageAddCSSClass("", "r_indention", "margin-left:0.75em;", 0, __setting_media_query_small_size);
-        PageAddCSSClass("", "r_indention", "margin-left:0.75em;", 0, __setting_media_query_tiny_size);
+        PageAddCSSClass("", "r_indention", "margin-left:" + (__setting_indention_width_in_em / 2.0) + "em;", 0, __setting_media_query_small_size);
+        PageAddCSSClass("", "r_indention", "margin-left:" + (__setting_indention_width_in_em / 2.0) + "em;", 0, __setting_media_query_tiny_size);
     }
 }
 
@@ -404,125 +375,103 @@ void ChecklistFormatSubentry(ChecklistSubentry subentry) {
     }
 }
 
-buffer ChecklistGenerateEntryHTML(ChecklistEntry entry, ChecklistSubentry [int] subentries, boolean outputting_anchor, buffer anchor_prefix_html, buffer anchor_suffix_html, boolean setting_use_holding_containers_per_subentry) {
+buffer ChecklistGenerateEntryHTML(ChecklistEntry entry, ChecklistSubentry [int] subentries, string [string] anchor_attributes) {
     Vec2i max_image_dimensions_large = Vec2iMake(__setting_image_width_large, 75);
     Vec2i max_image_dimensions_medium = Vec2iMake(__setting_image_width_medium, 50);
     Vec2i max_image_dimensions_small = Vec2iMake(__setting_image_width_small, 50);
-    if (__setting_small_size_uses_full_width) {
-        max_image_dimensions_small = Vec2iMake(__setting_image_width_small,__setting_image_width_small);
-    }
 
     buffer result;
     buffer image_container;
     string entry_id_raw = entry.subentries[0].header + entry.importance_level.to_string().replace_string("-","minus");
     string entry_id = create_matcher("[^0-9a-zA-Z]", entry_id_raw).replace_all(""); //remove characters that break the .js
     
-    if (outputting_anchor && !__setting_entire_area_clickable) {
-        image_container.append(anchor_prefix_html);
-    }
-    
     image_container.append(KOLImageGenerateImageHTML(entry.image_lookup_name, true, max_image_dimensions_large, "r_cl_image_container_large"));
     image_container.append(KOLImageGenerateImageHTML(entry.image_lookup_name, true, max_image_dimensions_medium, "r_cl_image_container_medium"));
-
-    if (!__setting_small_size_uses_full_width) {
-        image_container.append(KOLImageGenerateImageHTML(entry.image_lookup_name, true, max_image_dimensions_small, "r_cl_image_container_small"));
-    }
+    image_container.append(KOLImageGenerateImageHTML(entry.image_lookup_name, true, max_image_dimensions_small, "r_cl_image_container_small"));
     
-    if (outputting_anchor && !__setting_entire_area_clickable) {
-        image_container.append(anchor_suffix_html);
-    }
+    if (anchor_attributes.count() > 0 && !__setting_entire_area_clickable)
+        image_container = HTMLGenerateTagWrap("a", image_container, anchor_attributes);
     
-    result.append(HTMLGenerateDivOfClass(image_container, "r_cl_l_left"));
-    result.append(HTMLGenerateTagPrefix("div", mapMake("class", "r_cl_l_right_container")));
+    result.append(HTMLGenerateTagWrap("div", image_container, mapMake("class", "r_cl_entry_image")));
     
-    if (true) { //minimize button
-        boolean entry_has_content_to_minimize = false;
-        int indented_entries;
-        foreach j, subentry in subentries {
-            if (subentry.header == "")
-                continue;
-            
-            if (entry.should_indent_after_first_subentry)
-                indented_entries++;
-            if (subentry.entries.count() > 0 || indented_entries >= 2) {
-                entry_has_content_to_minimize = true;
-                break;
-            }
-        }
-
-        if (entry_has_content_to_minimize) {
-            result.append(HTMLGenerateTagWrap("button", "&#9660;", string [string] {"class":"r_cl_minimize_button","alt":"Minimize","title":"Minimize","id":"toggle_" + entry_id,"onclick":"alterSubentryMinimization(event)"}));
-        }
-    }
-    
-    if (outputting_anchor && !__setting_entire_area_clickable) {
-        result.append(anchor_prefix_html);
-    }
-
-    result.append(HTMLGenerateTagPrefix("div", mapMake("class", "r_cl_l_right_content")));
-    
-    if (__setting_small_size_uses_full_width) {
-        result.append(KOLImageGenerateImageHTML(entry.image_lookup_name, true, max_image_dimensions_small, "r_cl_image_container_small"));
-        result.append(HTMLGenerateTagWrap("div", "", mapMake("class", "r_small_float_indention", "style", "height: " + __kol_image_generate_image_html_return_final_size.y + "px;")));
-    }
+    buffer entry_content;
     
     boolean first = true;
     boolean indented_after_first_subentry = false;
-    foreach j in subentries {
-        ChecklistSubentry subentry = subentries[j];
+    boolean entry_is_just_a_title = true;
+    foreach j, subentry in subentries {
         if (subentry.header == "")
             continue;
-        string subheader = subentry.header;
+        string subheader = HTMLGenerateSpanOfClass(subentry.header, "r_cl_subheader");
         
         if (first)
         {
-            first = false;
+            buffer first_subheader;
+            if (anchor_attributes.count() > 0 && !__setting_entire_area_clickable)
+                subheader = HTMLGenerateTagWrap("a", subheader, anchor_attributes);
+            first_subheader.append(subheader);
+            
+            //minimize button
+            boolean entry_has_content_to_minimize = false;
+            int indented_entries;
+            foreach j, subentry in subentries {
+                if (subentry.header == "")
+                    continue;
+                
+                if (entry.should_indent_after_first_subentry)
+                    indented_entries++;
+                if (subentry.entries.count() > 0 || indented_entries >= 2) {
+                    entry_has_content_to_minimize = true;
+                    break;
+                }
+            }
+
+            if (entry_has_content_to_minimize) {
+                first_subheader.append(HTMLGenerateTagWrap("button", "&#9660;", string [string] {"class":"r_cl_minimize_button","alt":"Minimize","title":"Minimize","id":"toggle_" + entry_id,"onclick":"alterSubentryMinimization(event)"}));
+            }
+
+            entry_content.append(HTMLGenerateTagWrap("div", first_subheader, string [string] {"class":"r_cl_entry_first_subheader"}));
         }
         else if (entry.should_indent_after_first_subentry && !indented_after_first_subentry)
         {
-            result.append(HTMLGenerateTagPrefix("div", mapMake("class", "r_indention " + entry_id)));
+            entry_content.append(HTMLGenerateTagPrefix("div", mapMake("class", "r_indention " + entry_id)));
             indented_after_first_subentry = true;
         }
         
-        result.append(HTMLGenerateSpanOfClass(subheader, "r_cl_subheader"));
-        string content_indention = __setting_small_size_uses_full_width ? "r_indention_not_small" : "r_indention";
-        result.append( //this mini-abomination is necessary; an empty r_indention is the only thing preventing chaining headers from being in a single file, when minimized
-            (subentry.modifiers.count() > 0 ?
-                    subentry.modifiers.listJoinComponents(", ").ChecklistGenerateModifierSpan() : ""
-            ).HTMLGenerateDivOfClass(content_indention)
-        );
+        if (anchor_attributes.count() > 0 && !__setting_entire_area_clickable) {
+            if (subentry.modifiers.count() + subentry.entries.count() > 0 && entry_is_just_a_title) {
+                entry_is_just_a_title = false;
+                entry_content.append(HTMLGenerateTagPrefix("a", anchor_attributes));
+            }
+        }
+        
+        if (!first)
+            entry_content.append(HTMLGenerateDivOfClass(subentry.header, "r_cl_subheader"));
+        
+        if (subentry.modifiers.count() > 0)
+            entry_content.append(subentry.modifiers.listJoinComponents(", ").HTMLGenerateDivOfClass("r_indention r_cl_modifier"));
 
-        result.append(HTMLGenerateTagPrefix("div", mapMake("class", content_indention + (indented_after_first_subentry ? "" : " " + entry_id) )));
         if (subentry.entries.count() > 0)
         {
-            int intra_k = 0;
-            if (setting_use_holding_containers_per_subentry)
-                result.append(HTMLGenerateTagPrefix("div", mapMake("class", "r_cl_holding_container"))); //HRs
-            while (intra_k < subentry.entries.count())
+            buffer subentry_text;
+            for intra_k from 0 to subentry.entries.count() - 1
             { 
                 if (intra_k > 0)
-                    result.append("<hr>");
+                    subentry_text.append("<hr>");
                 string line = subentry.entries[listKeyForIndex(subentry.entries, intra_k)];
                 
-                //if (line.contains_text("<hr"))
-                line = HTMLGenerateDivOfClass(line, "r_cl_holding_container"); //For nested HRs, sizes them down a bit
-                
-                result.append(line);
-                
-                intra_k += 1;
+                subentry_text.append(line);
             }
-            if (setting_use_holding_containers_per_subentry)
-                result.append("</div>");
+            entry_content.append(HTMLGenerateTagWrap("div", subentry_text, mapMake("class", "r_indention" + (indented_after_first_subentry ? "" : " " + entry_id) )));
         }
-        result.append("</div>");
+        
+        first = false;
     }
     if (indented_after_first_subentry)
-        result.append("</div>");
-    result.append("</div>");
-    if (outputting_anchor && !__setting_entire_area_clickable)
-        result.append(anchor_suffix_html);
-    result.append("</div>");
-    result.append(HTMLGenerateDivOfClass("", "r_end_floating_elements")); //stop floating
+        entry_content.append("</div>");
+    if (anchor_attributes.count() > 0 && !__setting_entire_area_clickable && !entry_is_just_a_title)
+        entry_content.append("</a>");
+    result.append(HTMLGenerateTagWrap("div", entry_content, mapMake("class", "r_cl_entry_content_container")));
     return result;
 }
 
@@ -593,43 +542,41 @@ buffer ChecklistGenerate(Checklist cl, boolean output_borders) {
 	}
 	
 	buffer result;
-    if (output_borders)
-        result.append(HTMLGenerateDivOfClass("", "r_cl_inter_spacing_divider")); //spacing
-	
-    if (!cl.disable_generating_id)
-        result.append(HTMLGenerateTagWrap("a", "", mapMake("id", HTMLConvertStringToAnchorID(cl.title), "class", "r_cl_internal_anchor")));
-	
     string [string] main_container_map;
     main_container_map["class"] = "r_cl_checklist_container";
     if (!cl.disable_generating_id)
         main_container_map["id"] = HTMLConvertStringToAnchorID(cl.title + " checklist container");
-    if (!output_borders)
+    if (output_borders)
+        main_container_map["style"] = "margin-top:12px;margin-bottom:24px;"; //spacing
+    else
         main_container_map["style"] = "border:0px;";
     result.append(HTMLGenerateTagPrefix("div", main_container_map));
 	
 	
-	result.append(HTMLGenerateDivOfClass(cl.title, "r_cl_header"));
+    string anchor = cl.title;
+    if (!cl.disable_generating_id)
+        anchor = HTMLGenerateTagWrap("a", "", mapMake("id", HTMLConvertStringToAnchorID(cl.title), "class", "r_cl_internal_anchor")) + cl.title;
+    
+	result.append(HTMLGenerateDivOfClass(anchor, "r_cl_header"));
 	
 	if (special_subheader != "")
 		result.append(ChecklistGenerateModifierSpan(special_subheader));
 	
-	int starting_intra_i = 0;
+	int starting_intra_i = 1;
 	if (skip_first_entry)
-		starting_intra_i = 1;
+		starting_intra_i++;
 	int intra_i = 0;
 	int entries_output = 0;
     boolean last_was_highlighted = false;
     int current_mouse_over_id = 1;
-	foreach i in entries
+    foreach i, entry in entries
 	{
-		if (intra_i < starting_intra_i)
-		{
-			intra_i += 1;
+        if (++intra_i < starting_intra_i)
 			continue;
-		}
-		ChecklistEntry entry = entries[i];
+        entries_output++;
 		if (intra_i > starting_intra_i)
 		{
+            //add a division (hr) between the entries
             boolean next_is_highlighted = false;
             if (entry.should_highlight)
                 next_is_highlighted = true;
@@ -638,37 +585,20 @@ buffer ChecklistGenerate(Checklist cl, boolean output_borders) {
                 class_name = "r_cl_hr_extended";
 			result.append(HTMLGenerateTagPrefix("hr", mapMake("class", class_name)));
 		}
-        if (__use_table_based_layouts)
-            __setting_entire_area_clickable = true;
-		boolean outputting_anchor = false;
-        buffer anchor_prefix_html;
-        buffer anchor_suffix_html;
+        string [string] anchor_attributes;
 		if (entry.url != "")
-		{
-            anchor_prefix_html = HTMLGenerateTagPrefix("a", mapMake("target", "mainpane", "href", entry.url, "class", "r_a_undecorated"));
-			anchor_suffix_html.append("</a>");
-			outputting_anchor = true;
-		}
-        if (outputting_anchor && __setting_entire_area_clickable)
-			result.append(anchor_prefix_html);
-		
-		boolean setting_use_holding_containers_per_subentry = true;
-			
-		Vec2i max_image_dimensions_large = Vec2iMake(__setting_image_width_large, 75);
-		Vec2i max_image_dimensions_medium = Vec2iMake(__setting_image_width_medium, 50);
-		Vec2i max_image_dimensions_small = Vec2iMake(__setting_image_width_small, 50);
-        if (__setting_small_size_uses_full_width)
-            max_image_dimensions_small = Vec2iMake(__setting_image_width_small,__setting_image_width_small);
+            anchor_attributes = {"target":"mainpane", "href":entry.url, "class":"r_a_undecorated"};
         
-        string container_class = "r_cl_l_container";
+        buffer entry_content;
+        string container_class = "r_cl_entry_container";
         if (entry.should_highlight)
-            container_class = "r_cl_l_container_highlighted";
+            container_class += " container_highlighted";
         last_was_highlighted = entry.should_highlight;
         
-        buffer generated_subentry_html = ChecklistGenerateEntryHTML(entry, entry.subentries, outputting_anchor, anchor_prefix_html, anchor_suffix_html, setting_use_holding_containers_per_subentry);
+        buffer generated_subentry_html = ChecklistGenerateEntryHTML(entry, entry.subentries, anchor_attributes);
         if (entry.subentries_on_mouse_over.count() > 0)
         {
-            buffer generated_mouseover_subentry_html = ChecklistGenerateEntryHTML(entry, entry.subentries_on_mouse_over, outputting_anchor, anchor_prefix_html, anchor_suffix_html, setting_use_holding_containers_per_subentry);
+            buffer generated_mouseover_subentry_html = ChecklistGenerateEntryHTML(entry, entry.subentries_on_mouse_over, anchor_attributes);
             
             //Can't properly escape, so generate two no-show divs and replace them as needed:
             //We could just have a div that shows up when we mouse over...
@@ -676,107 +606,26 @@ buffer ChecklistGenerate(Checklist cl, boolean output_borders) {
             entry.container_div_attributes["onmouseenter"] = "event.currentTarget.innerHTML = document.getElementById('r_temp_o" + current_mouse_over_id + "').innerHTML";
             entry.container_div_attributes["onmouseleave"] = "event.currentTarget.innerHTML = document.getElementById('r_temp_l" + current_mouse_over_id + "').innerHTML";
             
-            result.append(HTMLGenerateTagPrefix("div", mapMake("id", "r_temp_o" + current_mouse_over_id, "style", "display:none")));
-            result.append(generated_mouseover_subentry_html);
-            result.append(HTMLGenerateTagSuffix("div"));
-            result.append(HTMLGenerateTagPrefix("div", mapMake("id", "r_temp_l" + current_mouse_over_id, "style", "display:none")));
-            result.append(generated_subentry_html);
-            result.append(HTMLGenerateTagSuffix("div"));
+            entry_content.append(HTMLGenerateTagPrefix("div", mapMake("id", "r_temp_o" + current_mouse_over_id, "style", "display:none")));
+            entry_content.append(generated_mouseover_subentry_html);
+            entry_content.append(HTMLGenerateTagSuffix("div"));
+            entry_content.append(HTMLGenerateTagPrefix("div", mapMake("id", "r_temp_l" + current_mouse_over_id, "style", "display:none")));
+            entry_content.append(generated_subentry_html);
+            entry_content.append(HTMLGenerateTagSuffix("div"));
             
             current_mouse_over_id += 1;
         }
         
         entry.container_div_attributes["class"] += (entry.container_div_attributes contains "class" ? " " : "") + container_class;
-        result.append(HTMLGenerateTagPrefix("div", entry.container_div_attributes));
-        
-		if (__use_table_based_layouts)
-		{
-			//table-based layout:
-			result.append("<table cellpadding=0 cellspacing=0><tr>");
-			
-			result.append(HTMLGenerateTagWrap("td", "", mapMake("style", "width:" + __setting_indention_width + ";")));
-			result.append("<td>");
-			result.append(HTMLGenerateTagPrefix("td", mapMake("style", "min-width:" + __setting_image_width_large + "px; max-width:" + __setting_image_width_large + "px; width:" + __setting_image_width_large + "px;vertical-align:top; text-align: center;")));
-			
-			result.append(KOLImageGenerateImageHTML(entry.image_lookup_name, true, max_image_dimensions_large));
-			
-			result.append("</td>");
-			result.append(HTMLGenerateTagPrefix("td", mapMake("style", "text-align:left; vertical-align:top")));
-			
-				
-			boolean first = true;
-            boolean indented_after_first_subentry = false;
-			foreach j in entry.subentries
-			{
-				ChecklistSubentry subentry = entry.subentries[j];
-				if (subentry.header == "")
-					continue;
-				string subheader = subentry.header;
-				
-				if (first)
-				{
-					first = false;
-				}
-				else if (entry.should_indent_after_first_subentry && !indented_after_first_subentry)
-				{
-					result.append(HTMLGenerateTagPrefix("div", mapMake("class", "r_indention")));
-					indented_after_first_subentry = true;
-				}
-				
-				result.append("<table cellpadding=0 cellspacing=0><tr><td colspan=2>");
-			
-				result.append(HTMLGenerateSpanOfClass(subheader, "r_cl_subheader"));
-				
-				result.append("</td></tr>");
-				
-				
-				result.append("<tr>");
-				result.append(HTMLGenerateTagWrap("td", "", mapMake("style", "width:" + __setting_indention_width + ";")));
-				result.append("<td>");
-				if (subentry.modifiers.count() > 0)
-					result.append(ChecklistGenerateModifierSpan(listJoinComponents(subentry.modifiers, ", ") + "<br>"));
-				if (subentry.entries.count() > 0)
-				{
-					int intra_k = 0;
-					while (intra_k < subentry.entries.count())
-					{ 
-						if (intra_k > 0)
-							result.append("<hr>");
-						string line = subentry.entries[listKeyForIndex(subentry.entries, intra_k)];
-						line = HTMLGenerateDivOfClass(line, "r_cl_holding_container"); //For nested HRs
-						
-						
-						result.append(line);
-						
-						intra_k += 1;
-					}
-				}
-				result.append("</td></tr>");
-				
-				result.append("</table>");
-			}
-			if (indented_after_first_subentry) //if (indent_this_entry) //FIXME ??
-				result.append("</div>");
-			result.append("</td>");
-			result.append("</tr></table>");
-		}
-		else
-		{
-            result.append(generated_subentry_html);
-		}
-        result.append("</div>");
+        entry_content.append(HTMLGenerateTagWrap("div", generated_subentry_html, entry.container_div_attributes));
 
 		
-		if (outputting_anchor && __setting_entire_area_clickable)
-            result.append(anchor_suffix_html);
+		if (anchor_attributes.count() > 0 && __setting_entire_area_clickable)
+            entry_content = HTMLGenerateTagWrap("a", entry_content, anchor_attributes);
 		
-		intra_i += 1;
-		entries_output += 1;
+        result.append(entry_content);
 	}
 	result.append("</div>");
-	
-    if (output_borders)
-        result.append(HTMLGenerateDivOfClass("", "r_cl_inter_spacing_divider"));
 	
 	return result;
 }

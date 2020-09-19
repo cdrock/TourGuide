@@ -29,7 +29,7 @@ void setUpCSSStyles()
 	PageAddCSSClass("", "r_clickable", "cursor:pointer;cursor:hand;");
 	PageAddCSSClass("", "r_future_option", "color:" + __setting_unavailable_colour + ";");
 	
-    PageAddCSSClass("a", "r_cl_internal_anchor", "position:absolute;z-index:2;padding-top:" + __setting_navbar_height + ";display:inline-block;");
+    PageAddCSSClass("a", "r_cl_internal_anchor", "position:absolute;z-index:2;display:inline-block;");
 	
     PageAddCSSClass("", "r_button", "visibility:hidden;cursor:pointer;color:#7F7F7F;font-size:1.5em;z-index:3;position:absolute;"); //background:" + __setting_page_background_colour + ";
 	

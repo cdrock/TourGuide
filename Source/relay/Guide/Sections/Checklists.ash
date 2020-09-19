@@ -280,37 +280,13 @@ Adds the checklists to the DOM.
 @param ordered_output_checklists Checklists to output.
 */
 void outputChecklists(Checklist [int] ordered_output_checklists) {
-    // Turn Count
-    if (__misc_state["in run"] && playerIsLoggedIn()) {
-        PageWrite(HTMLGenerateDivOfClass("Day " + my_daycount() + ". " + pluralise(my_turncount(), "turn", "turns") + " played.", "r_bold"));
-    }
-
-    // Path
-	if (my_path() != "" && my_path() != "None" && playerIsLoggedIn()) {
-		PageWrite(HTMLGenerateDivOfClass(my_path(), "r_bold"));
-	}
-    
-    // Random Message
-    PageWrite(HTMLGenerateDivOfStyle(generateRandomMessage(), "padding-left:20px;padding-right:20px;"));
-
-    PageWrite(HTMLGenerateTagWrap("div", "", mapMake("id", "extra_words_at_top")));
-	
-    // Example mode
-	if (__misc_state["Example mode"]) {
-		PageWrite("<br>");
-		PageWrite(HTMLGenerateDivOfStyle("Example ascension", "text-align:center; font-weight:bold;"));
-	}
-    
     Checklist extra_important_tasks;
     
 	// Checklists:
-	foreach i in ordered_output_checklists {
-		Checklist cl = ordered_output_checklists[i];
-        
+	foreach i, cl in ordered_output_checklists {
         // Check for Pin
         if (__show_importance_bar && cl.title == "Tasks") {
-            foreach key in cl.entries {
-                ChecklistEntry entry = cl.entries[key];
+            foreach key, entry in cl.entries {
                 if (entry.importance_level <= -11) {
                     extra_important_tasks.entries.listAppend(entry);
                     if (entry.only_show_as_extra_important_pop_up) {
