@@ -108,6 +108,7 @@ record ChecklistEntry
     ChecklistSubentry [int] subentries_on_mouse_over; //replaces subentries
     
     string combination_tag; //Entries with identical combination tags will be combined into one, with the "first" taking precedence.
+    string identification_tag; //For the "minimize" feature to keep track of the entries. Uses combination_tag instead if present. Uses the first entry's header if empty.
 };
 
 
@@ -176,6 +177,12 @@ ChecklistEntry ChecklistEntryMake(string image_lookup_name, string target_locati
 ChecklistEntry ChecklistEntryTagEntry(ChecklistEntry e, string tag)
 {
     e.combination_tag = tag;
+    return e;
+}
+
+ChecklistEntry ChecklistEntryIDEntry(ChecklistEntry e, string tag)
+{
+    e.identification_tag = tag;
     return e;
 }
 
@@ -382,8 +389,8 @@ buffer ChecklistGenerateEntryHTML(ChecklistEntry entry, ChecklistSubentry [int] 
 
     buffer result;
     buffer image_container;
-    string entry_id_raw = entry.subentries[0].header + entry.importance_level.to_string().replace_string("-","minus");
-    string entry_id = create_matcher("[^0-9a-zA-Z]", entry_id_raw).replace_all(""); //remove characters that break the .js
+    //string entry_id = entry.subentries[0].header + entry.importance_level.to_string();
+    //string entry_id = create_matcher("[^0-9a-zA-Z]", entry_id_raw).replace_all(""); //remove characters that break the .js
     
     image_container.append(KOLImageGenerateImageHTML(entry.image_lookup_name, true, max_image_dimensions_large, "r_cl_image_container_large"));
     image_container.append(KOLImageGenerateImageHTML(entry.image_lookup_name, true, max_image_dimensions_medium, "r_cl_image_container_medium"));
@@ -395,6 +402,15 @@ buffer ChecklistGenerateEntryHTML(ChecklistEntry entry, ChecklistSubentry [int] 
     result.append(HTMLGenerateTagWrap("div", image_container, mapMake("class", "r_cl_entry_image")));
     
     buffer entry_content;
+    
+    string entry_id;
+    if (entry.combination_tag != "") //not supposed to happen, but still can
+        entry_id = entry.combination_tag;
+    else if (entry.identification_tag != "")
+        entry_id = entry.identification_tag;
+    else
+        entry_id = entry.subentries[0].header;
+    entry_id = create_matcher("[ \\-.]", entry_id).replace_all("_");
     
     boolean first = true;
     boolean indented_after_first_subentry = false;
@@ -493,6 +509,7 @@ buffer ChecklistGenerate(Checklist cl, boolean output_borders) {
         
         if (!(combination_tag_entries contains entry.combination_tag)) {
         	entry.importance_level -= 1; //combined entries gain a hack; a level above everything else
+            entry.identification_tag = entry.combination_tag;
         	combination_tag_entries[entry.combination_tag] = entry;
             continue;
         }
@@ -616,7 +633,13 @@ buffer ChecklistGenerate(Checklist cl, boolean output_borders) {
             current_mouse_over_id += 1;
         }
         
-        entry.container_div_attributes["class"] += (entry.container_div_attributes contains "class" ? " " : "") + container_class;
+        if (entry.container_div_attributes contains "class")
+        {
+            if (!entry.container_div_attributes["class"].contains_text(container_class)) //can happen with entries being pinned in the importance bar, passing here twice
+                entry.container_div_attributes["class"] += " " + container_class;
+        }
+        else
+            entry.container_div_attributes["class"] = container_class;
         entry_content.append(HTMLGenerateTagWrap("div", generated_subentry_html, entry.container_div_attributes));
 
 		
