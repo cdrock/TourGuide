@@ -141,11 +141,11 @@ void runMain(string relay_filename)
         string [string] image_map = mapCopy(base_image_map);
         image_map["src"] = __close_image_data;
         image_map["onclick"] = "buttonCloseClicked(event)";
-        image_map["style"] = "left:5px;top:5px;z-index:4;";
+        image_map["style"] = "left:5px;top:5px;";
         image_map["id"] = "button_close_box";
         image_map["alt"] = "Close";
         image_map["title"] = image_map["alt"];
-        PageWrite(HTMLGenerateTagWrap("div", HTMLGenerateTagPrefix("img", image_map), string [string] {"id":"close_button_position_reference", "style":"position:fixed;width:100%;max-width:" + max_width_setting + "px;"}));
+        PageWrite(HTMLGenerateTagWrap("div", HTMLGenerateTagPrefix("img", image_map), string [string] {"id":"close_button_position_reference", "style":"position:fixed;z-index:4;width:100%;max-width:" + max_width_setting + "px;"}));
         
         
         //position:absolute holding container, so we can absolutely position these, absolutely:
@@ -217,6 +217,12 @@ void runMain(string relay_filename)
     {
         // Head text
     
+        string player_name = my_name().to_lower_case().HTMLEscapeString();
+        if (player_name == "")
+            player_name = "anonymous";
+        PageWrite(HTMLGenerateTagWrap("div", player_name, string [string] {"id":"player_name", "style":"display:none;"}));
+        PageWrite("<!--A way for the .js to know the player's name, for the minimize feature to log minimized tiles on a per-player basis-->");
+        
         // Title
         PageWrite(HTMLGenerateSpanOfStyle(guide_title, "font-weight:bold; font-size:1.5em"));
         // Day + Turn Count

@@ -558,7 +558,7 @@ function buttonExpandAllClicked(event)
     //delete the minimized tiles cache
     try
     {
-        localStorage.setItem( "TourGuide_collapsed_tiles", "[]" );
+        localStorage.setItem( `${document.getElementById("player_name").innerHTML}_TourGuide_collapsed_tiles`, "[]" );
     }
     catch (e) {}
 }
@@ -571,12 +571,14 @@ function updateExpandAllButtonVisibility()
     let stored_minimized_tiles;
     try
     {
-        stored_minimized_tiles = JSON.parse(localStorage.getItem("TourGuide_collapsed_tiles"));
+        stored_minimized_tiles = JSON.parse(localStorage.getItem( `${document.getElementById("player_name").innerHTML}_TourGuide_collapsed_tiles` ));
     }
     catch (e)
     {
         stored_minimized_tiles = [];
     }
+    if (stored_minimized_tiles == null)
+        stored_minimized_tiles = [];
     
     if (currently_minimized_tiles.length == 0 && stored_minimized_tiles.length == 0)
         expand_all_button.style.visibility = "";
@@ -714,12 +716,14 @@ function writePageExtras()
     let groups_to_minimize;
     try
     {
-        groups_to_minimize = JSON.parse(localStorage.getItem("TourGuide_collapsed_tiles"));
+        groups_to_minimize = JSON.parse(localStorage.getItem( `${document.getElementById("player_name").innerHTML}_TourGuide_collapsed_tiles` ));
     }
     catch (e) //was security exception
     {
         groups_to_minimize = [];
     }
+    if (groups_to_minimize == null)
+        groups_to_minimize = [];
     for (const group_to_minimize of groups_to_minimize)
     {
         var toggle_box = document.getElementById("toggle_" + group_to_minimize);
@@ -1019,12 +1023,13 @@ function toggle_tile_display(toggle_box, want_collapsed)
 {
     var class_to_toggle = toggle_box.id.substring(7); //remove the "toggle_"
     var entry_group = document.getElementsByClassName( class_to_toggle );
+    const storage_name = `${document.getElementById("player_name").innerHTML}_TourGuide_collapsed_tiles`;
     
     let current_stored_collapsed;
     let to_write;
     try
     {
-        current_stored_collapsed = JSON.parse(localStorage.getItem("TourGuide_collapsed_tiles"));
+        current_stored_collapsed = JSON.parse(localStorage.getItem( storage_name ));
     }
     catch (e)
     {
@@ -1041,7 +1046,7 @@ function toggle_tile_display(toggle_box, want_collapsed)
             {
                 current_stored_collapsed.push( class_to_toggle );
                 to_write = JSON.stringify(current_stored_collapsed);
-                localStorage.setItem( "TourGuide_collapsed_tiles", to_write );
+                localStorage.setItem( storage_name , to_write );
             }
             catch (e) {}
         }
@@ -1057,7 +1062,7 @@ function toggle_tile_display(toggle_box, want_collapsed)
             {
                 current_stored_collapsed.splice( current_stored_collapsed.indexOf( class_to_toggle ), 1 );
                 to_write = JSON.stringify(current_stored_collapsed);
-                localStorage.setItem( "TourGuide_collapsed_tiles", to_write );
+                localStorage.setItem( storage_name , to_write );
             }
             catch (e) {}
         }
