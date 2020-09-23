@@ -18,7 +18,7 @@ void IOTMMaySaberPartyGenerateTasks(ChecklistEntry [int] task_entries, Checklist
 	        description.listAppend("Choose one of:|*" + options.listJoinComponents("|*"));
         else
         	description.listAppend(options.listJoinComponents("|"));
-        optional_task_entries.listAppend(ChecklistEntryMake("__item Fourth of May Cosplay Saber", "main.php?action=may4", ChecklistSubentryMake("Modify your lightsaber", "", description), 8));
+        optional_task_entries.listAppend(ChecklistEntryMake("__item Fourth of May Cosplay Saber", "main.php?action=may4", ChecklistSubentryMake("Modify your lightsaber", "", description), 8).ChecklistEntrySetIDTag("Fourth may saber daily upgrade"));
     }
     monster saber_monster = get_property_monster("_saberForceMonster");
     if (saber_monster != $monster[none] && get_property_int("_saberForceMonsterCount") > 0)
@@ -31,7 +31,7 @@ void IOTMMaySaberPartyGenerateTasks(ChecklistEntry [int] task_entries, Checklist
         description.listAppend("Will appear when you adventure in " + possible_appearance_locations.listJoinComponents(", ", "or") + ".");
         if (possible_appearance_locations.count() > 0)
         	url = possible_appearance_locations[0].getClickableURLForLocation(); 
-        optional_task_entries.listAppend(ChecklistEntryMake("__monster " + saber_monster, url, ChecklistSubentryMake("Fight " + pluralise(fights_left, "more " + saber_monster, "more " + saber_monster + "s"), "", description), -1));
+        optional_task_entries.listAppend(ChecklistEntryMake("__monster " + saber_monster, url, ChecklistSubentryMake("Fight " + pluralise(fights_left, "more " + saber_monster, "more " + saber_monster + "s"), "", description), -1).ChecklistEntrySetIDTag("Fourth may saber friend copies"));
     }
 }
 
@@ -54,14 +54,17 @@ void IOTMMaySaberGenerateResource(ChecklistEntry [int] resource_entries)
         	description.listAppend("Bonus! Use Meteor Shower + lightsaber skill to save a bunch of turns on weapon damage/spell damage/familiar weight tests.");
         }
         //description.listAppend("Choose one of:|*" + options.listJoinComponents("|*"));
-        resource_entries.listAppend(ChecklistEntryMake("__item Fourth of May Cosplay Saber", url, ChecklistSubentryMake(pluralise(uses_remaining, "force use", "forces uses"), "", description), 0));
+        resource_entries.listAppend(ChecklistEntryMake("__item Fourth of May Cosplay Saber", url, ChecklistSubentryMake(pluralise(uses_remaining, "force use", "forces uses"), "", description), 0).ChecklistEntrySetIDTag("Fourth may saber force resource"));
 	}	
 }
 
 RegisterResourceGenerationFunction("IOTMMaySaberBanishResource");
 void IOTMMaySaberBanishResource(ChecklistEntry [int] resource_entries) {
 
+    if (lookupItem("Fourth of May Cosplay Saber").available_amount() == 0) return;
+
     int banishesAvailable = clampi(5 - get_property_int("_saberForceUses"), 0, 5);
+    if (banishesAvailable == 0) return;
 
     ChecklistSubentry getBanishes() {
         // Title
@@ -84,19 +87,12 @@ void IOTMMaySaberBanishResource(ChecklistEntry [int] resource_entries) {
         return ChecklistSubentryMake(main_title, subtitle, description);
     }
 
-	if (lookupItem("Fourth of May Cosplay Saber").available_amount() == 0) return;
-	
     ChecklistEntry entry;
-    entry.ChecklistEntryTagEntry("banish");
     entry.image_lookup_name = "__item Fourth of May Cosplay Saber";
     entry.url = "inventory.php?which=2";
+    entry.tags.id = "Fourth may saber force banish";
+    entry.tags.combination = "banish";
 
-    if (banishesAvailable > 0) {
-        ChecklistSubentry banishes = getBanishes();
-        entry.subentries.listAppend(banishes);
-    }
-    
-    if (entry.subentries.count() > 0) {
-        resource_entries.listAppend(entry);
-    }
+    entry.subentries.listAppend(getBanishes());
+    resource_entries.listAppend(entry);
 }

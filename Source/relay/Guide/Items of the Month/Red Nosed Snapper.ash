@@ -27,6 +27,7 @@ void IOTMRedNosedSnapperResource(ChecklistEntry [int] resource_entries)
 
     ChecklistEntry entry;
     entry.image_lookup_name = "__familiar red-nosed snapper";
+    entry.tags.id = "Red nosed snapper familiar tracking drops resource";
 
     ChecklistSubentry rewards = getPhylumRewards();
     if (rewards.entries.count() > 0) {
@@ -63,6 +64,7 @@ void IOTMRedNosedSnapperTask(ChecklistEntry [int] task_entries, ChecklistEntry [
 
     ChecklistEntry entry;
     entry.image_lookup_name = "__familiar red-nosed snapper";
+    entry.tags.id = "Red nosed snapper familiar track phylum";
     entry.importance_level = -10;
 
     ChecklistSubentry choosePhylum = getChoosePhylum();
@@ -100,6 +102,7 @@ void IOTMHumanMuskBanish(ChecklistEntry [int] resource_entries) {
     ChecklistEntry entry;
     entry.ChecklistEntryTagEntry("banish");
     entry.image_lookup_name = "__item human musk";
+    entry.tags.id = "Red nosed snapper human musk banish";//temporary since will delete with the snapper changes...
 
     ChecklistSubentry resource = gerResource();
     if (resource.entries.count() > 0) {

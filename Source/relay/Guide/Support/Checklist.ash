@@ -92,6 +92,12 @@ ChecklistSubentry [int] listMake(ChecklistSubentry e1)
 }
 
 
+record TagGroup
+{
+    string id; //For the "minimize" feature to keep track of the entries. Uses 'combination' instead if present. Uses the first entry's header if empty.
+    string combination; //Entries with identical combination tags will be combined into one, with the "first" taking precedence.
+};
+
 int CHECKLIST_DEFAULT_IMPORTANCE = 0;
 record ChecklistEntry
 {
@@ -99,6 +105,7 @@ record ChecklistEntry
 	string url;
     string [string] container_div_attributes;
 	ChecklistSubentry [int] subentries;
+    TagGroup tags; //meta-informations about the entry
 	boolean should_indent_after_first_subentry;
     
     boolean should_highlight;
@@ -106,21 +113,79 @@ record ChecklistEntry
 	int importance_level; //Entries will be resorted by importance level before output, ascending order. Default importance is 0. Convention is to vary it from [-11, 11] for reasons that are clear and well supported in the narrative.
     boolean only_show_as_extra_important_pop_up; //only valid if -11 importance or lower - only shows up as a pop-up, meant to inform the user they can scroll up to see something else (semi-rares)
     ChecklistSubentry [int] subentries_on_mouse_over; //replaces subentries
-    
-    string combination_tag; //Entries with identical combination tags will be combined into one, with the "first" taking precedence.
-    string identification_tag; //For the "minimize" feature to keep track of the entries. Uses combination_tag instead if present. Uses the first entry's header if empty.
 };
 
 
+ChecklistEntry ChecklistEntryMake(string image_lookup_name, string url, ChecklistSubentry [int] subentries, TagGroup tags, int importance, boolean should_highlight)
+{
+    ChecklistEntry result;
+    result.image_lookup_name = image_lookup_name;
+    result.url = url;
+    result.subentries = subentries;
+    result.tags = tags;
+    result.importance_level = importance;
+    result.should_highlight = should_highlight;
+    return result;
+}
+
+ChecklistEntry ChecklistEntryMake(string image_lookup_name, string target_location, ChecklistSubentry [int] subentries, TagGroup tags, int importance)
+{
+    return ChecklistEntryMake(image_lookup_name, target_location, subentries, tags, importance, false);
+}
+
+ChecklistEntry ChecklistEntryMake(string image_lookup_name, string target_location, ChecklistSubentry [int] subentries, TagGroup tags, int importance, boolean [location] highlight_if_last_adventured)
+{
+    boolean should_highlight = false;
+    
+    if (highlight_if_last_adventured contains __last_adventure_location)
+        should_highlight = true;
+    return ChecklistEntryMake(image_lookup_name, target_location, subentries, tags, importance, should_highlight);
+}
+
+ChecklistEntry ChecklistEntryMake(string image_lookup_name, string target_location, ChecklistSubentry [int] subentries, TagGroup tags)
+{
+    return ChecklistEntryMake(image_lookup_name, target_location, subentries, tags, CHECKLIST_DEFAULT_IMPORTANCE);
+}
+
+ChecklistEntry ChecklistEntryMake(string image_lookup_name, string target_location, ChecklistSubentry [int] subentries, TagGroup tags, boolean [location] highlight_if_last_adventured)
+{
+    return ChecklistEntryMake(image_lookup_name, target_location, subentries, tags, CHECKLIST_DEFAULT_IMPORTANCE, highlight_if_last_adventured);
+}
+
+ChecklistEntry ChecklistEntryMake(string image_lookup_name, string target_location, ChecklistSubentry subentry, TagGroup tags, int importance)
+{
+    ChecklistSubentry [int] subentries;
+    subentries[subentries.count()] = subentry;
+    return ChecklistEntryMake(image_lookup_name, target_location, subentries, tags, importance);
+}
+
+ChecklistEntry ChecklistEntryMake(string image_lookup_name, string target_location, ChecklistSubentry subentry, TagGroup tags, int importance, boolean [location] highlight_if_last_adventured)
+{
+    ChecklistSubentry [int] subentries;
+    subentries[subentries.count()] = subentry;
+    return ChecklistEntryMake(image_lookup_name, target_location, subentries, tags, importance, highlight_if_last_adventured);
+}
+
+ChecklistEntry ChecklistEntryMake(string image_lookup_name, string target_location, ChecklistSubentry subentry, TagGroup tags)
+{
+    return ChecklistEntryMake(image_lookup_name, target_location, subentry, tags, CHECKLIST_DEFAULT_IMPORTANCE);
+}
+
+ChecklistEntry ChecklistEntryMake(string image_lookup_name, string target_location, ChecklistSubentry subentry, TagGroup tags, boolean [location] highlight_if_last_adventured)
+{
+    ChecklistSubentry [int] subentries;
+    subentries[subentries.count()] = subentry;
+    return ChecklistEntryMake(image_lookup_name, target_location, subentries, tags, CHECKLIST_DEFAULT_IMPORTANCE, highlight_if_last_adventured);
+}
+
+
+//should we remove these? Players may have build their own ChecklistEntries, so if we do, we'd put a warning here during a release, and officially remove them on the next.
+// Considering YOUR speed (yes, you, you know who you are), they'll have, what... a year..? <_<
+// ... to change their custom ChecklistEntry / make the right edit(s)
 ChecklistEntry ChecklistEntryMake(string image_lookup_name, string url, ChecklistSubentry [int] subentries, int importance, boolean should_highlight)
 {
-	ChecklistEntry result;
-	result.image_lookup_name = image_lookup_name;
-	result.url = url;
-	result.subentries = subentries;
-	result.importance_level = importance;
-    result.should_highlight = should_highlight;
-	return result;
+    TagGroup tags;
+    return ChecklistEntryMake(image_lookup_name, url, subentries, tags, importance, should_highlight);
 }
 
 ChecklistEntry ChecklistEntryMake(string image_lookup_name, string target_location, ChecklistSubentry [int] subentries, int importance)
@@ -174,15 +239,14 @@ ChecklistEntry ChecklistEntryMake(string image_lookup_name, string target_locati
 }
 
 //Secondary level of making checklist entries; setting properties and returning them.
-ChecklistEntry ChecklistEntryTagEntry(ChecklistEntry e, string tag)
+ChecklistEntry ChecklistEntrySetIDTag(ChecklistEntry e, string id)
 {
-    e.combination_tag = tag;
+    e.tags.id = id;
     return e;
 }
-
-ChecklistEntry ChecklistEntryIDEntry(ChecklistEntry e, string tag)
+ChecklistEntry ChecklistEntryTagEntry(ChecklistEntry e, string tag) //FIXME need to modify, at least the name
 {
-    e.identification_tag = tag;
+    e.tags.combination = tag;
     return e;
 }
 
@@ -404,10 +468,10 @@ buffer ChecklistGenerateEntryHTML(ChecklistEntry entry, ChecklistSubentry [int] 
     buffer entry_content;
     
     string entry_id;
-    if (entry.combination_tag != "") //not supposed to happen, but still can
-        entry_id = entry.combination_tag;
-    else if (entry.identification_tag != "")
-        entry_id = entry.identification_tag;
+    if (entry.tags.combination != "") //not supposed to happen, but still can
+        entry_id = entry.tags.combination;
+    else if (entry.tags.id != "")
+        entry_id = entry.tags.id;
     else
         entry_id = entry.subentries[0].header;
     entry_id = create_matcher("[ \\-.]", entry_id).replace_all("_");
@@ -502,19 +566,19 @@ buffer ChecklistGenerate(Checklist cl, boolean output_borders) {
 	//Combine entries with identical combination tags:
 	ChecklistEntry [string] combination_tag_entries;
 	foreach key, entry in entries {
-		if (entry.combination_tag == "") continue;
+		if (entry.tags.combination == "") continue;
         if (entry.only_show_as_extra_important_pop_up) continue; //do not support this feature with this
         if (entry.subentries_on_mouse_over.count() > 0) continue;
         if (entry.container_div_attributes.count() > 0) continue;
         
-        if (!(combination_tag_entries contains entry.combination_tag)) {
+        if (!(combination_tag_entries contains entry.tags.combination)) {
         	entry.importance_level -= 1; //combined entries gain a hack; a level above everything else
-            entry.identification_tag = entry.combination_tag;
-        	combination_tag_entries[entry.combination_tag] = entry;
+            entry.tags.id = entry.tags.combination;
+        	combination_tag_entries[entry.tags.combination] = entry;
             continue;
         }
 
-        ChecklistEntry master_entry = combination_tag_entries[entry.combination_tag];
+        ChecklistEntry master_entry = combination_tag_entries[entry.tags.combination];
         
         if (entry.should_highlight) {
         	master_entry.should_highlight = true;

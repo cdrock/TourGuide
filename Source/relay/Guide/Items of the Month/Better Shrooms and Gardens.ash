@@ -76,6 +76,7 @@ void IOTMBetterShroomsAndGardensGenerateResource(ChecklistEntry [int] resource_e
     ChecklistEntry entry;
     entry.image_lookup_name = "__item Better Shrooms and Gardens catalog";
     entry.url = "campground.php";
+    entry.tags.id = "Mushroom garden resource";
 
     ChecklistSubentry piranhas = getFreeFights();
     if (piranhas.entries.count() > 0) {

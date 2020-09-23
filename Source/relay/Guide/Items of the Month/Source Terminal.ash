@@ -98,7 +98,7 @@ void IOTMSourceTerminalGenerateTasks(ChecklistEntry [int] task_entries, Checklis
     if (my_path_id() == PATH_NUCLEAR_AUTUMN)
         url = "place.php?whichplace=falloutshelter&action=vault_term";
     if (subentries.count() > 0)
-        optional_task_entries.listAppend(ChecklistEntryMake("__item source essence", url, subentries, 5));
+        optional_task_entries.listAppend(ChecklistEntryMake("__item source essence", url, subentries, 5).ChecklistEntrySetIDTag("Source terminal task"));
 }
 
 RegisterResourceGenerationFunction("IOTMSourceTerminalGenerateResource");
@@ -305,5 +305,5 @@ void IOTMSourceTerminalGenerateResource(ChecklistEntry [int] resource_entries)
     if (my_path_id() == PATH_NUCLEAR_AUTUMN)
         url = "place.php?whichplace=falloutshelter&action=vault_term";
     if (subentries.count() > 0)
-        resource_entries.listAppend(ChecklistEntryMake("__item source essence", url, subentries, 5));
+        resource_entries.listAppend(ChecklistEntryMake("__item source essence", url, subentries, 5).ChecklistEntrySetIDTag("Source terminal resource"));
 }
