@@ -113,7 +113,7 @@ void IOTMGuzzlrGenerateTask(ChecklistEntry [int] task_entries, ChecklistEntry [i
         if (!hasPants)
             description.listAppend(HTMLGenerateSpanFont("Could buy Guzzlr pants for more Guzzlrbucks.", "grey"));
 
-        optional_task_entries.listAppend(ChecklistEntryMake("__item Guzzlrbuck", questLocation.getClickableURLForLocation(), ChecklistSubentryMake("Deliver booze", subtitle, description) boolean [location] {questLocation:true}).ChecklistEntrySetIDTag("Guzzlr quest task"));
+        optional_task_entries.listAppend(ChecklistEntryMake("__item Guzzlrbuck", questLocation.getClickableURLForLocation(), ChecklistSubentryMake("Deliver booze", subtitle, description), boolean [location] {questLocation:true}).ChecklistEntrySetIDTag("Guzzlr quest task"));
     }
 
 

@@ -726,9 +726,10 @@ function writePageExtras()
         groups_to_minimize = [];
     for (const group_to_minimize of groups_to_minimize)
     {
-        var toggle_box = document.getElementById("toggle_" + group_to_minimize);
-        if (toggle_box != null)
-            toggle_tile_display(toggle_box, true);
+        const corresponding_box_id = "toggle_" + group_to_minimize;
+        const corresponding_toggle_boxen = document.getElementsByClassName( corresponding_box_id );
+        if (corresponding_toggle_boxen.length != 0) //only want to know if there's at least 1
+            toggle_tile_display(corresponding_box_id, true);
     }
     updateExpandAllButtonVisibility();
     
@@ -1016,15 +1017,49 @@ function browserProbablySupportsPointerEvents()
 
 function alterSubentryMinimization(event)
 {
-    toggle_tile_display(event.target, event.target.title == "Minimize");
+    toggle_tile_display(event.target.id, event.target.title == "Minimize");
 }
 
-function toggle_tile_display(toggle_box, want_collapsed)
+function toggle_tile_display(toggle_box_id, want_collapsed)
 {
-    var class_to_toggle = toggle_box.id.substring(7); //remove the "toggle_"
-    var entry_group = document.getElementsByClassName( class_to_toggle );
+    //First, set the box(es) to the appropriate state
+    const toggle_boxen = document.getElementsByClassName( toggle_box_id );
+    for (const toggle_box of toggle_boxen)
+    {
+        if (want_collapsed)
+        {
+            toggle_box.title = "Expand";
+            toggle_box.alt = "Expand";
+            toggle_box.innerHTML = "&#9650;";
+        }
+        else
+        {
+            toggle_box.title = "Minimize";
+            toggle_box.alt = "Minimize";
+            toggle_box.innerHTML = "&#9660;";
+        }
+    }
+
+
+    //Second, toggle the collapsing of every matching element
+    const class_to_toggle = toggle_box_id.substring(7); //remove the "toggle_"
+    const entry_group = document.getElementsByClassName( class_to_toggle );
+    for (const element of entry_group)
+    {
+        if (want_collapsed)
+        {
+            if (!element.classList.contains("r_cl_collapsed"))
+                element.classList.add("r_cl_collapsed");
+        }
+        else
+        {
+            element.classList.remove("r_cl_collapsed");
+        }
+    }
+
+
+    //Third, update Local storage
     const storage_name = `${document.getElementById("player_name").innerHTML}_TourGuide_collapsed_tiles`;
-    
     let current_stored_collapsed;
     let to_write;
     try
@@ -1050,9 +1085,6 @@ function toggle_tile_display(toggle_box, want_collapsed)
             }
             catch (e) {}
         }
-        toggle_box.title = "Expand";
-        toggle_box.alt = "Expand";
-        toggle_box.innerHTML = "&#9650;";
     }
     else
     {
@@ -1066,24 +1098,10 @@ function toggle_tile_display(toggle_box, want_collapsed)
             }
             catch (e) {}
         }
-        toggle_box.title = "Minimize";
-        toggle_box.alt = "Minimize";
-        toggle_box.innerHTML = "&#9660;";
     }
 
-    for (const element of entry_group)
-    {
 
-        if (want_collapsed)
-        {
-            if (!element.classList.contains("r_cl_collapsed"))
-                element.classList.add("r_cl_collapsed");
-        }
-        else
-        {
-            element.classList.remove("r_cl_collapsed");
-        }
-    }
+    //Fourth, update the visibility of the expand all button
     updateExpandAllButtonVisibility();
 }
 
