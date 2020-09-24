@@ -45,7 +45,7 @@ Categories:
 DAMAGE1
 DAMAGE2
 ELEMENTALDAMAGE1 - +10 elemental damage, -2 DR
-ELEMENTALDAMAGE2 - +20 elemental damage, -2 DR
+ELEMENTALDAMAGE2 - +20 elemental damage, - ~2 HP/round
 DAMAGE_REDUCTION - +DR, -8 weapon damage
 Familiar Hatchlings -
 ITEM_DROP
@@ -119,8 +119,9 @@ BadMoonAdventure [int] AllBadMoonAdventures()
     adventures.listAppend(BadMoonAdventureMake(1, $location[the Outskirts of Cobb's Knob], "STAT1", "+20 muscle, -5 myst/moxie", "find encryption key", $item[knob goblin encryption key].available_amount() == 0 && !$location[cobb's knob kitchens].locationAvailable()));
     //adventures.listAppend(BadMoonAdventureMake(13, $location[The Haunted Billiards Room], "DAMAGE1", "+10 damage, -2 DR", "open the Haunted Library", !$location[the haunted library].locationAvailable())); //retired
     //adventures.listAppend(BadMoonAdventureMake(14, $location[The Goatlet], "ELEMENTALDAMAGE1", "+10 " + HTMLGenerateElementSpanDesaturated($element[cold]) + " damage, -2 DR", "unlock the eXtreme Slope", !$location[the extreme slope].locationAvailable())); //retired
+    adventures.listAppend(BadMoonAdventureMake(16, $location[Pandamonium Slums], "ELEMENTALDAMAGE1", "+10 " + HTMLGenerateElementSpanDesaturated($element[sleaze]) + " damage, -2 DR", "get Steel Margarita", !QuestState("questM10Azazel").finished));
     //adventures.listAppend(BadMoonAdventureMake(19, $location[The Castle in the Clouds in the Sky (somewhere)], "DAMAGE2", "+20 melee damage, ~2 HP lost/round", "completed trash quest", REPLACEMEB)); //retired
-    //adventures.listAppend(BadMoonAdventureMake(21, $location[Oasis], "ELEMENTALDAMAGE2", "+20 " + HTMLGenerateElementSpanDesaturated($element[hot]) + " damage, ~2 HP lost/round", "find worm-riding hooks", REPLACEMEB)); //FIXME was it retired? no mention of that on the wiki
+    //adventures.listAppend(BadMoonAdventureMake(21, $location[Oasis], "ELEMENTALDAMAGE2", "+20 " + HTMLGenerateElementSpanDesaturated($element[hot]) + " damage, ~2 HP lost/round", "find worm-riding hooks", REPLACEMEB)); //seems retired
     adventures.listAppend(BadMoonAdventureMake(22, $location[The Hole in the Sky], "ELEMENTALDAMAGE2", "+20 " + HTMLGenerateElementSpanDesaturated($element[sleaze]) + " damage, ~2 HP lost/round", "make Richard's star key", $item[richard's star key].available_amount() == 0));
     //adventures.listAppend(BadMoonAdventureMake(23, $location[The Haunted Ballroom], "ELEMENTALDAMAGE2", "+20 " + HTMLGenerateElementSpanDesaturated($element[spooky]) + " damage, ~2 HP lost/round", "open Spookyraven basement", !$location[the haunted wine cellar].locationAvailable())); //retired
     //adventures.listAppend(BadMoonAdventureMake(24, $location[The Black Forest], "ELEMENTALDAMAGE2", "+20 " + HTMLGenerateElementSpanDesaturated($element[stench]) + " damage, ~2 HP lost/round", "open black market", !black_market_available())); //retired
@@ -137,7 +138,6 @@ BadMoonAdventure [int] AllBadMoonAdventures()
     //adventures.listAppend(BadMoonAdventureMake(45, $location[The Arid, Extra-Dry Desert], "ITEMS", "anticheese", "need to not have ultrahydrated", $effect[ultrahydrated].have_effect() == 0)); //is this still here? //retired
     
     adventures.listAppend(BadMoonAdventureMake(44, $location[the spooky forest], "SKILLS", "torso awaregness, -50% muscle debuff", "unlock hidden temple", !get_property_ascension("lastTempleUnlock")));
-    //FIXME missing: Oil Be Seeing You (pandemonium slums) ??
     
     __all_bad_moon_adventures_cache = adventures;
     __all_bad_moon_adventures_cache_on_turn = my_turncount();
