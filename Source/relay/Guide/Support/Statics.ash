@@ -227,6 +227,57 @@ static
 
 static
 {
+    location [item] __shen_items_to_locations = {
+        $item[Murphy's Rancid Black Flag]:$location[The Castle in the Clouds in the Sky (Top Floor)],
+        $item[The Stankara Stone]:$location[The Batrat and Ratbat Burrow],
+        $item[The First Pizza]:$location[Lair of the Ninja Snowmen],
+        $item[The Eye of the Stars]:$location[The Hole in the Sky],
+        $item[The Lacrosse Stick of Lacoronado]:$location[The Smut Orc Logging Camp],
+        $item[The Shield of Brook]:$location[The VERY Unquiet Garves]};
+    
+    item [int] [int] __shen_start_day_to_assignments = {
+        //Shen's demands are seeded based on what day you're at when first meeting him.
+        1:{1:$item[The Stankara Stone], 2:$item[The First Pizza], 3:$item[Murphy's Rancid Black Flag]},
+        2:{1:$item[The Lacrosse Stick of Lacoronado], 2:$item[The Shield of Brook], 3:$item[The Eye of the Stars]},
+        3:{1:$item[The First Pizza], 2:$item[The Stankara Stone], 3:$item[The Shield of Brook]},
+        4:{1:$item[The Lacrosse Stick of Lacoronado], 2:$item[The Stankara Stone], 3:$item[The Shield of Brook]},
+        5:{1:$item[Murphy's Rancid Black Flag], 2:$item[The Lacrosse Stick of Lacoronado], 3:$item[The Eye of the Stars]},
+        6:{1:$item[Murphy's Rancid Black Flag], 2:$item[The Stankara Stone], 3:$item[The Eye of the Stars]},
+        7:{1:$item[The Lacrosse Stick of Lacoronado], 2:$item[The Shield of Brook], 3:$item[The Eye of the Stars]},
+        8:{1:$item[The Shield of Brook], 2:$item[Murphy's Rancid Black Flag], 3:$item[The Lacrosse Stick of Lacoronado]},
+        9:{1:$item[The Shield of Brook], 2:$item[The Lacrosse Stick of Lacoronado], 3:$item[The Eye of the Stars]},
+        10:{1:$item[The Eye of the Stars], 2:$item[The Stankara Stone], 3:$item[Murphy's Rancid Black Flag]},
+        11:{1:$item[The First Pizza], 2:$item[The Stankara Stone], 3:$item[Murphy's Rancid Black Flag]}};
+
+    item [int] __shen_exploathing_assignments = {1:$item[The Eye of the Stars], 2:$item[The Lacrosse Stick of Lacoronado], 3:$item[The First Pizza]};
+    //tried to develop in case there's more paths with fixed assignments in the future, but gave up. Not worth it without knowing if it'll really happen and how they'll work.
+}
+location [int] shenAssignmentsJoinLocationsStartingAfter(item [int] assignments, int index) { //messy/ugly, but saves a lot of time
+    location [int] destinations;
+
+    //ignores the <index> first elements
+    foreach position, assignment in assignments {
+        if (position > index)
+            destinations.listAppend(__shen_items_to_locations[assignment]);
+    }
+    return destinations;
+}
+location [int] shenAssignmentsJoinLocations(item [int] assignments) {
+    return shenAssignmentsJoinLocationsStartingAfter(assignments, 0);
+}
+location [int] getFutureShenAssignments(int [string] level_11_state_ints) { //QuestState's haven't been set yet, so instead, pass the whole __quest_state["Level 11 Shen"].state_int to the function (this is sooooo stupid, I know, but still simpler than passing the two values every single call)
+    item [int] assignments;
+    if (my_path_id() == PATH_KINGDOM_OF_EXPLOATHING)
+        assignments = __shen_exploathing_assignments;
+    else
+        assignments = __shen_start_day_to_assignments[level_11_state_ints["Shen initiation day"]];
+    
+    //Will, by nature, only return something if you've talked to Shen at least once (unless in Exploathing)
+    return assignments.shenAssignmentsJoinLocationsStartingAfter(level_11_state_ints["Shen meetings"]);
+}
+
+static
+{
     boolean [monster] __snakes;
     void initialiseSnakes()
     {
@@ -246,6 +297,72 @@ item lookupAWOLOilForMonster(monster m)
     else if ($phylums[undead] contains m.phylum)
         return $item[eldritch oil];
     return $item[none];
+}
+
+static
+{
+    boolean [item] __ns_tower_door_base_keys = $items[Boris\'s key,Jarlsberg\'s key,Sneaky Pete\'s key,Richard\'s star key,skeleton key,digital key];
+}
+
+static
+{
+    record Key {
+        item it;
+        location zone;
+        string enchantment;
+        string condition_for_unlock;
+        string pre_unlock_url;
+        boolean was_used;
+    };
+
+    Key [int] LKS_keys;
+    if (my_path_id() == PATH_LOW_KEY_SUMMER) {
+        Key KeyMake(string name, location zone, string enchantment, string condition_for_unlock, string pre_unlock_url) {
+            Key result;
+            result.it = name.to_item();
+            result.zone = zone;
+            result.enchantment = enchantment;
+            result.condition_for_unlock = condition_for_unlock;
+            result.pre_unlock_url = pre_unlock_url;
+            return result;
+        }
+        Key KeyMake(string name, location zone, string enchantment, string condition_for_unlock) {
+            return KeyMake(name, zone, enchantment, condition_for_unlock, "");
+        }
+        Key KeyMake(string name, location zone, string enchantment) {
+            return KeyMake(name, zone, enchantment, "", "");
+        }
+        void listAppend(Key [int] list, Key entry) {
+            int position = list.count();
+            while (list contains position)
+                position += 1;
+            list[position] = entry;
+        }
+
+        LKS_keys.listAppend(KeyMake("actual skeleton key", $location[The Skeleton Store], "+100 Damage Absorption, +10 Damage Reduction", "accepting the meathsmith\'s quest", "shop.php?whichshop=meatsmith"));
+        LKS_keys.listAppend(KeyMake("anchovy can key", $location[The Haunted Pantry], "+100% Food Drops"));
+        LKS_keys.listAppend(KeyMake("aqu&iacute;", $location[South of the Border], "+3 Hot Res, +15 Hot Damage, +30 Hot Spell Damage", "getting access to the desert beach"));
+        LKS_keys.listAppend(KeyMake("batting cage key", $location[The Bat Hole Entrance], "+3 Stench Res, +15 Stench Damage, +30 Stench Spell Damage", "starting the boss bat quest"));
+        LKS_keys.listAppend(KeyMake("black rose key", $location[The Haunted Conservatory], "+5 Familiar Weight, +2 Familiar Exp"));
+        LKS_keys.listAppend(KeyMake("cactus key", $location[The Arid, Extra-Dry Desert], "Regen HP, Max HP +20", "reading the diary in the McGuffin quest"));
+        LKS_keys.listAppend(KeyMake("clown car key", $location[The \"Fun\" House], "+10 Prismatic Damage, +10 ML", "doing the nemesis quest"));
+        LKS_keys.listAppend(KeyMake("deep-fried key", $location[Madness Bakery], "+3 Sleaze Res, +15 Sleaze Damage, +30 Sleaze Spell Damage", "accepting the Armorer and Leggerer\'s quest", "shop.php?whichshop=armory"));
+        LKS_keys.listAppend(KeyMake("demonic key", $location[Pandamonium Slums], "+20% Myst Gains, Myst +5, -1 MP Skills", "finishing the Friars quest"));
+        LKS_keys.listAppend(KeyMake("discarded bike lock key", $location[The Overgrown Lot], "Max MP + 10, Regen MP", "accepting Doc Galaktik\'s quest", "shop.php?whichshop=doc"));
+        LKS_keys.listAppend(KeyMake("f'c'le sh'c'le k'y", $location[The F\'c\'le], "+20 ML", "doing the pirate\'s quest"));
+        LKS_keys.listAppend(KeyMake("ice key", $location[The Icy Peak], "+3 Cold Res, +15 Cold Damage, +30 Cold Spell Damage", "doing the trapper quest"));
+        LKS_keys.listAppend(KeyMake("kekekey", $location[The Valley of Rof L\'m Fao], "+50% Meat", "finishing the chasm quest"));
+        LKS_keys.listAppend(KeyMake("key sausage", $location[Cobb\'s Knob Kitchens], "-10% Combat", "doing the Cobb\'s Knob quest"));
+        LKS_keys.listAppend(KeyMake("knob labinet key", $location[Cobb\'s Knob Laboratory], "+20% Muscle Gains, Muscle +5, -1 MP Skills", "finding the Cobb's Knob lab key during the Cobb\'s Knob quest"));
+        LKS_keys.listAppend(KeyMake("knob shaft skate key", $location[The Knob Shaft], "Regen HP/MP, +3 Adventures", "finding the Cobb's Knob lab key during the Cobb\'s Knob quest"));
+        LKS_keys.listAppend(KeyMake("knob treasury key", $location[Cobb\'s Knob Treasury], "+50% Meat, +20% Pickpocket", "doing the Cobb\'s Knob quest"));
+        LKS_keys.listAppend(KeyMake("music Box Key", $location[The Haunted Nursery], "+10% Combat", "doing the Spookyraven quest"));
+        LKS_keys.listAppend(KeyMake("peg key", $location[The Obligatory Pirate\'s Cove], "+5 Stats", "doing the pirate\'s quest"));
+        LKS_keys.listAppend(KeyMake("rabbit\'s foot key", $location[The Dire Warren], "All Attributes +10"));
+        LKS_keys.listAppend(KeyMake("scrap metal key", $location[The Old Landfill], "+20% Moxie Gains, Moxie +5, -1MP Skills", "starting the Old Landfill quest"));
+        LKS_keys.listAppend(KeyMake("treasure chest key", $location[Belowdecks], "+30% Item, +30% Meat", "doing the pirate\'s quest"));
+        LKS_keys.listAppend(KeyMake("weremoose key", $location[Cobb\'s Knob Menagerie, Level 2], "+3 Spooky Res, +15 Spooky Damage, +30 Spooky Spell Damage", "finding the  Cobb\'s Knob Menagerie key in the Cobb\'s Knob lab" + ($item[Cobb's Knob Menagerie key].available_amount() == 0 ? ", accessed by doing the Cobb\'s Knob quest" : "")));
+    }
 }
 
 static
