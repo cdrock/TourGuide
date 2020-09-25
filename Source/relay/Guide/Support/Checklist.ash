@@ -475,6 +475,7 @@ buffer ChecklistGenerateEntryHTML(ChecklistEntry entry, ChecklistSubentry [int] 
     else
         entry_id = entry.subentries[0].header;
     entry_id = create_matcher("[ \\-.]", entry_id).replace_all("_");
+    entry_id = entity_encode(entry_id);
     
     boolean first = true;
     boolean indented_after_first_subentry = false;
