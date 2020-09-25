@@ -55,11 +55,11 @@ void LimitModeBatfellowGenerateResources(ChecklistEntry [int] resource_entries, 
             item_groupings.listAppend(listMake(it));
     }*/
     boolean [item] seen_items;
-    foreach key, group in item_groupings
+    foreach key in item_groupings
     {
         ChecklistEntry entry;
         entry.tags.id = "Batfellow mode item grouping " + key;
-        foreach key2, it in group
+        foreach key2, it in item_groupings[key]
         {
             if (seen_items[it])
                 continue;
