@@ -1,199 +1,204 @@
-boolean __QSleazeAirportGenerateQuestFramework_return_quest_nearly_finished = false;
-ChecklistEntry QSleazeAirportGenerateQuestFramework(ChecklistEntry [int] task_entries, string quest_property_name, string quest_name, string image_name, int amount_of_something_to_collect, item item_to_collect, string property_name_to_collect, string item_to_collect_singular, string item_to_collect_plural, location target_location, string quest_giver, item item_to_equip)
+void QSleazeAirportBuffJimmyGenerateTasks(ChecklistEntry [int] task_entries, QuestState [string] SBBState)
 {
-    __QSleazeAirportGenerateQuestFramework_return_quest_nearly_finished = false;
-    QuestState state;
-    state.image_name = image_name;
-    state.quest_name = quest_name;
-    QuestStateParseMafiaQuestProperty(state, quest_property_name);
-    
-    boolean should_ignore_for_now = false;
-    
-    if (quest_property_name == "questESlMushStash" || quest_property_name == "questESlBacteria") {
-        //questESlAudit, questESlMushStash, questESlBacteria
-        if (QuestState("questESlAudit").in_progress)
-            should_ignore_for_now = true;
-        if (quest_property_name == "questESlBacteria" && QuestState("questESlMushStash").in_progress)
-            should_ignore_for_now = true;
-    }
-    
-    if (!state.in_progress || should_ignore_for_now) {
-        ChecklistEntry blank_entry;
-        return blank_entry;
-    }
-    
-    ChecklistSubentry subentry;
-
-    subentry.header = state.quest_name;
-    string url = "place.php?whichplace=airport_sleaze";
-    
-    int remaining_of_item = 0;
-    if (item_to_collect != $item[none]) {
-        remaining_of_item = amount_of_something_to_collect - item_to_collect.item_amount();
-        if (item_to_collect_singular.length() == 0)
-            item_to_collect_singular = item_to_collect.to_string();
-        if (item_to_collect_plural.length() == 0)
-            item_to_collect_plural = item_to_collect.plural;
-    } else {
-        remaining_of_item = amount_of_something_to_collect - get_property_int(property_name_to_collect);
-    }
-    
-    remaining_of_item = MAX(0, remaining_of_item);
-    
-    if (state.mafia_internal_step <= 2 && remaining_of_item > 0) {
-        string line = "Adventure in the " + target_location + " and collect ";
-        line += remaining_of_item.int_to_wordy();
-        line += " more ";
-        if (remaining_of_item > 1)
-            line += item_to_collect_plural;
-        else
-            line += item_to_collect_singular;
-        line += ".";
-        subentry.entries.listAppend(line);
+    if (SBBState["questESlMushStash"].in_progress)
+    {
+        //jimmy, fun-guy
+        //run +item, collect 10 pencil thin mushrooms (item)
+        ChecklistSubentry subentry;
+        subentry.header = "Pencil-Thin Mush Stash";
         
-        if (item_to_equip != $item[none] && item_to_equip.available_amount() > 0 && item_to_equip.equipped_amount() == 0)
-            subentry.entries.listAppend(HTMLGenerateSpanFont("Equip the " + item_to_equip + ".", "red"));
-        if (target_location == $location[The Sunken Party Yacht] && $effect[fishy].have_effect() == 0) {
-            subentry.entries.listAppend("Try to acquire Fishy effect.");
+        item item_to_collect = $item[pencil thin mushroom];
+        int remaining_of_item = MAX(0, 10 - item_to_collect.item_amount());
+        if (SBBState["questESlMushStash"].mafia_internal_step > 2 || remaining_of_item <= 0)
+            subentry.entries.listAppend("Return to Buff Jimmy.");
+        else if (SBBState["questESlAudit"].in_progress)
+            subentry.entries.listAppend("Need to finish Audit-Tory Hallucinations, first.");
+        else
+        {
+            subentry.modifiers.listAppend("+item");
+            subentry.entries.listAppend("Adventure in the The Fun-Guy Mansion and collect " + pluraliseWordy(remaining_of_item, "more " + item_to_collect.name, "more " + item_to_collect.plural) + ".");
         }
-        if (quest_property_name == "questESlAudit" || quest_property_name == "questESlMushStash") {
-            string [int] remaining_quests_after_this;
-            if (quest_property_name == "questESlAudit") {
-                if (QuestState("questESlMushStash").in_progress)
-                    remaining_quests_after_this.listAppend("Pencil-Thin Mush Stash");
-            }
-            if (QuestState("questESlBacteria").in_progress)
-                remaining_quests_after_this.listAppend("Cultural Studies");
-            
-            //questESlAudit, questESlMushStash, questESlBacteria
-            if (remaining_quests_after_this.count() > 0) {
-                /*string line = "The quest";
-                if (remaining_quests_after_this.count() > 1)
-                    line += "s";
-                line += " ";
-                line += remaining_quests_after_this.listJoinComponents(", ", "and") + " will be available next.";*/
-                string line = pluraliseWordy(remaining_quests_after_this.count(), "quest", "quests").capitaliseFirstLetter() + " will be available after this.";
-                subentry.entries.listAppend(line);
-            }
-        }
-    } else {
-        subentry.entries.listAppend("Return to " + quest_giver + ".");
-        __QSleazeAirportGenerateQuestFramework_return_quest_nearly_finished = true;
+        
+        task_entries.listAppend(ChecklistEntryMake("__item pencil thin mushroom", "place.php?whichplace=airport_sleaze", subentry, $locations[The Fun-Guy Mansion]));
     }
-    
-    
-    boolean [location] target_locations;
-    target_locations[target_location] = true;
-    ChecklistEntry output_entry = ChecklistEntryMake(state.image_name, url, subentry, target_locations);
-    
-    task_entries.listAppend(output_entry);
-    
-    return output_entry;
-}
-
-void QSleazeAirportMushStashGenerateTasks(ChecklistEntry [int] task_entries)
-{
-    //jimmy, fun-guy
-    //run +item, collect 10 pencil thin mushrooms (item)
-    ChecklistEntry entry = QSleazeAirportGenerateQuestFramework(task_entries, "questESlMushStash", "Pencil-Thin Mush Stash", "__item pencil thin mushroom", 10, $item[pencil thin mushroom], "", "", "", $location[The Fun-Guy Mansion], "Buff Jimmy", $item[none]);
-    
-    if (__QSleazeAirportGenerateQuestFramework_return_quest_nearly_finished)
-        return;
-    entry.subentries[0].modifiers.listAppend("+item");
-}
-
-void QSleazeAirportAuditGenerateTasks(ChecklistEntry [int] task_entries)
-{
-    //questESlAudit
-    //taco dan, fun-guy
-    //look for 10 Taco Dan's Taco Stand's Taco Receipt (item). requires Sleight of Mind effect from sleight-of-hand mushrooms dropped from area
-    ChecklistEntry entry = QSleazeAirportGenerateQuestFramework(task_entries, "questESlAudit", "Audit-Tory Hallucinations", "__item Taco Dan's Taco Stand's Taco Receipt", 10, $item[Taco Dan's Taco Stand's Taco Receipt], "", "receipt", "receipts", $location[The Fun-Guy Mansion], "Taco Dan", $item[none]);
-    
-    if (__QSleazeAirportGenerateQuestFramework_return_quest_nearly_finished)
-        return;
-    
-    if ($effect[sleight of mind].have_effect() == 0 && $item[sleight-of-hand mushroom].available_amount() > 0) {
-        entry.subentries[0].entries.listAppend(HTMLGenerateSpanFont("Use sleight-of-hand mushroom", "red") + " to acquire receipts.");
+    else if (SBBState["questESlCheeseburger"].in_progress)
+    {
+        //jimmy, diner
+        //buffJimmyIngredients - need 15(?)
+        //equip Paradaisical Cheeseburger recipe, olfact Sloppy Seconds Burgers
+        ChecklistSubentry subentry;
+        subentry.header = "Paradise Cheeseburger";
+        
+        int remaining_of_item = MAX(0, 15 - get_property_int("buffJimmyIngredients"));
+        if (SBBState["questESlCheeseburger"].mafia_internal_step > 2 || remaining_of_item <= 0)
+            subentry.entries.listAppend("Return to Buff Jimmy.");
+        else
+        {
+            subentry.modifiers.listAppend("olfact Burgers");
+            subentry.entries.listAppend("Adventure in the Sloppy Seconds Diner and collect " + pluraliseWordy(remaining_of_item, "more ingredient", "more ingredients") + ".");
+            if ($item[Paradaisical Cheeseburger recipe].available_amount() > 0 && $item[Paradaisical Cheeseburger recipe].equipped_amount() == 0)
+                subentry.entries.listAppend(HTMLGenerateSpanFont("Equip the Paradaisical Cheeseburger recipe.", "red"));
+        }
+        
+        task_entries.listAppend(ChecklistEntryMake("__item hamburger", "place.php?whichplace=airport_sleaze", subentry, $locations[Sloppy Seconds Diner]));
+    }
+    else if (SBBState["questESlSalt"].in_progress)
+    {
+        //jimmy, yacht
+        //collect 50 salty sailor salts (item), olfact son of a son of a sailor, run +ML, want fishy
+        ChecklistSubentry subentry;
+        subentry.header = "Lost Shaker of Salt";
+        
+        item item_to_collect = $item[salty sailor salt];
+        int remaining_of_item = MAX(0, 50 - item_to_collect.item_amount());
+        if (SBBState["questESlSalt"].mafia_internal_step > 2 || remaining_of_item <= 0)
+            subentry.entries.listAppend("Return to Buff Jimmy.");
+        else
+        {
+            subentry.modifiers.listAppend("+ML");
+            subentry.modifiers.listAppend("olfact son of a son of a sailor");
+            subentry.entries.listAppend("Adventure in The Sunken Party Yacht and collect " + pluraliseWordy(remaining_of_item, "more salt", "more salts") + ".");
+            if ($effect[fishy].have_effect() == 0)
+                subentry.entries.listAppend("Try to acquire Fishy effect.");
+        }
+        
+        task_entries.listAppend(ChecklistEntryMake("__item salty sailor salt", "place.php?whichplace=airport_sleaze", subentry, $locations[The Sunken Party Yacht]));
     }
 }
-
-void QSleazeAirportBacteriaGenerateTasks(ChecklistEntry [int] task_entries)
+void QSleazeAirportTacoDanGenerateTasks(ChecklistEntry [int] task_entries, QuestState [string] SBBState)
 {
-    //broden, fun-guy, brodenBacteria
-    //+all(?) elemental resistance
-    //collect 10 bacteria
-    ChecklistEntry entry = QSleazeAirportGenerateQuestFramework(task_entries, "questESlBacteria", "Cultural Studies", "__item chainsaw chain", 10, $item[none], "brodenBacteria", "bacteria", "bacteria", $location[The Fun-Guy Mansion], "Broden", $item[none]);
-    if (__QSleazeAirportGenerateQuestFramework_return_quest_nearly_finished)
-        return;
-    entry.subentries[0].modifiers.listAppend("+elemental resistance");
+    if (SBBState["questESlAudit"].in_progress)
+    {
+        //questESlAudit
+        //taco dan, fun-guy
+        //look for 10 Taco Dan's Taco Stand's Taco Receipt (item). requires Sleight of Mind effect from sleight-of-hand mushrooms dropped from area
+        ChecklistSubentry subentry;
+        subentry.header = "Audit-Tory Hallucinations";
+        
+        item item_to_collect = $item[Taco Dan's Taco Stand's Taco Receipt];
+        int remaining_of_item = MAX(0, 10 - item_to_collect.item_amount());
+        if (SBBState["questESlAudit"].mafia_internal_step > 2 || remaining_of_item <= 0)
+            subentry.entries.listAppend("Return to Taco Dan.");
+        else
+        {
+            if ($effect[sleight of mind].have_effect() == 0 && $item[sleight-of-hand mushroom].available_amount() > 0)
+                subentry.entries.listAppend(HTMLGenerateSpanFont("Use sleight-of-hand mushroom", "red") + " to acquire receipts.");
+            subentry.entries.listAppend("Adventure in the The Fun-Guy Mansion and collect " + pluraliseWordy(remaining_of_item, "more receipt", "more receipts") + ".");
+        }
+        
+        task_entries.listAppend(ChecklistEntryMake("__item Taco Dan's Taco Stand's Taco Receipt", "place.php?whichplace=airport_sleaze", subentry, $locations[The Fun-Guy Mansion]));
+    }
+    else if (SBBState["questESlCocktail"].in_progress)
+    {
+        //taco dan, diner
+        //tacoDanCocktailSauce
+        //equip Taco Dan's Taco Stand Cocktail Sauce Bottle, olfact Sloppy Seconds Cocktails
+        ChecklistSubentry subentry;
+        subentry.header = "Cocktail as old as Cocktime";
+        
+        int remaining_of_item = MAX(0, 15 - get_property_int("tacoDanCocktailSauce"));
+        if (SBBState["questESlCocktail"].mafia_internal_step > 2 || remaining_of_item <= 0)
+            subentry.entries.listAppend("Return to Taco Dan.");
+        else
+        {
+            subentry.modifiers.listAppend("olfact Cocktails");
+            subentry.entries.listAppend("Adventure in the Sloppy Seconds Diner and collect " + remaining_of_item.int_to_wordy() + " more sauce.");
+            if ($item[Taco Dan's Taco Stand Cocktail Sauce Bottle].available_amount() > 0 && $item[Taco Dan's Taco Stand Cocktail Sauce Bottle].equipped_amount() == 0)
+                subentry.entries.listAppend(HTMLGenerateSpanFont("Equip the Taco Dan's Taco Stand Cocktail Sauce Bottle.", "red"));
+        }
+        
+        task_entries.listAppend(ChecklistEntryMake("__item Taco Dan's Taco Stand Cocktail Sauce Bottle", "place.php?whichplace=airport_sleaze", subentry, $locations[Sloppy Seconds Diner]));
+    }
+    else if (SBBState["questESlFish"].in_progress)
+    {
+        //taco dan, yacht
+        //tacoDanFishMeat
+        //collect 300 fish meat, olfact taco fish, run +meat, want fishy
+        ChecklistSubentry subentry;
+        subentry.header = "Dirty Fishy Dish";
+        
+        int remaining_of_item = MAX(0, 300 - get_property_int("tacoDanFishMeat"));
+        if (SBBState["questESlFish"].mafia_internal_step > 2 || remaining_of_item <= 0)
+            subentry.entries.listAppend("Return to Taco Dan.");
+        else
+        {
+            subentry.modifiers.listAppend("+meat");
+            subentry.modifiers.listAppend("olfact taco fish");
+            subentry.entries.listAppend("Adventure in The Sunken Party Yacht and collect " + remaining_of_item.int_to_wordy() + " more fish meat.");
+            if ($effect[fishy].have_effect() == 0)
+                subentry.entries.listAppend("Try to acquire Fishy effect.");
+        }
+        
+        task_entries.listAppend(ChecklistEntryMake("__item fishy fish", "place.php?whichplace=airport_sleaze", subentry, $locations[The Sunken Party Yacht]));
+    }
 }
-
-
-void QSleazeAirportCheeseburgerGenerateTasks(ChecklistEntry [int] task_entries)
+void QSleazeAirportBrodenGenerateTasks(ChecklistEntry [int] task_entries, QuestState [string] SBBState)
 {
-    //jimmy, diner
-    //buffJimmyIngredients - need 15(?)
-    //equip Paradaisical Cheeseburger recipe, olfact Sloppy Seconds Burgers
-    ChecklistEntry entry = QSleazeAirportGenerateQuestFramework(task_entries, "questESlCheeseburger", "Paradise Cheeseburger", "__item hamburger", 15, $item[none], "buffJimmyIngredients", "ingredient", "ingredients", $location[sloppy seconds diner], "Buff Jimmy", $item[Paradaisical Cheeseburger recipe]);
-    if (__QSleazeAirportGenerateQuestFramework_return_quest_nearly_finished)
-        return;
-    entry.subentries[0].modifiers.listAppend("olfact Burgers");
-}
-
-void QSleazeAirportCocktailGenerateTasks(ChecklistEntry [int] task_entries)
-{
-    //taco dan, diner
-    //tacoDanCocktailSauce
-    //equip Taco Dan's Taco Stand Cocktail Sauce Bottle, olfact Sloppy Seconds Cocktails
-    ChecklistEntry entry = QSleazeAirportGenerateQuestFramework(task_entries, "questESlCocktail", "Cocktail as old as Cocktime", "__item Taco Dan's Taco Stand Cocktail Sauce Bottle", 15, $item[none], "tacoDanCocktailSauce", "sauce", "sauce", $location[sloppy seconds diner], "Taco Dan", $item[Taco Dan's Taco Stand Cocktail Sauce Bottle]);
-    if (__QSleazeAirportGenerateQuestFramework_return_quest_nearly_finished)
-        return;
-    entry.subentries[0].modifiers.listAppend("olfact Cocktails");
-}
-
-void QSleazeAirportSprinklesGenerateTasks(ChecklistEntry [int] task_entries)
-{
-    //broden, diner
-    //brodenSprinkles
-    //equip sprinkle shaker, olfact Sloppy Seconds Sundaes
-    ChecklistEntry entry = QSleazeAirportGenerateQuestFramework(task_entries, "questESlSprinkles", "A Light Sprinkle", "__item sprinkle shaker", 15, $item[none], "brodenSprinkles", "sprinkles", "sprinkles", $location[sloppy seconds diner], "Broden", $item[sprinkle shaker]);
-    if (__QSleazeAirportGenerateQuestFramework_return_quest_nearly_finished)
-        return;
-    entry.subentries[0].modifiers.listAppend("olfact Sundaes");
-}
-
-
-void QSleazeAirportSaltGenerateTasks(ChecklistEntry [int] task_entries)
-{
-    //jimmy, yacht
-    //collect 50 salty sailor salts (item), olfact son of a son of a sailor, run +ML, want fishy
-    ChecklistEntry entry = QSleazeAirportGenerateQuestFramework(task_entries, "questESlSalt", "Lost Shaker of Salt", "__item salty sailor salt", 50, $item[salty sailor salt], "", "salt", "salts", $location[The Sunken Party Yacht], "Buff Jimmy", $item[none]);
-    if (__QSleazeAirportGenerateQuestFramework_return_quest_nearly_finished)
-        return;
-    entry.subentries[0].modifiers.listAppend("+ML");
-    entry.subentries[0].modifiers.listAppend("olfact son of a son of a sailor");
-}
-
-void QSleazeAirportFishGenerateTasks(ChecklistEntry [int] task_entries)
-{
-    //taco dan, yacht
-    //tacoDanFishMeat
-    //collect 300 fish meat, olfact taco fish, run +meat, want fishy
-    ChecklistEntry entry = QSleazeAirportGenerateQuestFramework(task_entries, "questESlFish", "Dirty Fishy Dish", "__item fishy fish", 300, $item[none], "tacoDanFishMeat", "fish meat", "fish meat", $location[The Sunken Party Yacht], "Taco Dan", $item[none]);
-    if (__QSleazeAirportGenerateQuestFramework_return_quest_nearly_finished)
-        return;
-    entry.subentries[0].modifiers.listAppend("+meat");
-    entry.subentries[0].modifiers.listAppend("olfact taco fish");
-}
-
-void QSleazeAirportDebtGenerateTasks(ChecklistEntry [int] task_entries)
-{
-    //broden, yacht
-    //collect 15 bike rental broupon (item), olfact drownedbeat, want fishy
-    ChecklistEntry entry = QSleazeAirportGenerateQuestFramework(task_entries, "questESlDebt", "Beat Dead the Deadbeats", "__item fixed-gear bicycle", 15, $item[bike rental broupon], "", "", "", $location[The Sunken Party Yacht], "Broden", $item[none]);
-    if (__QSleazeAirportGenerateQuestFramework_return_quest_nearly_finished)
-        return;
-    entry.subentries[0].modifiers.listAppend("olfact drownedbeat");
+    if (SBBState["questESlBacteria"].in_progress)
+    {
+        //broden, fun-guy, brodenBacteria
+        //+all(?) elemental resistance
+        //collect 10 bacteria
+        ChecklistSubentry subentry;
+        subentry.header = "Cultural Studies";
+        
+        int remaining_of_item = MAX(0, 10 - get_property_int("brodenBacteria"));
+        if (SBBState["questESlBacteria"].mafia_internal_step > 2 || remaining_of_item <= 0)
+            subentry.entries.listAppend("Return to Broden.");
+        else if (SBBState["questESlMushStash"].in_progress)
+            subentry.entries.listAppend("Need to finish Pencil-Thin Mush Stash, first.");
+        else if (SBBState["questESlAudit"].in_progress)
+            subentry.entries.listAppend("Need to finish Audit-Tory Hallucinations, first.");
+        else
+        {
+            subentry.modifiers.listAppend("+elemental resistance");
+            subentry.entries.listAppend("Adventure in the The Fun-Guy Mansion and collect " + remaining_of_item.int_to_wordy() + " more bacteria.");
+        }
+        
+        task_entries.listAppend(ChecklistEntryMake("__item chainsaw chain", "place.php?whichplace=airport_sleaze", subentry, $locations[The Fun-Guy Mansion]));
+    }
+    else if (SBBState["questESlSprinkles"].in_progress)
+    {
+        //broden, diner
+        //brodenSprinkles
+        //equip sprinkle shaker, olfact Sloppy Seconds Sundaes
+        ChecklistSubentry subentry;
+        subentry.header = "A Light Sprinkle";
+        
+        int remaining_of_item = MAX(0, 15 - get_property_int("brodenSprinkles"));
+        if (SBBState["questESlSprinkles"].mafia_internal_step > 2 || remaining_of_item <= 0)
+            subentry.entries.listAppend("Return to Broden.");
+        else
+        {
+            subentry.modifiers.listAppend("olfact Sundaes");
+            subentry.entries.listAppend("Adventure in the Sloppy Seconds Diner and collect " + remaining_of_item.int_to_wordy() + " more sprinkles.");
+            if ($item[sprinkle shaker].available_amount() > 0 && $item[sprinkle shaker].equipped_amount() == 0)
+                subentry.entries.listAppend(HTMLGenerateSpanFont("Equip the sprinkle shaker.", "red"));
+        }
+        
+        task_entries.listAppend(ChecklistEntryMake("__item sprinkle shaker", "place.php?whichplace=airport_sleaze", subentry, $locations[Sloppy Seconds Diner]));
+    }
+    else if (SBBState["questESlDebt"].in_progress)
+    {
+        //broden, yacht
+        //collect 15 bike rental broupon (item), olfact drownedbeat, want fishy
+        ChecklistSubentry subentry;
+        subentry.header = "Beat Dead the Deadbeats";
+        
+        item item_to_collect = $item[bike rental broupon];
+        int remaining_of_item = MAX(0, 15 - item_to_collect.item_amount());
+        if (SBBState["questESlDebt"].mafia_internal_step > 2 || remaining_of_item <= 0)
+            subentry.entries.listAppend("Return to Broden.");
+        else
+        {
+            subentry.modifiers.listAppend("olfact drownedbeat");
+            subentry.entries.listAppend("Adventure in The Sunken Party Yacht and collect " + pluraliseWordy(remaining_of_item, "more " + item_to_collect.name, "more " + item_to_collect.plural) + ".");
+            if ($effect[fishy].have_effect() == 0)
+                subentry.entries.listAppend("Try to acquire Fishy effect.");
+        }
+        
+        task_entries.listAppend(ChecklistEntryMake("__item fixed-gear bicycle", "place.php?whichplace=airport_sleaze", subentry, $locations[The Sunken Party Yacht]));
+    }
 }
 
 
@@ -243,8 +248,8 @@ void QSleazeAirportUMDGenerateTasks(ChecklistEntry [int] task_entries)
 void QSleazeAirportGenerateTasks(ChecklistEntry [int] task_entries)
 {
     /*
-    questESlMushStash - (?)Jimmy, Fun-Guy
-    questESlAudit - (?)Taco Dan, Fun-Guy
+    questESlMushStash - Jimmy, Fun-Guy
+    questESlAudit - Taco Dan, Fun-Guy
     questESlBacteria - Broden, Fun-Guy, brodenBacteria
     
     questESlCheeseburger - Jimmy, Sloppy Seconds Diner, buffJimmyIngredients(?)
@@ -253,20 +258,25 @@ void QSleazeAirportGenerateTasks(ChecklistEntry [int] task_entries)
     
     questESlSalt - Jimmy, Sunken Yacht
     questESlFish - Taco Dan, Sunken Yacht, tacoDanFishMeat
-    questESlDebt - (?)Broden, Sunken Yacht
+    questESlDebt - Broden, Sunken Yacht
     */
     //if (__misc_state["in run"] && !($locations[the sunken party yacht,sloppy seconds diner,the fun-guy mansion] contains __last_adventure_location)) //too many
         //return;
+    QuestState [string] SBBState;
+        SBBState["questESlMushStash"] = QuestState("questESlMushStash");
+        SBBState["questESlCheeseburger"] = QuestState("questESlCheeseburger");
+        SBBState["questESlSalt"] = QuestState("questESlSalt");
+        SBBState["questESlAudit"] = QuestState("questESlAudit");
+        SBBState["questESlCocktail"] = QuestState("questESlCocktail");
+        SBBState["questESlFish"] = QuestState("questESlFish");
+        SBBState["questESlBacteria"] = QuestState("questESlBacteria");
+        SBBState["questESlSprinkles"] = QuestState("questESlSprinkles");
+        SBBState["questESlDebt"] = QuestState("questESlDebt");
+    
     ChecklistEntry [int] subtask_entries;
-    QSleazeAirportMushStashGenerateTasks(subtask_entries); //√
-    QSleazeAirportAuditGenerateTasks(subtask_entries); //√
-    QSleazeAirportBacteriaGenerateTasks(subtask_entries); //√
-    QSleazeAirportCheeseburgerGenerateTasks(subtask_entries); //√
-    QSleazeAirportCocktailGenerateTasks(subtask_entries); //√
-    QSleazeAirportSprinklesGenerateTasks(subtask_entries); //√ mostly - quest didn't set to finish at the end (mafia bug?)
-    QSleazeAirportSaltGenerateTasks(subtask_entries); //√
-    QSleazeAirportFishGenerateTasks(subtask_entries); //√
-    QSleazeAirportDebtGenerateTasks(subtask_entries); //√
+    QSleazeAirportBuffJimmyGenerateTasks(subtask_entries, SBBState);
+    QSleazeAirportTacoDanGenerateTasks(subtask_entries, SBBState);
+    QSleazeAirportBrodenGenerateTasks(subtask_entries, SBBState);
     
     if (subtask_entries.count() > 0) {
         //Combine them into one entry, for convenience:
@@ -728,6 +738,8 @@ void QSpookyAirportGenerateTasks(ChecklistEntry [int] task_entries)
     QSpookyAirportWeirdeauxGenerateTasks(task_entries);
 }
 
+//
+
 void QStenchAirportFishTrashGenerateTasks(ChecklistEntry [int] task_entries)
 {
     QuestState state;
@@ -1117,6 +1129,8 @@ void QStenchAirportGenerateTasks(ChecklistEntry [int] task_entries)
     QStenchAirportWillWorkForFoodGenerateTasks(task_entries);
     QStenchAirportWartDinseyGenerateTasks(task_entries);
 }
+
+//
 
 void QHotAirportLavaCoLampGenerateTasks(ChecklistEntry [int] task_entries)
 {
