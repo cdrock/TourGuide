@@ -307,6 +307,7 @@ void QManorGenerateTasks(ChecklistEntry [int] task_entries, ChecklistEntry [int]
                         
                     subentries2.listAppend(ChecklistSubentryMake("Burn " + pluralise($location[the haunted ballroom].delayRemainingInLocation(), "turn", "turns") + " delay in haunted ballroom", modifiers2, ""));
                     ChecklistEntry entry2 = ChecklistEntryMake("__half Haunted Ballroom", $location[the haunted ballroom].getClickableURLForLocation(), subentries2, $locations[the haunted ballroom]);
+                    entry2.tags.id = "Manor spookyraven ballroom delay";
                     entry2.importance_level = 5;
                     optional_task_entries.listAppend(entry2);
                     //subentry.header = ;
@@ -528,6 +529,7 @@ void QManorGenerateTasks(ChecklistEntry [int] task_entries, ChecklistEntry [int]
         if (image_name.length() == 0)
             image_name = base_quest_state.image_name;
         ChecklistEntry entry = ChecklistEntryMake(image_name, url, subentry, relevant_locations);
+        entry.tags.id = "Manor spookyraven quest";
         if (should_output_futurally)
             future_task_entries.listAppend(entry);
         else if (should_output_optionally)

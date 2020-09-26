@@ -240,6 +240,7 @@ void QSleazeAirportUMDGenerateTasks(ChecklistEntry [int] task_entries)
             if ($item[clara's bell].available_amount() > 0 && !get_property_boolean("_claraBellUsed"))
                 description.listAppend("Use clara's bell to instantly acquire. Won't need fishy.");
             ChecklistEntry entry = ChecklistEntryMake("__item ultimate mind destroyer", $location[The Sunken Party Yacht].getClickableURLForLocation(), ChecklistSubentryMake("Ultimate Mind Destroyer collectable", "free runs", description), $locations[The Sunken Party Yacht]);
+            entry.tags.id = "Airport sleaze UMD";
             task_entries.listAppend(entry);
         }
     }
@@ -295,6 +296,7 @@ void QSleazeAirportGenerateTasks(ChecklistEntry [int] task_entries)
             }
             
         }
+        final_entry.tags.id = "Airport sleaze quest group";
         
         task_entries.listAppend(final_entry);
     }
@@ -329,13 +331,9 @@ void QSpookyAirportJunglePunGenerateTasks(ChecklistEntry [int] task_entries)
         subentry.entries.listAppend("Adventure in The Deep Dark Jungle.");
         subentry.modifiers.listAppend("+myst");
         
-        string [int] items_to_equip;
         if (recorder.equipped_amount() == 0) {
-            items_to_equip.listAppend("encrypted micro-cassette recorder");
-        }
-        if (items_to_equip.count() > 0) {
-            subentry.entries.listAppend(HTMLGenerateSpanFont("Equip the " + items_to_equip.listJoinComponents(", ", "and") + ".", "red"));
-            url = "inventory.php?which=2";
+            subentry.entries.listAppend(HTMLGenerateSpanFont("Equip the " + recorder.name + ".", "red"));
+            url = "inventory.php?ftext=encrypted+micro-cassette+recorder";
         }
         
         subentry.entries.listAppend(pluraliseWordy(puns_remaining, "pun", "puns").capitaliseFirstLetter() + " remaining.");
@@ -344,7 +342,7 @@ void QSpookyAirportJunglePunGenerateTasks(ChecklistEntry [int] task_entries)
         subentry.entries.listAppend("Return to the radio and reply.");
     }
     
-    task_entries.listAppend(ChecklistEntryMake(state.image_name, url, subentry, $locations[The Deep Dark Jungle]));
+    task_entries.listAppend(ChecklistEntryMake(state.image_name, url, subentry, $locations[The Deep Dark Jungle]).ChecklistEntrySetIDTag("Airport spooky jungle_pun quest"));
 }
 
 void QSpookyAirportFakeMediumGenerateTasks(ChecklistEntry [int] task_entries)
@@ -383,20 +381,16 @@ void QSpookyAirportFakeMediumGenerateTasks(ChecklistEntry [int] task_entries)
         
         subentry.entries.listAppend("The last line of the adventure text gives the solution:|*" + HTMLGenerateSimpleTableLines(solutions));
         
-        string [int] items_to_equip;
         if ($item[Personal Ventilation Unit].equipped_amount() == 0 && $item[Personal Ventilation Unit].available_amount() > 0) {
-            items_to_equip.listAppend("Personal Ventilation Unit");
-        }
-        if (items_to_equip.count() > 0) {
-            subentry.entries.listAppend(HTMLGenerateSpanFont("Equip the " + items_to_equip.listJoinComponents(", ", "and") + ".", "red"));
-            url = "inventory.php?which=2";
+            subentry.entries.listAppend(HTMLGenerateSpanFont("Equip the " + $item[Personal Ventilation Unit].name + ".", "red"));
+            url = $item[Personal Ventilation Unit].invSearch();
         }
     } else {
         url = "place.php?whichplace=airport_spooky&action=airport2_radio";
         subentry.entries.listAppend("Return to the radio and reply.");
     }
     
-    task_entries.listAppend(ChecklistEntryMake(state.image_name, url, subentry, $locations[The Secret Government Laboratory]));
+    task_entries.listAppend(ChecklistEntryMake(state.image_name, url, subentry, $locations[The Secret Government Laboratory]).ChecklistEntrySetIDTag("Airport spooky fake_medium quest"));
 }
 
 
@@ -432,7 +426,7 @@ void QSpookyAirportClipperGenerateTasks(ChecklistEntry [int] task_entries)
         subentry.entries.listAppend("Return to the radio and reply.");
     }
     
-    task_entries.listAppend(ChecklistEntryMake(state.image_name, url, subentry, $locations[The Mansion of Dr. Weirdeaux]));
+    task_entries.listAppend(ChecklistEntryMake(state.image_name, url, subentry, $locations[The Mansion of Dr. Weirdeaux]).ChecklistEntrySetIDTag("Airport spooky clipper quest"));
 }
 
 void QSpookyAirportEveGenerateTasks(ChecklistEntry [int] task_entries)
@@ -457,19 +451,16 @@ void QSpookyAirportEveGenerateTasks(ChecklistEntry [int] task_entries)
             subentry.modifiers.listAppend("free runs");
         if (__misc_state["have hipster"])
             subentry.modifiers.listAppend(__misc_state_string["hipster name"]);
-        string [int] items_to_equip;
+        
         if ($item[Personal Ventilation Unit].equipped_amount() == 0 && $item[Personal Ventilation Unit].available_amount() > 0) {
-            items_to_equip.listAppend("Personal Ventilation Unit");
-        }
-        if (items_to_equip.count() > 0) {
-            subentry.entries.listAppend(HTMLGenerateSpanFont("Equip the " + items_to_equip.listJoinComponents(", ", "and") + ".", "red"));
-            url = "inventory.php?which=2";
+            subentry.entries.listAppend(HTMLGenerateSpanFont("Equip the " + $item[Personal Ventilation Unit].name + ".", "red"));
+            url = $item[Personal Ventilation Unit].invSearch();
         }
     } else {
         url = "place.php?whichplace=airport_spooky&action=airport2_radio";
         subentry.entries.listAppend("Return to the radio and reply.");
     }
-    task_entries.listAppend(ChecklistEntryMake(state.image_name, url, subentry, $locations[The Secret Government Laboratory]));
+    task_entries.listAppend(ChecklistEntryMake(state.image_name, url, subentry, $locations[The Secret Government Laboratory]).ChecklistEntrySetIDTag("Airport spooky EVE quest"));
 }
 
 
@@ -502,7 +493,7 @@ void QSpookyAirportSmokesGenerateTasks(ChecklistEntry [int] task_entries)
         url = "place.php?whichplace=airport_spooky&action=airport2_radio";
         subentry.entries.listAppend("Return to the radio and reply.");
     }
-    task_entries.listAppend(ChecklistEntryMake(state.image_name, url, subentry, $locations[The Deep Dark Jungle]));
+    task_entries.listAppend(ChecklistEntryMake(state.image_name, url, subentry, $locations[The Deep Dark Jungle]).ChecklistEntrySetIDTag("Airport spooky smoke quest"));
 }
 
 
@@ -539,14 +530,14 @@ void QSpookyAirportGoreGenerateTasks(ChecklistEntry [int] task_entries)
         }
         if (items_to_equip.count() > 0) {
             subentry.entries.listAppend(HTMLGenerateSpanFont("Equip the " + items_to_equip.listJoinComponents(", ", "and") + ".", "red"));
-            url = "inventory.php?which=2";
+            url = items_to_equip[0].invSearch();
         }
         subentry.entries.listAppend(pluralise(gore_remaining, "pound", "pounds") + " remaining.");
     } else {
         url = "place.php?whichplace=airport_spooky&action=airport2_radio";
         subentry.entries.listAppend("Return to the radio and reply.");
     }
-    task_entries.listAppend(ChecklistEntryMake(state.image_name, url, subentry, $locations[The Secret Government Laboratory]));
+    task_entries.listAppend(ChecklistEntryMake(state.image_name, url, subentry, $locations[The Secret Government Laboratory]).ChecklistEntrySetIDTag("Airport spooky gore quest"));
 }
 
 
@@ -573,13 +564,9 @@ void QSpookyAirportOutOfOrderGenerateTasks(ChecklistEntry [int] task_entries)
     if (state.mafia_internal_step <= 2 && $item[Project T. L. B.].item_amount() == 0) {
         subentry.modifiers.listAppend("+init");
         
-        string [int] items_to_equip;
         if (wristwatch.equipped_amount() == 0) {
-            items_to_equip.listAppend(wristwatch);
-        }
-        if (items_to_equip.count() > 0) {
-            subentry.entries.listAppend(HTMLGenerateSpanFont("Equip the " + items_to_equip.listJoinComponents(", ", "and") + ".", "red"));
-            url = "inventory.php?which=2";
+            subentry.entries.listAppend(HTMLGenerateSpanFont("Equip the " + wristwatch.name + ".", "red"));
+            url = wristwatch.invSearch();
         } else
             subentry.entries.listAppend("Adventure in The Deep Dark Jungle.");
     } else {
@@ -587,7 +574,7 @@ void QSpookyAirportOutOfOrderGenerateTasks(ChecklistEntry [int] task_entries)
         subentry.entries.listAppend("Return to the radio and reply.");
     }
     
-    task_entries.listAppend(ChecklistEntryMake(state.image_name, url, subentry, $locations[The Deep Dark Jungle]));
+    task_entries.listAppend(ChecklistEntryMake(state.image_name, url, subentry, $locations[The Deep Dark Jungle]).ChecklistEntrySetIDTag("Airport spooky out_of_order quest"));
 }
 
 
@@ -624,7 +611,7 @@ void QSpookyAirportSerumGenerateTasks(ChecklistEntry [int] task_entries)
         subentry.entries.listAppend("Return to the radio and reply.");
     }
     
-    task_entries.listAppend(ChecklistEntryMake(state.image_name, url, subentry, $locations[The Mansion of Dr. Weirdeaux]));
+    task_entries.listAppend(ChecklistEntryMake(state.image_name, url, subentry, $locations[The Mansion of Dr. Weirdeaux]).ChecklistEntrySetIDTag("Airport spooky serum quest"));
 }
 
 void QSpookyAirportWeirdeauxGenerateTasks(ChecklistEntry [int] task_entries)
@@ -717,7 +704,7 @@ void QSpookyAirportWeirdeauxGenerateTasks(ChecklistEntry [int] task_entries)
     
     //description.listAppend("Or use " + pluralise(clampi(256 - my_level(), 0, 256), "ultimate wad", "ultimate wads") + "."); //reasonable
     
-    task_entries.listAppend(ChecklistEntryMake("__effect Incredibly Hulking", url, ChecklistSubentryMake("Gain " + pluralise(clampi(256 - my_level(), 0, 256), "level", "levels"), modifiers, description), $locations[The Mansion of Dr. Weirdeaux]));
+    task_entries.listAppend(ChecklistEntryMake("__effect Incredibly Hulking", url, ChecklistSubentryMake("Gain " + pluralise(clampi(256 - my_level(), 0, 256), "level", "levels"), modifiers, description), $locations[The Mansion of Dr. Weirdeaux]).ChecklistEntrySetIDTag("Airport spooky weirdeaux"));
 }
 
 void QSpookyAirportGenerateTasks(ChecklistEntry [int] task_entries)
@@ -761,13 +748,9 @@ void QStenchAirportFishTrashGenerateTasks(ChecklistEntry [int] task_entries)
     
     
     if (state.mafia_internal_step <= 2) {
-        string [int] items_to_equip;
         if (trash_net.equipped_amount() == 0) {
-            items_to_equip.listAppend(trash_net);
-        }
-        if (items_to_equip.count() > 0) {
-            subentry.entries.listAppend(HTMLGenerateSpanFont("Equip the " + items_to_equip.listJoinComponents(", ", "and") + ".", "red"));
-            url = "inventory.php?which=2";
+            subentry.entries.listAppend(HTMLGenerateSpanFont("Equip the " + trash_net + ".", "red"));
+            url = trash_net.invSearch();
         } else {
             int turns_remaining = clampi(get_property_int("dinseyFilthLevel") / 5, 0, 20);
             subentry.entries.listAppend("Adventure in Pirates of the Garbage Barges for " + pluraliseWordy(turns_remaining, "more turn", "more turns") + ".");
@@ -778,7 +761,7 @@ void QStenchAirportFishTrashGenerateTasks(ChecklistEntry [int] task_entries)
         url = "place.php?whichplace=airport_stench&action=airport3_kiosk";
     }
         
-    task_entries.listAppend(ChecklistEntryMake(state.image_name, url, subentry, $locations[pirates of the garbage barges]));
+    task_entries.listAppend(ChecklistEntryMake(state.image_name, url, subentry, $locations[pirates of the garbage barges]).ChecklistEntrySetIDTag("Airport stench fish_trash quest"));
 }
 
 void QStenchAirportNastyBearsGenerateTasks(ChecklistEntry [int] task_entries)
@@ -809,7 +792,7 @@ void QStenchAirportNastyBearsGenerateTasks(ChecklistEntry [int] task_entries)
         url = "place.php?whichplace=airport_stench&action=airport3_kiosk";
     }
     
-    task_entries.listAppend(ChecklistEntryMake(state.image_name, url, subentry, $locations[Uncle Gator's Country Fun-Time Liquid Waste Sluice]));
+    task_entries.listAppend(ChecklistEntryMake(state.image_name, url, subentry, $locations[Uncle Gator's Country Fun-Time Liquid Waste Sluice]).ChecklistEntrySetIDTag("Airport stench nasty_bears quest"));
 }
 
 void QStenchAirportSocialJusticeIGenerateTasks(ChecklistEntry [int] task_entries)
@@ -837,7 +820,7 @@ void QStenchAirportSocialJusticeIGenerateTasks(ChecklistEntry [int] task_entries
         url = "place.php?whichplace=airport_stench&action=airport3_kiosk";
     }
     
-    task_entries.listAppend(ChecklistEntryMake(state.image_name, url, subentry, $locations[Pirates of the Garbage Barges]));
+    task_entries.listAppend(ChecklistEntryMake(state.image_name, url, subentry, $locations[Pirates of the Garbage Barges]).ChecklistEntrySetIDTag("Airport stench social_justice_1 quest"));
 }
 
 void QStenchAirportSocialJusticeIIGenerateTasks(ChecklistEntry [int] task_entries)
@@ -865,7 +848,7 @@ void QStenchAirportSocialJusticeIIGenerateTasks(ChecklistEntry [int] task_entrie
         url = "place.php?whichplace=airport_stench&action=airport3_kiosk";
     }
     
-    task_entries.listAppend(ChecklistEntryMake(state.image_name, url, subentry, $locations[Uncle Gator's Country Fun-Time Liquid Waste Sluice]));
+    task_entries.listAppend(ChecklistEntryMake(state.image_name, url, subentry, $locations[Uncle Gator's Country Fun-Time Liquid Waste Sluice]).ChecklistEntrySetIDTag("Airport stench social_justice_2 quest"));
 }
 
 void QStenchAirportSuperLuberGenerateTasks(ChecklistEntry [int] task_entries)
@@ -889,13 +872,9 @@ void QStenchAirportSuperLuberGenerateTasks(ChecklistEntry [int] task_entries)
     
     
     if (state.mafia_internal_step <= 2) {
-        string [int] items_to_equip;
         if (quest_item.equipped_amount() == 0) {
-            items_to_equip.listAppend(quest_item);
-        }
-        if (items_to_equip.count() > 0) {
-            subentry.entries.listAppend(HTMLGenerateSpanFont("Equip the " + items_to_equip.listJoinComponents(", ", "and") + ".", "red"));
-            url = "inventory.php?which=2";
+            subentry.entries.listAppend(HTMLGenerateSpanFont("Equip the " + quest_item.name + ".", "red"));
+            url = quest_item.invSearch();
         } else {
             subentry.entries.listAppend("Adventure in Barf Mountain, return to the kiosk after riding the rollercoaster.");
             subentry.modifiers.listAppend("optional +meat");
@@ -909,7 +888,7 @@ void QStenchAirportSuperLuberGenerateTasks(ChecklistEntry [int] task_entries)
         url = "place.php?whichplace=airport_stench&action=airport3_kiosk";
     }
         
-    task_entries.listAppend(ChecklistEntryMake(state.image_name, url, subentry, $locations[barf mountain]));
+    task_entries.listAppend(ChecklistEntryMake(state.image_name, url, subentry, $locations[barf mountain]).ChecklistEntrySetIDTag("Airport stench super_luber quest"));
 }
 
 void QStenchAirportZippityDooDahGenerateTasks(ChecklistEntry [int] task_entries)
@@ -934,13 +913,9 @@ void QStenchAirportZippityDooDahGenerateTasks(ChecklistEntry [int] task_entries)
     int turns_remaining = clampi(15 - get_property_int("dinseyFunProgress"), 0, 15);
     
     if (state.mafia_internal_step <= 2) {
-        string [int] items_to_equip;
         if (quest_item.equipped_amount() == 0) {
-            items_to_equip.listAppend(quest_item);
-        }
-        if (items_to_equip.count() > 0) {
-            subentry.entries.listAppend(HTMLGenerateSpanFont("Equip the " + items_to_equip.listJoinComponents(", ", "and") + ".", "red"));
-            url = "inventory.php?which=2";
+            subentry.entries.listAppend(HTMLGenerateSpanFont("Equip the " + quest_item.name + ".", "red"));
+            url = quest_item.invSearch();
         } else {
             subentry.entries.listAppend("Adventure in the Toxic Teacups for " + pluraliseWordy(turns_remaining, "more turn", "more turns") + ".");
         }
@@ -950,7 +925,7 @@ void QStenchAirportZippityDooDahGenerateTasks(ChecklistEntry [int] task_entries)
         url = "place.php?whichplace=airport_stench&action=airport3_kiosk";
     }
         
-    task_entries.listAppend(ChecklistEntryMake(state.image_name, url, subentry, $locations[the toxic teacups]));
+    task_entries.listAppend(ChecklistEntryMake(state.image_name, url, subentry, $locations[the toxic teacups]).ChecklistEntrySetIDTag("Airport stench zippity quest"));
 }
 
 void QStenchAirportWillWorkForFoodGenerateTasks(ChecklistEntry [int] task_entries)
@@ -985,7 +960,7 @@ void QStenchAirportWillWorkForFoodGenerateTasks(ChecklistEntry [int] task_entrie
         url = "place.php?whichplace=airport_stench&action=airport3_kiosk";
     }
         
-    task_entries.listAppend(ChecklistEntryMake(state.image_name, url, subentry, $locations[barf mountain]));
+    task_entries.listAppend(ChecklistEntryMake(state.image_name, url, subentry, $locations[barf mountain]).ChecklistEntrySetIDTag("Airport stench refreshments quest"));
 }
 
 void QStenchAirportGiveMeFuelGenerateTasks(ChecklistEntry [int] task_entries)
@@ -1023,7 +998,7 @@ void QStenchAirportGiveMeFuelGenerateTasks(ChecklistEntry [int] task_entries)
         }
     }
     
-    task_entries.listAppend(ChecklistEntryMake(state.image_name, url, subentry, $locations[the toxic teacups]));
+    task_entries.listAppend(ChecklistEntryMake(state.image_name, url, subentry, $locations[the toxic teacups]).ChecklistEntrySetIDTag("Airport stench fuel quest"));
 }
 
 void QStenchAirportGarbageGenerateTasks(ChecklistEntry [int] task_entries)
@@ -1043,7 +1018,7 @@ void QStenchAirportGarbageGenerateTasks(ChecklistEntry [int] task_entries)
             subentry.entries.listAppend(line + ".");
         }
     }
-    task_entries.listAppend(ChecklistEntryMake("__item bag of park garbage", "place.php?whichplace=airport_stench&action=airport3_tunnels", subentry));
+    task_entries.listAppend(ChecklistEntryMake("__item bag of park garbage", "place.php?whichplace=airport_stench&action=airport3_tunnels", subentry).ChecklistEntrySetIDTag("Airport stench garbage"));
 }
 
 void QStenchAirportWartDinseyGenerateTasks(ChecklistEntry [int] task_entries)
@@ -1109,7 +1084,7 @@ void QStenchAirportWartDinseyGenerateTasks(ChecklistEntry [int] task_entries)
     }
     description.listAppend("Will acquire a " + dinsey_item + ".");
     
-    task_entries.listAppend(ChecklistEntryMake("__item " + dinsey_item, url, ChecklistSubentryMake("Defeat Wart Dinsey", modifiers, description)));
+    task_entries.listAppend(ChecklistEntryMake("__item " + dinsey_item, url, ChecklistSubentryMake("Defeat Wart Dinsey", modifiers, description)).ChecklistEntrySetIDTag("Airport stench Wart_Dinsey"));
 }
 
 void QStenchAirportGenerateTasks(ChecklistEntry [int] task_entries)
@@ -1188,7 +1163,7 @@ void QHotAirportLavaCoLampGenerateTasks(ChecklistEntry [int] task_entries)
             if ($item[full lava bottle].available_amount() > 0) {
                 if (lava_glob_item.available_amount() > 0) {
                     subdescription.listAppend("Use " + lava_glob_item + ".");
-                    url = "inventory.php?which=3";
+                    url = lava_glob_item.invSearch();
                 }
             } else {
                 if ($item[empty lava bottle].item_amount() > 0) {
@@ -1257,7 +1232,7 @@ void QHotAirportLavaCoLampGenerateTasks(ChecklistEntry [int] task_entries)
     }
     
     
-    task_entries.listAppend(ChecklistEntryMake("__item " + missing_lamps[0], url, ChecklistSubentryMake("Make a " + colours_missing.listJoinComponents(", ", "and") + " LavaCo Lamp&trade;", modifiers, description), $locations[LavaCo&trade; Lamp Factory]));
+    task_entries.listAppend(ChecklistEntryMake("__item " + missing_lamps[0], url, ChecklistSubentryMake("Make a " + colours_missing.listJoinComponents(", ", "and") + " LavaCo Lamp&trade;", modifiers, description), $locations[LavaCo&trade; Lamp Factory]).ChecklistEntrySetIDTag("Airport hot lavaco_lamp"));
 }
 
 void QHotAirportSuperduperheatedMetalGenerateTasks(ChecklistEntry [int] task_entries)
@@ -1281,7 +1256,7 @@ void QHotAirportSuperduperheatedMetalGenerateTasks(ChecklistEntry [int] task_ent
     }
 
     if (description.count() > 0)
-        task_entries.listAppend(ChecklistEntryMake(image, "place.php?whichplace=airport_hot", ChecklistSubentryMake(header, "", description), $locations[The Bubblin\' Caldera]));
+        task_entries.listAppend(ChecklistEntryMake(image, "place.php?whichplace=airport_hot", ChecklistSubentryMake(header, "", description), $locations[The Bubblin\' Caldera]).ChecklistEntrySetIDTag("Airport hot superduperheated"));
 }
 
 void QHotAirportWLFBunkerGenerateTasks(ChecklistEntry [int] task_entries)
@@ -1299,13 +1274,15 @@ void QHotAirportWLFBunkerGenerateTasks(ChecklistEntry [int] task_entries)
         volcano_item_id [i] = get_property_int("_volcanoItem" + i); // volcano_item_id [1st / 2nd / 3rd] => item ID
         volcano_item_count [volcano_item_id [i]] = get_property_int("_volcanoItemCount" + i); // volcano_item_count [item ID] => amount asked
     }
+    string url = "place.php?whichplace=airport_hot";
     string subtitle;
     string [int] description;
     boolean [location] relevant_locations;
 
-    if (volcano_item_id [1] == 0 && volcano_item_id [2] == 0 && volcano_item_id [3] == 0)
+    if (volcano_item_id [1] == 0 && volcano_item_id [2] == 0 && volcano_item_id [3] == 0) {
+        url = "place.php?whichplace=airport_hot&action=airport4_questhub";
         description.listAppend("Visit the W.L.F. bunker to learn today's accepted items.");
-    else {
+    } else {
         boolean [item] volcano_item; // rearranged in a format that is compatible with "contains" (also going from ID to $item)
         foreach i in volcano_item_id {
             if (volcano_item_id [i] == 0) {
@@ -1428,7 +1405,7 @@ void QHotAirportWLFBunkerGenerateTasks(ChecklistEntry [int] task_entries)
             subtitle = "One of:";
     }
 
-    task_entries.listAppend(ChecklistEntryMake("__item volcoino", "place.php?whichplace=airport_hot", ChecklistSubentryMake("Help smash the system!", subtitle, description), relevant_locations));
+    task_entries.listAppend(ChecklistEntryMake("__item volcoino", url, ChecklistSubentryMake("Help smash the system!", subtitle, description), relevant_locations).ChecklistEntrySetIDTag("Airport hot WLF quest"));
 }
 
 void QHotAirportGenerateTasks(ChecklistEntry [int] task_entries)
@@ -1439,6 +1416,16 @@ void QHotAirportGenerateTasks(ChecklistEntry [int] task_entries)
     QHotAirportLavaCoLampGenerateTasks(task_entries);
     QHotAirportSuperduperheatedMetalGenerateTasks(task_entries);
     QHotAirportWLFBunkerGenerateTasks(task_entries);
+    
+    if ($item[lucky gold ring].available_amount() > 0 && !get_property_boolean("_luckyGoldRingVolcoino")) {
+        string url;
+        string title = "Adventure with ";
+        if ($item[lucky gold ring].equipped_amount() == 0) {
+            title = "Equip ";
+            url = $item[lucky gold ring].invSearch();
+        }
+        task_entries.listAppend(ChecklistEntryMake("__item lucky gold ring", url, ChecklistSubentryMake(title + " your Lucky Gold Ring", "~1% volcoino/combat", "Can give 1 volcoino per day.")).ChecklistEntrySetIDTag("Airport hot lucky_gold_ring"));
+    }
 }
 
 void QHotAirportGenerateResource(ChecklistEntry [int] resource_entries)
@@ -1531,7 +1518,7 @@ void QHotAirportGenerateResource(ChecklistEntry [int] resource_entries)
         
         //fancy tophat, insane tophat, brown felt tophat, isotophat, tiny top hat and cane
         if (potential_disco_style_level > 0)
-            resource_entries.listAppend(ChecklistEntryMake("__item disco ball", url, ChecklistSubentryMake("One elevator ride", "", description), 5));
+            resource_entries.listAppend(ChecklistEntryMake("__item disco ball", url, ChecklistSubentryMake("One elevator ride", "", description), 5).ChecklistEntrySetIDTag("Airport hot disco_elevator resource"));
     }
 }
 
@@ -1634,7 +1621,7 @@ void QColdAirportGenerateTasks(ChecklistEntry [int] task_entries)
             
             description.listAppend(progress + "% done collecting " + desired_walford_item + ".");
         }
-        task_entries.listAppend(ChecklistEntryMake("__item Walford's bucket", url, ChecklistSubentryMake(title, modifiers, description), $locations[The Ice Hotel,VYKEA,The Ice Hole]));
+        task_entries.listAppend(ChecklistEntryMake("__item Walford's bucket", url, ChecklistSubentryMake(title, modifiers, description), $locations[The Ice Hotel,VYKEA,The Ice Hole]).ChecklistEntrySetIDTag("Airport cold walford quest"));
     }
 }
 

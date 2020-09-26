@@ -58,7 +58,7 @@ void QAzazelGenerateTasks(ChecklistEntry [int] task_entries, ChecklistEntry [int
             line += " once you have enough space";
         line += ".";
         subentry.entries.listAppend(line);
-        optional_task_entries.listAppend(ChecklistEntryMake(base_quest_state.image_name, "", subentry));
+        optional_task_entries.listAppend(ChecklistEntryMake(base_quest_state.image_name, "", subentry).ChecklistEntrySetIDTag("Azazel steel organ consume"));
         return;
     }
     
@@ -81,6 +81,7 @@ void QAzazelGenerateTasks(ChecklistEntry [int] task_entries, ChecklistEntry [int
 	ChecklistEntry entry;
 	entry.url = "pandamonium.php";
 	entry.image_lookup_name = base_quest_state.image_name;
+    entry.tags.id = "Azazel steel organ quest";
 	entry.should_indent_after_first_subentry = true;
     entry.should_highlight = $locations[the laugh floor, infernal rackets backstage] contains __last_adventure_location;
     

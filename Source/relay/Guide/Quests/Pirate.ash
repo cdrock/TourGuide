@@ -305,6 +305,7 @@ void QPirateCoveGenerateTasks(ChecklistEntry [int] task_entries, ChecklistEntry 
     }
 
     ChecklistEntry entry = ChecklistEntryMake(base_quest_state.image_name, url, subentry, $locations[the obligatory pirate's cove, barrrney's barrr, the f'c'le,The Poop Deck]);
+    entry.tags.id = "Island pirates quest";
     entry.tags.combination = "pirates";
     
     if (__misc_state["in run"] && base_quest_state.state_boolean["valid"]) {
@@ -364,6 +365,7 @@ void QPoopDeckGenerateTasks(ChecklistEntry [int] task_entries, ChecklistEntry [i
     }
 
     ChecklistEntry entry = ChecklistEntryMake("ship wheel", url, subentry, $locations[The Poop Deck]);
+    entry.tags.id = "Island pirates poop deck sailing";
     entry.tags.combination = "pirates";
 
     if (__misc_state["in run"] && __quest_state["Pirate Quest"].state_boolean["valid"] && __quest_state["Pirate Quest"].in_progress) //To match if QPirateCoveGenerateTasks is being displayed in task or optional_task
