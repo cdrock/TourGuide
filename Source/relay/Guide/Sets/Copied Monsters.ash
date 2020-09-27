@@ -272,6 +272,7 @@ void generateCopiedMonstersEntry(ChecklistEntry [int] task_entries, ChecklistEnt
 		if (very_important)
 			importance = -11;
 		ChecklistEntry entry = ChecklistEntryMake(__misc_state_string["obtuse angel name"], url, ChecklistSubentryMake(title, "", description), importance);
+        entry.tags.id = "Angel copy monster old obsolete";
 		if (very_important)
 			task_entries.listAppend(entry);
 		else
@@ -310,7 +311,7 @@ void SCopiedMonstersGenerateResourceForCopyType(ChecklistEntry [int] resource_en
         url = "place.php?whichplace=chateau";
     }
 	
-	resource_entries.listAppend(ChecklistEntryMake(image_name, url, ChecklistSubentryMake(shaking_shorthand_name.capitaliseFirstLetter() + " monster trapped!", "", line)));
+	resource_entries.listAppend(ChecklistEntryMake(image_name, url, ChecklistSubentryMake(shaking_shorthand_name.capitaliseFirstLetter() + " monster trapped!", "", line)).ChecklistEntrySetIDTag("Copy item " + shaking_shorthand_name));
 }
 
 void SCopiedMonstersGenerateResource(ChecklistEntry [int] resource_entries)
@@ -351,6 +352,7 @@ void SCopiedMonstersGenerateResource(ChecklistEntry [int] resource_entries)
             //potential_copies.listAppend("Bricko bats...?");
     }
     ChecklistEntry copy_source_entry;
+    copy_source_entry.tags.id = "Copy options resource";
     
     if (__misc_state["Chateau Mantegna available"] && !get_property_boolean("_chateauMonsterFought") && mafiaIsPastRevision(15115))
     {
