@@ -325,7 +325,7 @@ void SCopiedMonstersGenerateResource(ChecklistEntry [int] resource_entries)
     int copies_left = copies_available - copies_used;
     
     string [int] potential_copies;
-    if (true)
+    if (!__misc_state["in CS aftercore"])
     {
         //√ghuol whelps, √modern zmobies, √wine racks, √lobsterfrogmen, √ninja assassin
         if (!__quest_state["Level 12"].state_boolean["Lighthouse Finished"] && $item[barrel of gunpowder].available_amount() < 5)

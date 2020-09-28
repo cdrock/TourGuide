@@ -90,7 +90,7 @@ void generateDailyResources(Checklist [int] checklists)
         description.listAppend("Or +10% item, +50% init. (stylishly)");
         resource_entries.listAppend(ChecklistEntryMake("__item pool cue", "clan_viplounge.php?action=pooltable", ChecklistSubentryMake(pluralise(games_available, "pool table game", "pool table games"), "10 turns", description), 5));
     }
-    if (__quest_state["Level 6"].finished && !get_property_boolean("friarsBlessingReceived") && my_path_id() != PATH_COMMUNITY_SERVICE) {
+    if (__quest_state["Level 6"].finished && !get_property_boolean("friarsBlessingReceived") && my_path_id() != PATH_COMMUNITY_SERVICE && !__misc_state["in CS aftercore"]) {
         string [int] description;
         if (!__misc_state["familiars temporarily blocked"]) {
             description.listAppend("+Familiar experience.");
