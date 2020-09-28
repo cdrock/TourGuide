@@ -2,6 +2,26 @@
 void SRemindersGenerateTasks(ChecklistEntry [int] task_entries, ChecklistEntry [int] optional_task_entries, ChecklistEntry [int] future_task_entries)
 {
 
+    if ($effect[Straight-Edgy].have_effect() > 0 && inebriety_limit() > 0 && availableDrunkenness() >= 0) {
+        int straight_edgy_adventures = 4.5 * (availableDrunkenness() + 1);
+        string header = "Stop drinking";
+        if (my_inebriety() == 0)
+            header = "Don't drink anything";
+        string [int] description;
+        description.listAppend("Will give " + straight_edgy_adventures + " adventures next time you log in since next rollover.");
+        if (__misc_state_int["adventures after rollover"] + straight_edgy_adventures > 190) //add some leeway for those who didn't know about it
+            description.listAppend("Is added " + "after".HTMLGenerateSpanOfClass("r_bold") + " the 200 cap.");
+        if ($familiar[Stooper].familiar_is_usable()) {
+            string line;
+            if (my_familiar() == $familiar[Stooper])
+                line = "Keep the Stooper equipped to get the most out of this.";
+            else
+                line = "Equip the Stooper for additional adventures.";
+            description.listAppend(line);
+        }
+        
+        task_entries.listAppend(ChecklistEntryMake("__effect straight-edgy", "", ChecklistSubentryMake(header, "", description), -11).ChecklistEntrySetIDTag("Straight-edgy reminder"));
+    }
     
     if ($effect[beaten up].have_effect() > 0)
     {

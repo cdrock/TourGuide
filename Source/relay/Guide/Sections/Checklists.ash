@@ -62,37 +62,22 @@ void generateMisc(Checklist [int] checklists)
         int pvp_fights_after_rollover = MIN(pvp_fights_after_rollover_before_caps, 100);
         if (today_is_pvp_season_end())
             pvp_fights_after_rollover = 0;
-        if (true)
-        {
-            int adventures_after_rollover = my_adventures() + 40;
-            if (my_path_id() != PATH_SLOW_AND_STEADY)
-                adventures_after_rollover += numeric_modifier("adventures");
-            //if (get_property_boolean("_borrowedTimeUsed"))
-                //adventures_after_rollover -= 20;
-            adventures_after_rollover += get_property_int("extraRolloverAdventures");
-            
-            if (getHolidaysTomorrow()["Labór Day"] && my_path_id() != PATH_SLOW_AND_STEADY)
-                adventures_after_rollover += 10;
-            
-            adventures_after_rollover = clampi(adventures_after_rollover, 0, 200);
-            
-            string [int] all_tomorrows_parties;
-            all_tomorrows_parties.listAppend(pluralise(adventures_after_rollover, "adventure", "adventures")); //it should be impossible to have under twenty adventures after rollover, but why should that stop us from checking the singular case?
-            if (hippy_stone_broken() && pvp_fights_after_rollover > 0)
-                all_tomorrows_parties.listAppend(pluralise(pvp_fights_after_rollover, "fight", "fights"));
-            
-            description.listAppend("Will start with " + all_tomorrows_parties.listJoinComponents(", ", "and") + " tomorrow.");
-        }
+        
+        int adventures_after_rollover = __misc_state_int["adventures after rollover"];
+        
+        string [int] all_tomorrows_parties;
+        all_tomorrows_parties.listAppend(pluralise(adventures_after_rollover, "adventure", "adventures")); //it should be impossible to have under twenty adventures after rollover, but why should that stop us from checking the singular case?
+        if (hippy_stone_broken() && pvp_fights_after_rollover > 0)
+            all_tomorrows_parties.listAppend(pluralise(pvp_fights_after_rollover, "fight", "fights"));
+        
+        description.listAppend("Will start with " + all_tomorrows_parties.listJoinComponents(", ", "and") + " tomorrow.");
         
         int rollover_adventures_from_equipment = 0;
         foreach s in $slots[hat,weapon,off-hand,back,shirt,pants,acc1,acc2,acc3,familiar]
             rollover_adventures_from_equipment += s.equipped_item().numeric_modifier("adventures").to_int_silent();
         
         //detect if they're going to lose some turns, be nice:
-        int rollover_adventures_gained = numeric_modifier("adventures").to_int_silent() + 40;
-        if (get_property_boolean("_borrowedTimeUsed"))
-            rollover_adventures_gained -= 20;
-        int adventures_lost = (my_adventures() + rollover_adventures_gained) - 200;
+        int adventures_lost = __misc_state_int["adventures lost to rollover"];
         if (rollover_adventures_from_equipment == 0.0 && adventures_lost == 0 && my_path_id() != PATH_SLOW_AND_STEADY)
         {
             description.listAppend("Possibly wear +adventures gear.");
@@ -140,7 +125,7 @@ void generateMisc(Checklist [int] checklists)
             string url = "shop.php?whichshop=still";
             if ($item[soda water].available_amount() == 0)
                 url = "shop.php?whichshop=generalstore";
-            task_entries.entries.listAppend(ChecklistEntryMake("__item tonic water", url, ChecklistSubentryMake("Make " + pluralise(stills_available(), $item[tonic water]), "", listMake("Tonic water is a ~40MP restore, improved from soda water.", "Or improve drinks.")), -11).ChecklistEntrySetIDTag("end of day nash crosby still"));
+            task_entries.entries.listAppend(ChecklistEntryMake("__item tonic water", url, ChecklistSubentryMake("Make " + pluralise(stills_available(), $item[tonic water]), "", listMake("Tonic water is a ~40MP restore, improved from soda water.", "Or improve drinks.")), -11).ChecklistEntrySetIDTag("End of day nash crosby still"));
         }
 	}
 }
