@@ -196,6 +196,12 @@ void setUpState()
 		yellow_ray_source = source.to_string();
 		yellow_ray_image_name = "__item " + source.to_string();
     }
+    if ($item[micronova].available_amount() > 0)
+    {
+        yellow_ray_available = true;
+        yellow_ray_source = "micronova";
+        yellow_ray_image_name = "__item micronova";
+    }
     if ($item[viral video].available_amount() > 0)
     {
 		yellow_ray_available = true;
