@@ -99,6 +99,8 @@ void setUpState()
         __misc_state["in run"] = true;
     __misc_state["In valhalla"] = (my_class().to_string() == "Astral Spirit");
     
+    __misc_state["in CS aftercore"] = __misc_state["in aftercore"] && get_property("csServicesPerformed").split_string(",").count() == 11;
+    
     
 	if (my_turncount() >= 30 && get_property_int("singleFamiliarRun") != -1)
 		__misc_state["single familiar run"] = true;
