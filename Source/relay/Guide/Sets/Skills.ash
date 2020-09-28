@@ -1,7 +1,7 @@
 string [int] SSkillsPotentialCraftingOptions()
 {
     string [int] potential_options;
-    if ($item[knob cake].available_amount() == 0 && !__quest_state["Level 6"].finished)
+    if ($item[knob cake].available_amount() == 0 && !__quest_state["Level 6"].finished && my_path_id() != PATH_COMMUNITY_SERVICE)
         potential_options.listAppend("knob cake");
     if (__misc_state["can eat just about anything"])
         potential_options.listAppend("food");
