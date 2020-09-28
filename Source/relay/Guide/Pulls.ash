@@ -600,7 +600,7 @@ void generatePullList(Checklist [int] checklists)
 		
 		if (gp_item.alternate_name != "")
 		{
-			pulls_entries.listAppend(ChecklistEntryMake(gp_item.alternate_image_name, "storage.php", ChecklistSubentryMake(gp_item.alternate_name, "", reason_list)).ChecklistEntrySetIDTag("Pull suggestions " + alternate_name));
+			pulls_entries.listAppend(ChecklistEntryMake(gp_item.alternate_image_name, "storage.php", ChecklistSubentryMake(gp_item.alternate_name, "", reason_list)).ChecklistEntrySetIDTag("Pull suggestions " + gp_item.alternate_name));
 			continue;
 		}
 		
