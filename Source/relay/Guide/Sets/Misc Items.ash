@@ -606,7 +606,7 @@ void SMiscItemsGenerateResource(ChecklistEntry [int] resource_entries)
         resource_entries.listAppend(ChecklistEntryMake("__item vitachoconutriment capsule", "inventory.php?ftext=vitachoconutriment+capsule", ChecklistSubentryMake(pluralise($item[vitachoconutriment capsule]), "", line), importance_level_unimportant_item).ChecklistEntrySetIDTag("Vitachoconutriment capsule"));
     }
     if (in_run && lookupItem("tryptophan dart").available_amount() > 0 && in_ronin() && lookupItem("tryptophan dart").item_is_usable()) {
-        resource_entries.listAppend(ChecklistEntryMake("__item tryptophan dart", "", ChecklistSubentryMake(pluralise(lookupItem("tryptophan dart")), "", "Free run/banish."), 6).ChecklistEntryTagEntry("banish").ChecklistEntrySetIDTag("Tryptophan dart banish"));
+        resource_entries.listAppend(ChecklistEntryMake("__item tryptophan dart", "", ChecklistSubentryMake(pluralise(lookupItem("tryptophan dart")), "", "Free run/banish."), 6).ChecklistEntrySetCombinationTag("banish").ChecklistEntrySetIDTag("Tryptophan dart banish"));
     }
     if (in_run && __misc_state["free runs usable"] && get_property_int("_humanMuskUses") < 3 && lookupItem("human musk").available_amount() > 0 && lookupItem("human musk") != $item[none]) {
         resource_entries.listAppend(ChecklistEntryMake("__item human musk", "", ChecklistSubentryMake(MIN(lookupItem("human musk").available_amount(), 3 - get_property_int("_humanMuskUses")).pluralise("human musk", "human musks"), "", "Free run/banish. Consumes item."), 6).ChecklistEntrySetCombinationTag("banish").ChecklistEntrySetIDTag("Human musk banish"));
