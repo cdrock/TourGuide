@@ -344,12 +344,12 @@ void ChecklistInit()
     
     string gradient = "background: #ffffff;background: -moz-linear-gradient(left, #ffffff 50%, #F0F0F0 75%, #F0F0F0 100%);background: -webkit-gradient(linear, left top, right top, color-stop(50%,#ffffff), color-stop(75%,#F0F0F0), color-stop(100%,#F0F0F0));background: -webkit-linear-gradient(left, #ffffff 50%,#F0F0F0 75%,#F0F0F0 100%);background: -o-linear-gradient(left, #ffffff 50%,#F0F0F0 75%,#F0F0F0 100%);background: -ms-linear-gradient(left, #ffffff 50%,#F0F0F0 75%,#F0F0F0 100%);background: linear-gradient(to right, #ffffff 50%,#F0F0F0 75%,#F0F0F0 100%);filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#F0F0F0',GradientType=1 );"; //help
     PageAddCSSClass("", "container_highlighted", gradient + "margin-right:-" + __setting_indention_width + ";padding-right:" + __setting_indention_width + ";"); //counter the checklist_container's padding, so that the gradient won't stop mid-way
+    PageAddCSSClass("", "close_highlight", "margin-right:-" + __setting_indention_width + ";padding-right:" + __setting_indention_width + ";");
     
     PageAddCSSClass("div", "r_cl_entry_image", "width:" + __setting_image_width_large + "px;flex:none;");
     PageAddCSSClass("div", "r_cl_entry_content_container", "flex-grow:1;display:flex;flex-direction:column;text-align:left;align-items:flex-start;");
     
-    PageAddCSSClass("hr", "r_cl_hr", "padding:0px;margin:0px;width:auto;"); // could replace by manually adding a border-top to any r_cl_entry_container other than the top one?
-    PageAddCSSClass("hr", "r_cl_hr_extended", "padding:0px;margin:0px;width:auto; margin-right: -" + __setting_indention_width + ";");
+    PageAddCSSClass("", "hr_like", "border: 0px; border-top: 1px; border-style:solid; border-color: " + __setting_line_colour + ";");
     PageAddCSSClass("div", "r_cl_collapsed","display:none;");
     PageAddCSSClass("button", "r_cl_minimize_button", "background-color:antiquewhite;padding:0px;font-size:11px;height:18px;width:18px;position:relative;z-index:2;color:#7F7F7F;cursor:pointer;");
     PageAddCSSClass("button", "r_cl_minimize_button:hover", "background-color:black;");
@@ -367,20 +367,20 @@ void ChecklistInit()
         PageAddCSSClass("div", "r_cl_checklist_container", "padding-left:" + (__setting_indention_width_in_em / 2.0) + "em; padding-right:" + (__setting_indention_width_in_em / 2.0) + "em;", 0, __setting_media_query_medium_size);
         PageAddCSSClass("div", "r_cl_entry_container", "padding-top:4px;padding-bottom:4px;", 0, __setting_media_query_medium_size);
         PageAddCSSClass("div", "r_cl_entry_image", "width:" + __setting_image_width_medium + "px;", 0, __setting_media_query_medium_size);
-        PageAddCSSClass("hr", "r_cl_hr_extended", "margin-right: -" + (__setting_indention_width_in_em / 2.0) + "em;", 0, __setting_media_query_medium_size);
         PageAddCSSClass("", "container_highlighted", "margin-right:-" + (__setting_indention_width_in_em / 2.0) + "em;padding-right:" + (__setting_indention_width_in_em / 2.0) + "em;", 0, __setting_media_query_medium_size);
+        PageAddCSSClass("", "close_highlight", "margin-right:-" + (__setting_indention_width_in_em / 2.0) + "em;padding-right:" + (__setting_indention_width_in_em / 2.0) + "em;", 0, __setting_media_query_medium_size);
         
         
         PageAddCSSClass("div", "r_cl_checklist_container", "padding-left:5px; padding-right:0px;", 0, __setting_media_query_small_size);
-        PageAddCSSClass("hr", "r_cl_hr_extended", "margin-right:0px;", 0, __setting_media_query_small_size);
         PageAddCSSClass("", "container_highlighted", "margin-right:0px;padding-right:0px;", 0, __setting_media_query_small_size);
+        PageAddCSSClass("", "close_highlight", "margin-right:0px;padding-right:0px;", 0, __setting_media_query_small_size);
         PageAddCSSClass("div", "r_cl_entry_container", "padding-top:3px;padding-bottom:3px;", 0, __setting_media_query_small_size);
         PageAddCSSClass("div", "r_cl_entry_image", "width:" + __setting_image_width_small + "px;", 0, __setting_media_query_small_size);
         
         
         PageAddCSSClass("div", "r_cl_checklist_container", "padding-left:3px; padding-right:0px;", 0, __setting_media_query_tiny_size);
-        PageAddCSSClass("hr", "r_cl_hr_extended", "margin-right:0px;", 0, __setting_media_query_tiny_size);
         PageAddCSSClass("", "container_highlighted", "margin-right:0px;padding-right:0px;", 0, __setting_media_query_tiny_size);
+        PageAddCSSClass("", "close_highlight", "margin-right:0px;padding-right:0px;", 0, __setting_media_query_tiny_size);
         PageAddCSSClass("div", "r_cl_entry_container", "padding-top:3px;padding-bottom:3px;", 0, __setting_media_query_tiny_size);
         PageAddCSSClass("div", "r_cl_entry_image", "width:0px;", 0, __setting_media_query_tiny_size);
         
@@ -653,30 +653,25 @@ buffer ChecklistGenerate(Checklist cl, boolean output_borders) {
     boolean last_was_highlighted = false;
     int current_mouse_over_id = 1;
     foreach i, entry in entries
-	{
+    {
         if (++intra_i < starting_intra_i)
-			continue;
+            continue;
         entries_output++;
-		if (intra_i > starting_intra_i)
-		{
-            //add a division (hr) between the entries
-            boolean next_is_highlighted = false;
-            if (entry.should_highlight)
-                next_is_highlighted = true;
-            string class_name = "r_cl_hr";
-            if (last_was_highlighted || next_is_highlighted)
-                class_name = "r_cl_hr_extended";
-			result.append(HTMLGenerateTagPrefix("hr", mapMake("class", class_name)));
-		}
         string [string] anchor_attributes;
-		if (entry.url != "")
+        if (entry.url != "")
             anchor_attributes = {"target":"mainpane", "href":entry.url, "class":"r_a_undecorated"};
         
         buffer entry_content;
         string container_class = "r_cl_entry_container";
-        if (entry.should_highlight)
+        if (entry.should_highlight || intra_i == 4)
             container_class += " container_highlighted";
-        last_was_highlighted = entry.should_highlight;
+        if (intra_i > starting_intra_i)
+        {
+            container_class += " hr_like";
+            if (last_was_highlighted && !entry.should_highlight)
+                container_class += " close_highlight";
+        }
+        last_was_highlighted = entry.should_highlight || intra_i == 4;
         
         buffer generated_subentry_html = ChecklistGenerateEntryHTML(entry, entry.subentries, anchor_attributes);
         if (entry.subentries_on_mouse_over.count() > 0)
