@@ -63,11 +63,3 @@ void IOTMGingerbreadCityGenerateResource(ChecklistEntry [int] resource_entries)
         //There's no per-turn tracker for this area.
     }
 }
-
-RegisterTaskGenerationFunction("IOTMGingerbreadCityGenerateTasks");
-void IOTMGingerbreadCityGenerateTasks(ChecklistEntry [int] task_entries, ChecklistEntry [int] optional_task_entries, ChecklistEntry [int] future_task_entries)
-{
-    if ($locations[Gingerbread Civic Center,Gingerbread Industrial Zone,Gingerbread Train Station,Gingerbread Sewers,Gingerbread Upscale Retail District] contains __last_adventure_location) {
-        optional_task_entries.listAppend(ChecklistEntryMake("__item counterfeit city", "", ChecklistSubentryMake("Gingerbread City", "+sprinkles", "At turn " + get_property("_gingerbreadCityTurns") + ".")));
-    }
-}
