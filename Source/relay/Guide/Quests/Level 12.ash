@@ -96,7 +96,7 @@ void QLevel12Init()
 void QLevel12GenerateTasksSidequests(ChecklistEntry [int] task_entries, ChecklistEntry [int] optional_task_entries, ChecklistEntry [int] future_task_entries)
 {
 	QuestState base_quest_state = __quest_state["Level 12"];
-	if (!base_quest_state.state_boolean["Orchard Finished"])
+	if (!base_quest_state.state_boolean["Orchard Finished"] && my_path_id() != PATH_2CRS)
 	{
 		string [int] details;
 		string [int] modifiers;
@@ -202,7 +202,7 @@ void QLevel12GenerateTasksSidequests(ChecklistEntry [int] task_entries, Checklis
         }
 		optional_task_entries.listAppend(ChecklistEntryMake("Island War Farm", "bigisland.php?place=farm", ChecklistSubentryMake("Island War Farm Quest", modifiers, details), $locations[mcmillicancuddy's farm,mcmillicancuddy's barn,mcmillicancuddy's pond,mcmillicancuddy's back 40,mcmillicancuddy's other back 40,mcmillicancuddy's granary,mcmillicancuddy's bog,mcmillicancuddy's family plot,mcmillicancuddy's shady thicket]).ChecklistEntrySetIDTag("Council L12 quest side farm"));
 	}
-	if (!base_quest_state.state_boolean["Nuns Finished"])
+	if (!base_quest_state.state_boolean["Nuns Finished"] && my_path_id() != PATH_2CRS)
 	{
 		string [int] details;
 		int meat_gotten = get_property_int("currentNunneryMeat");

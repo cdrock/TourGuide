@@ -50,6 +50,8 @@ void QPirateInit()
 
 void QPirateCoveGenerateTasks(ChecklistEntry [int] task_entries, ChecklistEntry [int] optional_task_entries, ChecklistEntry [int] future_task_entries)
 {
+    if (__quest_state["Island War"].state_boolean["War in progress"]) return;
+
     QuestState base_quest_state = __quest_state["Pirate Quest"];
     ChecklistSubentry subentry;
     subentry.header = base_quest_state.quest_name;
