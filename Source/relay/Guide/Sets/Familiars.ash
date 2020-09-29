@@ -120,7 +120,7 @@ void SFamiliarsPuckGenerateResource(ChecklistEntry [int] resource_entries)
                 else
                     header += " (" + power_pill_uses_left + " usable today)";
             }
-            resource_entries.listAppend(ChecklistEntryMake("__item power pill", "", ChecklistSubentryMake(header, "", "Use in combat to instakill without costing a turn.")).ChecklistEntryTagEntry("free instakill").ChecklistEntrySetIDTag("Puck man familiar power pill free kill"));
+            resource_entries.listAppend(ChecklistEntryMake("__item power pill", "", ChecklistSubentryMake(header, "", "Use in combat to instakill without costing a turn.")).ChecklistEntrySetCombinationTag("free instakill").ChecklistEntrySetIDTag("Puck man familiar power pill free kill"));
         }
     }
     if (yellow_pixel != $item[none] && yellow_pixel.available_amount() > 0 && in_ronin())
@@ -304,7 +304,7 @@ void SFamiliarsGenerateResource(ChecklistEntry [int] resource_entries)
 		if (__misc_state["have muscle class combat skill"])
         {
         	if (tag_with_banish_tag)
-            	resource_entries.listAppend(ChecklistEntryMake("__familiar nanorhino", "", ChecklistSubentryMake("Nanorhino Banish", "", description_banish)).ChecklistEntryTagEntry("banish"));
+            	resource_entries.listAppend(ChecklistEntryMake("__familiar nanorhino", "", ChecklistSubentryMake("Nanorhino Banish", "", description_banish)).ChecklistEntrySetCombinationTag("banish"));
             else
 				subentries.listAppend(ChecklistSubentryMake("Nanorhino Banish", "", description_banish));
         }

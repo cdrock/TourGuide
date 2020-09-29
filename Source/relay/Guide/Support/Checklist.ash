@@ -244,7 +244,8 @@ ChecklistEntry ChecklistEntrySetIDTag(ChecklistEntry e, string id)
     e.tags.id = id;
     return e;
 }
-ChecklistEntry ChecklistEntryTagEntry(ChecklistEntry e, string tag) //FIXME need to modify, at least the name
+
+ChecklistEntry ChecklistEntrySetCombinationTag(ChecklistEntry e, string tag)
 {
     e.tags.combination = tag;
     return e;

@@ -65,7 +65,7 @@ void IOTMMaySaberGenerateResource(ChecklistEntry [int] resource_entries)
             else
                 description.listAppend("Rollover runaway-like/banish");
 
-            resource_entries.listAppend(ChecklistEntryMake("__item Fourth of May Cosplay Saber", "inventory.php?which=2", ChecklistSubentryMake("(up to) " + uses_remaining.pluralise("force banish", "forces banishes"), "", description)).ChecklistEntryTagEntry("banish").ChecklistEntrySetIDTag("Fourth may saber force banish"));
+            resource_entries.listAppend(ChecklistEntryMake("__item Fourth of May Cosplay Saber", "inventory.php?which=2", ChecklistSubentryMake("(up to) " + uses_remaining.pluralise("force banish", "forces banishes"), "", description)).ChecklistEntrySetCombinationTag("banish").ChecklistEntrySetIDTag("Fourth may saber force banish"));
         }
     }
 }

@@ -16,7 +16,7 @@ void IOTMGingerbreadCityGenerateResource(ChecklistEntry [int] resource_entries)
             string [int] description;
             description.listAppend("Combat skill, win a fight without taking a turn.");
             //FIXME replace with a better image
-            resource_entries.listAppend(ChecklistEntryMake("__familiar Penguin Goodfella", "", ChecklistSubentryMake("Gingerbread mob hit", "", description), 0).ChecklistEntryTagEntry("free instakill").ChecklistEntrySetIDTag("Gingerbread city mob hit free kill"));
+            resource_entries.listAppend(ChecklistEntryMake("__familiar Penguin Goodfella", "", ChecklistSubentryMake("Gingerbread mob hit", "", description), 0).ChecklistEntrySetCombinationTag("free instakill").ChecklistEntrySetIDTag("Gingerbread city mob hit free kill"));
             
         }
     }
@@ -40,7 +40,7 @@ void IOTMGingerbreadCityGenerateResource(ChecklistEntry [int] resource_entries)
     //Chocolate sculpture to sell.
     //Gingerbread gavel
     //More...?
-    if ($locations[Gingerbread Industrial Zone,Gingerbread Train Station,Gingerbread Sewers,Gingerbread Upscale Retail District] contains __last_adventure_location)
+    if ($locations[Gingerbread Civic Center,Gingerbread Industrial Zone,Gingerbread Train Station,Gingerbread Sewers,Gingerbread Upscale Retail District] contains __last_adventure_location)
     {
         //Show details:
         /*
@@ -61,5 +61,13 @@ void IOTMGingerbreadCityGenerateResource(ChecklistEntry [int] resource_entries)
         gingerMuscleChoice - times laid track
         */
         //There's no per-turn tracker for this area.
+    }
+}
+
+RegisterTaskGenerationFunction("IOTMGingerbreadCityGenerateTasks");
+void IOTMGingerbreadCityGenerateTasks(ChecklistEntry [int] task_entries, ChecklistEntry [int] optional_task_entries, ChecklistEntry [int] future_task_entries)
+{
+    if ($locations[Gingerbread Civic Center,Gingerbread Industrial Zone,Gingerbread Train Station,Gingerbread Sewers,Gingerbread Upscale Retail District] contains __last_adventure_location) {
+        optional_task_entries.listAppend(ChecklistEntryMake("__item counterfeit city", "", ChecklistSubentryMake("Gingerbread City", "+sprinkles", "At turn " + get_property("_gingerbreadCityTurns") + ".")));
     }
 }

@@ -73,7 +73,7 @@ void IOTMLilDoctorBagGenerateResource(ChecklistEntry [int] resource_entries)
         }
         //if (snojo_skill_entry.image_lookup_name == "")
             //snojo_skill_entry.image_lookup_name = "__skill shattering punch";
-        resource_entries.listAppend(ChecklistEntryMake("__item Lil' Doctor&trade; bag", url, ChecklistSubentryMake(pluralise(instakills_left, "chest x-ray", "chest x-rays"), "", description), 0).ChecklistEntryTagEntry("free instakill").ChecklistEntrySetIDTag("Lil doctor bag x-ray free kill"));
+        resource_entries.listAppend(ChecklistEntryMake("__item Lil' Doctor&trade; bag", url, ChecklistSubentryMake(pluralise(instakills_left, "chest x-ray", "chest x-rays"), "", description), 0).ChecklistEntrySetCombinationTag("free instakill").ChecklistEntrySetIDTag("Lil doctor bag x-ray free kill"));
         
     }
 	//Reflex Hammer: Banish
@@ -88,6 +88,6 @@ void IOTMLilDoctorBagGenerateResource(ChecklistEntry [int] resource_entries)
         } else {
             description.listAppend("Free run/banish");
         }
-        resource_entries.listAppend(ChecklistEntryMake("__item Lil' Doctor&trade; bag", url, ChecklistSubentryMake(pluralise(banishes_left, "reflex hammer", "reflex hammers"), "", description), 0).ChecklistEntryTagEntry("banish").ChecklistEntrySetIDTag("Lil doctor bag reflex hammer banish"));
+        resource_entries.listAppend(ChecklistEntryMake("__item Lil' Doctor&trade; bag", url, ChecklistSubentryMake(pluralise(banishes_left, "reflex hammer", "reflex hammers"), "", description), 0).ChecklistEntrySetCombinationTag("banish").ChecklistEntrySetIDTag("Lil doctor bag reflex hammer banish"));
     }
 }
