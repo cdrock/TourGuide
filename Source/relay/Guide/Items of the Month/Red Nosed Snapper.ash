@@ -8,7 +8,7 @@ void IOTMRedNosedSnapperTask(ChecklistEntry [int] task_entries, ChecklistEntry [
     phylum current_snapper_phylum = get_property("redSnapperPhylum").to_phylum();
 
     if (current_snapper_phylum == $phylum[none]) {
-        optional_task_entries.listAppend(ChecklistEntryMake("__familiar red-nosed snapper", "familiar.php?action=guideme&pwd=" + my_hash(), ChecklistSubentryMake("Track monsters", "+ of them and gives items", "Choose a phylum".HTMLGenerateSpanOfClass("r_element_important")), 8));
+        optional_task_entries.listAppend(ChecklistEntryMake("__familiar red-nosed snapper", "familiar.php?action=guideme&pwd=" + my_hash(), ChecklistSubentryMake("Track monsters", "+ of them and gives items", "Choose a phylum".HTMLGenerateSpanOfClass("r_element_important")), 8).ChecklistEntrySetIDTag("Red nosed snapper familiar set tracking"));
         return;
     }
 
@@ -25,9 +25,10 @@ void IOTMRedNosedSnapperTask(ChecklistEntry [int] task_entries, ChecklistEntry [
 
     if (banishes_undone_by_snapper.count() > 0) {
         string title = "Your Snapper is undoing a banish".HTMLGenerateSpanOfClass("r_element_important");
-        task_entries.listAppend(ChecklistEntryMake("__familiar red-nosed snapper", "familiar.php?action=guideme&pwd=" + my_hash(), ChecklistSubentryMake(title, "Change tracked phylum or switch familiar", "Bringing your snapper while it is tracking <b>" + current_snapper_phylum + "</b> is unbanishing " + banishes_undone_by_snapper.listJoinComponents(", ", "and")), -10));
+        task_entries.listAppend(ChecklistEntryMake("__familiar red-nosed snapper", "familiar.php?action=guideme&pwd=" + my_hash(), ChecklistSubentryMake(title, "Change tracked phylum or switch familiar", "Bringing your snapper while it is tracking <b>" + current_snapper_phylum + "</b> is unbanishing " + banishes_undone_by_snapper.listJoinComponents(", ", "and")), -10).ChecklistEntrySetIDTag("Red nosed snapper familiar warning"));
 
         ChecklistEntry pop_up_reminder_entry = ChecklistEntryMake("__familiar red-nosed snapper", "", ChecklistSubentryMake(title), -11);
+        pop_up_reminder_entry.tags.id = "Red nosed snapper familiar popup";
         pop_up_reminder_entry.only_show_as_extra_important_pop_up = true;
         pop_up_reminder_entry.container_div_attributes["onclick"] = "navbarClick(0, 'Tasks_checklist_container')";
         pop_up_reminder_entry.container_div_attributes["class"] = "r_clickable";
@@ -376,5 +377,5 @@ void IOTMRedNosedSnapperResource(ChecklistEntry [int] resource_entries)
         description.listAppend(line);
     }
 
-    resource_entries.listAppend(ChecklistEntryMake("__familiar red-nosed snapper", "familiar.php?action=guideme&pwd=" + my_hash(), ChecklistSubentryMake(title, "+1 item / 11 kills of tracked phylum", description)));
+    resource_entries.listAppend(ChecklistEntryMake("__familiar red-nosed snapper", "familiar.php?action=guideme&pwd=" + my_hash(), ChecklistSubentryMake(title, "+1 item / 11 kills of tracked phylum", description)).ChecklistEntrySetIDTag("Red nosed snapper familiar tracking drops resource"));
 }
