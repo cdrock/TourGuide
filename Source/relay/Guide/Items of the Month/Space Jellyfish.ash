@@ -73,7 +73,7 @@ void IOTMSpaceJellyfishGenerateResource(ChecklistEntry [int] resource_entries)
         */
         if (get_property_int("_hotJellyUses") > 0)
         {
-            resource_entries.listAppend(ChecklistEntryMake("__item hot jelly", "", ChecklistSubentryMake(pluralise(get_property_int("_hotJellyUses"), "breathe out", "breathe outs"), "", "Cast Breathe Out. Free run/banish.")).ChecklistEntryTagEntry("banish").ChecklistEntrySetIDTag("Space jellyfish breathe out banish"));
+            resource_entries.listAppend(ChecklistEntryMake("__item hot jelly", "", ChecklistSubentryMake(pluralise(get_property_int("_hotJellyUses"), "breathe out", "breathe outs"), "", "Cast Breathe Out. Free run/banish.")).ChecklistEntrySetCombinationTag("banish").ChecklistEntrySetIDTag("Space jellyfish breathe out banish"));
         }
         
         string [item] jelly_descriptions;
@@ -89,7 +89,7 @@ void IOTMSpaceJellyfishGenerateResource(ChecklistEntry [int] resource_entries)
         }
         
         if ($item[hot jelly].available_amount() > 0 && in_ronin())
-            resource_entries.listAppend(ChecklistEntryMake("__item hot jelly", "", ChecklistSubentryMake(pluralise($item[hot jelly]), "", "Chew for free run/banish.")).ChecklistEntryTagEntry("banish").ChecklistEntrySetIDTag("Space jellyfish hot jelly banish"));
+            resource_entries.listAppend(ChecklistEntryMake("__item hot jelly", "", ChecklistSubentryMake(pluralise($item[hot jelly]), "", "Chew for free run/banish.")).ChecklistEntrySetCombinationTag("banish").ChecklistEntrySetIDTag("Space jellyfish hot jelly banish"));
         
         
         

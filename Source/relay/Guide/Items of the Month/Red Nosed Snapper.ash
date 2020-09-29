@@ -100,7 +100,7 @@ void IOTMHumanMuskBanish(ChecklistEntry [int] resource_entries) {
     }
 
     ChecklistEntry entry;
-    entry.ChecklistEntryTagEntry("banish");
+    entry.ChecklistEntrySetCombinationTag("banish");
     entry.image_lookup_name = "__item human musk";
     entry.tags.id = "Red nosed snapper human musk banish";//temporary since will delete with the snapper changes...
 

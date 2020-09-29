@@ -13,7 +13,7 @@ void IOTMSnojoGenerateResource(ChecklistEntry [int] resource_entries)
             
             //if (snojo_skill_entry.image_lookup_name == "")
                 //snojo_skill_entry.image_lookup_name = "__skill shattering punch";
-            resource_entries.listAppend(ChecklistEntryMake("__skill shattering punch", "", ChecklistSubentryMake(pluralise(punches_left, "shattering punch", "shattering punches"), "", description), 0).ChecklistEntryTagEntry("free instakill").ChecklistEntrySetIDTag("Snojo shattering punch free kill"));
+            resource_entries.listAppend(ChecklistEntryMake("__skill shattering punch", "", ChecklistSubentryMake(pluralise(punches_left, "shattering punch", "shattering punches"), "", description), 0).ChecklistEntrySetCombinationTag("free instakill").ChecklistEntrySetIDTag("Snojo shattering punch free kill"));
             
         }
     }
@@ -34,7 +34,7 @@ void IOTMSnojoGenerateResource(ChecklistEntry [int] resource_entries)
                 description.listAppend("Currently used on " + snoke_banish.banished_monster + " for " + pluralise(turns_left_of_banish, "more turn", "more turns") + ".");
             }
             //snojo_skill_entry.subentries.listAppend(ChecklistSubentryMake(pluralise(snokes_left, "snokebomb", "snokebombs"), "", description));
-            resource_entries.listAppend(ChecklistEntryMake("__skill snokebomb", "", ChecklistSubentryMake(pluralise(snokes_left, "snokebomb", "snokebombs"), "", description), 0).ChecklistEntryTagEntry("banish").ChecklistEntrySetIDTag("Snojo snokebomb banish"));
+            resource_entries.listAppend(ChecklistEntryMake("__skill snokebomb", "", ChecklistSubentryMake(pluralise(snokes_left, "snokebomb", "snokebombs"), "", description), 0).ChecklistEntrySetCombinationTag("banish").ChecklistEntrySetIDTag("Snojo snokebomb banish"));
         }
     }
     

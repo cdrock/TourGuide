@@ -34,7 +34,7 @@ void IOTMLatteGenerateResource(ChecklistEntry [int] resource_entries)
             description.listAppend("Free run/banish");
         }
 
-        resource_entries.listAppend(ChecklistEntryMake("__item latte lovers member's mug", banish_url, ChecklistSubentryMake(pluralise(banishes_available, "latte banish", "latte banishes"), "", description), 0).ChecklistEntryTagEntry("banish").ChecklistEntrySetIDTag("Latte lovers mug throw banish"));
+        resource_entries.listAppend(ChecklistEntryMake("__item latte lovers member's mug", banish_url, ChecklistSubentryMake(pluralise(banishes_available, "latte banish", "latte banishes"), "", description), 0).ChecklistEntrySetCombinationTag("banish").ChecklistEntrySetIDTag("Latte lovers mug throw banish"));
     }
     
     ChecklistEntry entry;
