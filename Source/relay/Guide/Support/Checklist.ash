@@ -529,13 +529,15 @@ buffer ChecklistGenerate(Checklist cl, boolean output_borders) {
 	foreach key, entry in entries {
 		if (entry.tags.combination == "") continue;
         if (entry.only_show_as_extra_important_pop_up) continue; //do not support this feature with this
+        if (entry.should_indent_after_first_subentry) continue;
         if (entry.subentries_on_mouse_over.count() > 0) continue;
         if (entry.container_div_attributes.count() > 0) continue;
         
+        entry.importance_level -= 1; //combined entries gain a hack; a level above everything else
+
         if (!(combination_tag_entries contains entry.tags.combination)) {
-        	entry.importance_level -= 1; //combined entries gain a hack; a level above everything else
-            entry.tags.id = entry.tags.combination;
-        	combination_tag_entries[entry.tags.combination] = entry;
+            entry.tags.id = cl.title + "_" + entry.tags.combination;
+            combination_tag_entries[entry.tags.combination] = entry;
             continue;
         }
 
@@ -546,17 +548,32 @@ buffer ChecklistGenerate(Checklist cl, boolean output_borders) {
         }
 
         if (master_entry.url == "" && entry.url != "") {
-        	master_entry.url = entry.url;
+            master_entry.url = entry.url;
         }
 
-        master_entry.importance_level = min(master_entry.importance_level, entry.importance_level - 1);
-        
-        foreach key, subentry in entry.subentries { 
-        	master_entry.subentries.listAppend(subentry);
+        if (entry.importance_level < master_entry.importance_level)
+        {
+            master_entry.importance_level = entry.importance_level;
+            master_entry.image_lookup_name = entry.image_lookup_name;
+            if (entry.url != "")
+                master_entry.url = entry.url;
+
+            //Put that entry's subentries at the start
+            ChecklistSubentry [int] new_master_subentries = entry.subentries;
+            foreach key, subentry in master_entry.subentries {
+                new_master_subentries.listAppend(subentry);
+            }
+            master_entry.subentries = new_master_subentries;
+        }
+        else
+        {
+            foreach key, subentry in entry.subentries { 
+                master_entry.subentries.listAppend(subentry);
+            }
         }
 
         remove entries[key];
-	}
+    }
 	
 	//Sort by importance:
 	sort entries by value.importance_level;
@@ -657,6 +674,7 @@ buffer ChecklistGenerate(Checklist cl, boolean output_borders) {
         }
         
         buffer content;
+        
         if (true) //content (text)
         {
             string base_content = entry.ChecklistEntryGenerateContentHTML(entry.subentries, anchor_attributes);
