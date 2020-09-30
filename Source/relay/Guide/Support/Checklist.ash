@@ -657,7 +657,6 @@ buffer ChecklistGenerate(Checklist cl, boolean output_borders) {
         }
         
         buffer content;
-        entry.subentries_on_mouse_over.listAppend(ChecklistSubentryMake("Hi", "Hihi", "Hello"));
         if (true) //content (text)
         {
             string base_content = entry.ChecklistEntryGenerateContentHTML(entry.subentries, anchor_attributes);
@@ -677,26 +676,6 @@ buffer ChecklistGenerate(Checklist cl, boolean output_borders) {
         buffer generated_subentry_html;
         generated_subentry_html.append(image_container);
         generated_subentry_html.append(content);
-        /*entry.subentries_on_mouse_over.listAppend(ChecklistSubentryMake("Hi", "Hihi", "Hello"));
-        if (entry.subentries_on_mouse_over.count() > 0)
-        {
-            buffer generated_mouseover_subentry_html = ChecklistEntryGenerateContentHTML(entry, entry.subentries_on_mouse_over, anchor_attributes);
-            
-            //Can't properly escape, so generate two no-show divs and replace them as needed:
-            //We could just have a div that shows up when we mouse over...
-            //This is currently very buggy.
-            entry.container_div_attributes["onmouseenter"] = "event.currentTarget.innerHTML = document.getElementById('r_temp_o" + current_mouse_over_id + "').innerHTML";
-            entry.container_div_attributes["onmouseout"] = "event.currentTarget.innerHTML = document.getElementById('r_temp_l" + current_mouse_over_id + "').innerHTML";
-            
-            entry_content.append(HTMLGenerateTagPrefix("div", mapMake("id", "r_temp_o" + current_mouse_over_id, "style", "display:none")));
-            entry_content.append(generated_mouseover_subentry_html);
-            entry_content.append(HTMLGenerateTagSuffix("div"));
-            entry_content.append(HTMLGenerateTagPrefix("div", mapMake("id", "r_temp_l" + current_mouse_over_id, "style", "display:none")));
-            entry_content.append(generated_subentry_html);
-            entry_content.append(HTMLGenerateTagSuffix("div"));
-            
-            current_mouse_over_id += 1;
-        }*/
         
         if (entry.container_div_attributes contains "class")
         {
