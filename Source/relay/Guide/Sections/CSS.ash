@@ -1,30 +1,56 @@
 
 void setUpCSSStyles()
 {
-	string body_style = "";
-    if (!__setting_use_kol_css)
+    if (true) //body
     {
-        //Base page look:
-        body_style += "font-family:Arial,Helvetica,sans-serif;background-color:white;color:black;";
-        PageAddCSSClass("a:link", "", "color:black;", -10);
-        PageAddCSSClass("a:visited", "", "color:black;", -10);
-        PageAddCSSClass("a:active", "", "color:black;", -10);
+        string body_style, body_medium, body_small, body_tiny;
+        if (!__setting_use_kol_css)
+        {
+            //Base page look:
+            body_style += "font-family:Arial,Helvetica,sans-serif;background-color:white;color:black;";
+            PageAddCSSClass("a:link", "", "color:black;", -10);
+            PageAddCSSClass("a:visited", "", "color:black;", -10);
+            PageAddCSSClass("a:active", "", "color:black;", -10);
+        }
+        if (__setting_side_negative_space_is_dark)
+            body_style += "background-color:" + __setting_dark_colour + ";";
+        else
+            body_style += "background-color:#FFFFFF;";
+        body_style += "margin:0px;padding:0px;font-size:14px;";
+        
+        if (__setting_ios_appearance)
+            body_style += "font-family:'Helvetica Neue',Arial, Helvetica, sans-serif;font-weight:lighter;";
+        
+        
+        body_medium += "font-size:13px;";
+        body_small += "font-size:12px;";
+        body_tiny += "font-size:12px;";
+        
+        body_style += "--cl_entry_container_padding: 5px 0px;";
+        body_medium += "--cl_entry_container_padding: 4px 0px;";
+        body_small += "--cl_entry_container_padding: 3px 0px;";
+        body_tiny += "--cl_entry_container_padding: 3px 0px;";
+        
+        body_style += "--cl_container_padding:" + __setting_indention_width + ";";
+        body_medium += "--cl_container_padding:" + (__setting_indention_width_in_em / 2.0) + "em;";
+        body_small += "--cl_container_padding: 0px;";
+        body_tiny += "--cl_container_padding: 0px;";
+        
+        body_style += "--cl_container_-padding: -" + __setting_indention_width + ";";
+        body_medium += "--cl_container_-padding: -" + (__setting_indention_width_in_em / 2.0) + "em;";
+        body_small += "--cl_container_-padding: 0px;";
+        body_tiny += "--cl_container_-padding: 0px;";
+        
+        body_style += "--image-width:" + __setting_image_width_large + "px;";
+        body_medium += "--image-width:" + __setting_image_width_medium + "px;";
+        body_small += "--image-width:" + __setting_image_width_small + "px;";
+        body_tiny += "--image-width: 0px;";
+        
+        PageAddCSSClass("body", "", body_style, -11);
+        PageAddCSSClass("body", "", body_medium, -11, __setting_media_query_medium_size);
+        PageAddCSSClass("body", "", body_small, -11, __setting_media_query_small_size);
+        PageAddCSSClass("body", "", body_tiny, -11, __setting_media_query_tiny_size);
     }
-    if (__setting_side_negative_space_is_dark)
-        body_style += "background-color:" + __setting_dark_colour + ";";
-    else
-        body_style += "background-color:#FFFFFF;";
-    body_style += "margin:0px;padding:0px;font-size:14px;";
-    
-    if (__setting_ios_appearance)
-        body_style += "font-family:'Helvetica Neue',Arial, Helvetica, sans-serif;font-weight:lighter;";
-    
-    PageAddCSSClass("body", "", body_style, -11);
-    
-    PageAddCSSClass("body", "", "font-size:13px;", -11, __setting_media_query_medium_size);
-    PageAddCSSClass("body", "", "font-size:12px;", -11, __setting_media_query_small_size);
-    PageAddCSSClass("body", "", "font-size:12px;", -11, __setting_media_query_tiny_size);
-    
     
 	PageAddCSSClass("", "r_clickable", "cursor:pointer;cursor:hand;");
 	PageAddCSSClass("", "r_future_option", "color:" + __setting_unavailable_colour + ";");
@@ -104,12 +130,6 @@ void setUpCSSStyles()
     PageAddCSSClass("", "r_only_display_if_tiny", "display:none !important;", 0, __setting_media_query_small_size);
     PageAddCSSClass("", "r_only_display_if_tiny", "", 0, __setting_media_query_tiny_size);
     
-    
-    PageAddCSSClass("", "r_do_not_display_if_media_queries_unsupported", "display:none;");
-    PageAddCSSClass("", "r_do_not_display_if_media_queries_unsupported", "", 0, __setting_media_query_large_size);
-    PageAddCSSClass("", "r_do_not_display_if_media_queries_unsupported", "", 0,__setting_media_query_medium_size);
-    PageAddCSSClass("", "r_do_not_display_if_media_queries_unsupported", "", 0, __setting_media_query_small_size);
-    PageAddCSSClass("", "r_do_not_display_if_media_queries_unsupported", "", 0, __setting_media_query_tiny_size);
     
     PageAddCSSClass("", "r_location_bar_background_blur", "background:rgba(255, 255, 255, 0.95);box-shadow:0px 0px 1px 2px rgba(255, 255, 255, 0.95);");
     PageAddCSSClass("", "r_location_bar_background_blur_small", "background:rgba(255, 255, 255, 0.95);box-shadow:0px 0px 0.5px 1px rgba(255, 255, 255, 0.95);");

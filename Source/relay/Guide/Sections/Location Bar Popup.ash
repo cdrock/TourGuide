@@ -427,7 +427,7 @@ buffer generateItemInformationMethod2(location l, monster m, boolean try_for_min
         int maximum_columns = 2;
         if (items_presenting.count() >= 7 || monsters_to_display_items_minimally.count() >= 5) //hippy camp
             maximum_columns = 3;
-        output_buffer.append(createItemInformationTableMethod2(MIN(columns, maximum_columns), items_presenting, want_item_minimal_display, "r_only_display_if_not_large r_only_display_if_not_medium r_do_not_display_if_media_queries_unsupported", "")); //font-size:0.95em;
+        output_buffer.append(createItemInformationTableMethod2(MIN(columns, maximum_columns), items_presenting, want_item_minimal_display, "r_only_display_if_not_large r_only_display_if_not_medium", "")); //font-size:0.95em;
     }
     output_buffer.append("</div>"); //container
     
