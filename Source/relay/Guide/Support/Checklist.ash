@@ -349,6 +349,12 @@ void ChecklistInit()
     PageAddCSSClass("div", "r_cl_entry_image", "width: var(--image-width); flex:none;");
     PageAddCSSClass("div", "r_cl_entry_content_container", "flex-grow:1;display:flex;flex-direction:column;text-align:left;align-items:flex-start;");
     
+    //subentries-on-mouseover
+    PageAddCSSClass("", "r_cl_entry_content_container.entry_hoverable", "");
+    PageAddCSSClass("", "r_cl_entry_content_container.entry_hovered", "display:none;");
+    PageAddCSSClass("", "r_cl_entry_container:hover .r_cl_entry_content_container.entry_hoverable", "display:none;");
+    PageAddCSSClass("", "r_cl_entry_container:hover .r_cl_entry_content_container.entry_hovered", "display:flex;");
+    
     PageAddCSSClass("", "hr_like", "border: 0px; border-top: 1px; border-style:solid; border-color: " + __setting_line_colour + ";");
     PageAddCSSClass("div", "r_cl_collapsed","display:none;");
     PageAddCSSClass("button", "r_cl_minimize_button", "background-color:antiquewhite;padding:0px;font-size:11px;height:18px;width:18px;position:relative;z-index:2;color:#7F7F7F;cursor:pointer;");
@@ -425,36 +431,10 @@ void ChecklistFormatSubentry(ChecklistSubentry subentry) {
     }
 }
 
-buffer ChecklistGenerateEntryHTML(ChecklistEntry entry, ChecklistSubentry [int] subentries, string [string] anchor_attributes) {
-    Vec2i max_image_dimensions_large = Vec2iMake(__setting_image_width_large, 75);
-    Vec2i max_image_dimensions_medium = Vec2iMake(__setting_image_width_medium, 50);
-    Vec2i max_image_dimensions_small = Vec2iMake(__setting_image_width_small, 50);
-
-    buffer result;
-    buffer image_container;
-    //string entry_id = entry.subentries[0].header + entry.importance_level.to_string();
-    //string entry_id = create_matcher("[^0-9a-zA-Z]", entry_id_raw).replace_all(""); //remove characters that break the .js
-    
-    image_container.append(KOLImageGenerateImageHTML(entry.image_lookup_name, true, max_image_dimensions_large, "r_cl_image_container_large"));
-    image_container.append(KOLImageGenerateImageHTML(entry.image_lookup_name, true, max_image_dimensions_medium, "r_cl_image_container_medium"));
-    image_container.append(KOLImageGenerateImageHTML(entry.image_lookup_name, true, max_image_dimensions_small, "r_cl_image_container_small"));
-    
-    if (anchor_attributes.count() > 0 && !__setting_entire_area_clickable)
-        image_container = HTMLGenerateTagWrap("a", image_container, anchor_attributes);
-    
-    result.append(HTMLGenerateTagWrap("div", image_container, mapMake("class", "r_cl_entry_image")));
-    
+buffer ChecklistEntryGenerateContentHTML(ChecklistEntry entry, ChecklistSubentry [int] subentries, string [string] anchor_attributes) {
     buffer entry_content;
     
-    string entry_id;
-    if (entry.tags.combination != "") //not supposed to happen, but still can
-        entry_id = entry.tags.combination;
-    else if (entry.tags.id != "")
-        entry_id = entry.tags.id;
-    else
-        entry_id = entry.subentries[0].header;
-    entry_id = create_matcher("[ \\-.]", entry_id).replace_all("_");
-    entry_id = entity_encode(entry_id);
+    string entry_id = entry.tags.id;
     
     boolean first = true;
     boolean indented_after_first_subentry = false;
@@ -533,8 +513,7 @@ buffer ChecklistGenerateEntryHTML(ChecklistEntry entry, ChecklistSubentry [int] 
         entry_content.append("</div>");
     if (anchor_attributes.count() > 0 && !__setting_entire_area_clickable && !entry_is_just_a_title)
         entry_content.append("</a>");
-    result.append(HTMLGenerateTagWrap("div", entry_content, mapMake("class", "r_cl_entry_content_container")));
-    return result;
+    return entry_content;
 }
 
 /**
@@ -631,7 +610,6 @@ buffer ChecklistGenerate(Checklist cl, boolean output_borders) {
 	int intra_i = 0;
 	int entries_output = 0;
     boolean last_was_highlighted = false;
-    int current_mouse_over_id = 1;
     foreach i, entry in entries
     {
         if (++intra_i < starting_intra_i)
@@ -653,16 +631,62 @@ buffer ChecklistGenerate(Checklist cl, boolean output_borders) {
         }
         last_was_highlighted = entry.should_highlight;
         
-        buffer generated_subentry_html = ChecklistGenerateEntryHTML(entry, entry.subentries, anchor_attributes);
+        if (true) //"Correct" the entry ID
+        {
+            string entry_id;
+            if (entry.tags.combination != "") //not supposed to happen, but still can
+                entry_id = entry.tags.combination;
+            else if (entry.tags.id != "")
+                entry_id = entry.tags.id;
+            else
+                entry_id = entry.subentries[0].header;
+            entry_id = create_matcher("[ \\-.,#]", entry_id).replace_all("_");
+            entry.tags.id = entity_encode(entry_id);
+        }
+        
+        buffer image_container;
+        
+        if (true) //image
+        {
+            image_container.append(KOLImageGenerateImageHTML(entry.image_lookup_name, true, Vec2iMake(__setting_image_width_large, 75), "r_cl_image_container_large"));
+            image_container.append(KOLImageGenerateImageHTML(entry.image_lookup_name, true, Vec2iMake(__setting_image_width_medium, 50), "r_cl_image_container_medium"));
+            image_container.append(KOLImageGenerateImageHTML(entry.image_lookup_name, true, Vec2iMake(__setting_image_width_small, 50), "r_cl_image_container_small"));
+            if (anchor_attributes.count() > 0 && !__setting_entire_area_clickable)
+                image_container = HTMLGenerateTagWrap("a", image_container, anchor_attributes);
+            image_container = HTMLGenerateTagWrap("div", image_container, mapMake("class", "r_cl_entry_image"));
+        }
+        
+        buffer content;
+        entry.subentries_on_mouse_over.listAppend(ChecklistSubentryMake("Hi", "Hihi", "Hello"));
+        if (true) //content (text)
+        {
+            string base_content = entry.ChecklistEntryGenerateContentHTML(entry.subentries, anchor_attributes);
+            if (entry.subentries_on_mouse_over.count() == 0)
+                base_content = HTMLGenerateTagWrap("div", base_content, mapMake("class", "r_cl_entry_content_container"));
+            else
+            {
+                base_content = HTMLGenerateTagWrap("div", base_content, mapMake("class", "r_cl_entry_content_container entry_hoverable"));
+                
+                string hover_content = entry.ChecklistEntryGenerateContentHTML(entry.subentries_on_mouse_over, anchor_attributes);
+                hover_content = HTMLGenerateTagWrap("div", hover_content, mapMake("class", "r_cl_entry_content_container entry_hovered"));
+                content.append(hover_content);
+            }
+            content.append(base_content);
+        }
+        
+        buffer generated_subentry_html;
+        generated_subentry_html.append(image_container);
+        generated_subentry_html.append(content);
+        /*entry.subentries_on_mouse_over.listAppend(ChecklistSubentryMake("Hi", "Hihi", "Hello"));
         if (entry.subentries_on_mouse_over.count() > 0)
         {
-            buffer generated_mouseover_subentry_html = ChecklistGenerateEntryHTML(entry, entry.subentries_on_mouse_over, anchor_attributes);
+            buffer generated_mouseover_subentry_html = ChecklistEntryGenerateContentHTML(entry, entry.subentries_on_mouse_over, anchor_attributes);
             
             //Can't properly escape, so generate two no-show divs and replace them as needed:
             //We could just have a div that shows up when we mouse over...
             //This is currently very buggy.
             entry.container_div_attributes["onmouseenter"] = "event.currentTarget.innerHTML = document.getElementById('r_temp_o" + current_mouse_over_id + "').innerHTML";
-            entry.container_div_attributes["onmouseleave"] = "event.currentTarget.innerHTML = document.getElementById('r_temp_l" + current_mouse_over_id + "').innerHTML";
+            entry.container_div_attributes["onmouseout"] = "event.currentTarget.innerHTML = document.getElementById('r_temp_l" + current_mouse_over_id + "').innerHTML";
             
             entry_content.append(HTMLGenerateTagPrefix("div", mapMake("id", "r_temp_o" + current_mouse_over_id, "style", "display:none")));
             entry_content.append(generated_mouseover_subentry_html);
@@ -672,7 +696,7 @@ buffer ChecklistGenerate(Checklist cl, boolean output_borders) {
             entry_content.append(HTMLGenerateTagSuffix("div"));
             
             current_mouse_over_id += 1;
-        }
+        }*/
         
         if (entry.container_div_attributes contains "class")
         {
@@ -681,6 +705,7 @@ buffer ChecklistGenerate(Checklist cl, boolean output_borders) {
         }
         else
             entry.container_div_attributes["class"] = container_class;
+        entry.container_div_attributes["class"] += " entry_" + entry.tags.id;
         entry_content.append(HTMLGenerateTagWrap("div", generated_subentry_html, entry.container_div_attributes));
 
 		
