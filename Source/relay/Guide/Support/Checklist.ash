@@ -663,7 +663,7 @@ buffer ChecklistGenerate(Checklist cl, boolean output_borders) {
         
         buffer entry_content;
         string container_class = "r_cl_entry_container";
-        if (entry.should_highlight || intra_i == 4)
+        if (entry.should_highlight)
             container_class += " container_highlighted";
         if (intra_i > starting_intra_i)
         {
@@ -671,7 +671,7 @@ buffer ChecklistGenerate(Checklist cl, boolean output_borders) {
             if (last_was_highlighted && !entry.should_highlight)
                 container_class += " close_highlight";
         }
-        last_was_highlighted = entry.should_highlight || intra_i == 4;
+        last_was_highlighted = entry.should_highlight;
         
         buffer generated_subentry_html = ChecklistGenerateEntryHTML(entry, entry.subentries, anchor_attributes);
         if (entry.subentries_on_mouse_over.count() > 0)
