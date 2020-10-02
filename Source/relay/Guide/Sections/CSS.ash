@@ -26,20 +26,15 @@ void setUpCSSStyles()
         body_small += "font-size:12px;";
         body_tiny += "font-size:12px;";
         
-        body_style += "--cl_entry_container_padding: 5px 0px;";
-        body_medium += "--cl_entry_container_padding: 4px 0px;";
-        body_small += "--cl_entry_container_padding: 3px 0px;";
-        body_tiny += "--cl_entry_container_padding: 3px 0px;";
+        body_style += "--cl_entry_container_padding: 5px;";
+        body_medium += "--cl_entry_container_padding: 4px;";
+        body_small += "--cl_entry_container_padding: 3px;";
+        body_tiny += "--cl_entry_container_padding: 3px;";
         
         body_style += "--cl_container_padding:" + __setting_indention_width + ";";
         body_medium += "--cl_container_padding:" + (__setting_indention_width_in_em / 2.0) + "em;";
         body_small += "--cl_container_padding: 0px;";
         body_tiny += "--cl_container_padding: 0px;";
-        
-        body_style += "--cl_container_-padding: -" + __setting_indention_width + ";";
-        body_medium += "--cl_container_-padding: -" + (__setting_indention_width_in_em / 2.0) + "em;";
-        body_small += "--cl_container_-padding: 0px;";
-        body_tiny += "--cl_container_-padding: 0px;";
         
         body_style += "--image-width:" + __setting_image_width_large + "px;";
         body_medium += "--image-width:" + __setting_image_width_medium + "px;";

@@ -340,14 +340,15 @@ void ChecklistInit()
 	PageAddCSSClass("", "r_cl_header", "text-align:center; font-size:1.15em; font-weight:bold;");
 	PageAddCSSClass("", "r_cl_subheader", "font-size:1.07em; font-weight:bold;");
     PageAddCSSClass("div", "r_cl_entry_first_subheader", "display:flex;flex-direction:row;align-items:flex-start;width:100%;");
-    PageAddCSSClass("div", "r_cl_entry_container", "display:flex; flex-direction:row; align-items:flex-start; padding: var(--cl_entry_container_padding);");
+    PageAddCSSClass("div", "r_cl_entry_container", "display:flex; flex-direction:row; align-items:flex-start; padding-top: var(--cl_entry_container_padding); padding-bottom: var(--cl_entry_container_padding);");
     
     string gradient = "background: #ffffff;background: -moz-linear-gradient(left, #ffffff 50%, #F0F0F0 75%, #F0F0F0 100%);background: -webkit-gradient(linear, left top, right top, color-stop(50%,#ffffff), color-stop(75%,#F0F0F0), color-stop(100%,#F0F0F0));background: -webkit-linear-gradient(left, #ffffff 50%,#F0F0F0 75%,#F0F0F0 100%);background: -o-linear-gradient(left, #ffffff 50%,#F0F0F0 75%,#F0F0F0 100%);background: -ms-linear-gradient(left, #ffffff 50%,#F0F0F0 75%,#F0F0F0 100%);background: linear-gradient(to right, #ffffff 50%,#F0F0F0 75%,#F0F0F0 100%);filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#F0F0F0',GradientType=1 );"; //help
-    PageAddCSSClass("", "container_highlighted", gradient + "margin-right: var(--cl_container_-padding); padding-right: var(--cl_container_padding);"); //counter the checklist_container's padding, so that the gradient won't stop mid-way
-    PageAddCSSClass("", "close_highlight", "margin-right: var(--cl_container_-padding); padding-right: var(--cl_container_padding);");
+    PageAddCSSClass("", "container_highlighted", gradient + "margin-right: calc(0px - var(--cl_container_padding)); padding-right: var(--cl_container_padding);"); //counter the checklist_container's padding, so that the gradient won't stop mid-way
+    PageAddCSSClass("", "close_highlight", "margin-right: calc(0px - var(--cl_container_padding)); padding-right: var(--cl_container_padding);");
     
     PageAddCSSClass("div", "r_cl_entry_image", "width: var(--image-width); flex:none;");
     PageAddCSSClass("div", "r_cl_entry_content_container", "flex-grow:1;display:flex;flex-direction:column;text-align:left;align-items:flex-start;");
+    PageAddCSSClass("", "hr_like", "border: 0px; border-top: 1px; border-style:solid; border-color: " + __setting_line_colour + ";");
     
     //subentries-on-mouseover
     PageAddCSSClass("", "r_cl_entry_content_container.entry_hoverable", "");
@@ -355,10 +356,17 @@ void ChecklistInit()
     PageAddCSSClass("", "r_cl_entry_container:hover .r_cl_entry_content_container.entry_hoverable", "display:none;");
     PageAddCSSClass("", "r_cl_entry_container:hover .r_cl_entry_content_container.entry_hovered", "display:flex;");
     
-    PageAddCSSClass("", "hr_like", "border: 0px; border-top: 1px; border-style:solid; border-color: " + __setting_line_colour + ";");
-    PageAddCSSClass("div", "r_cl_collapsed","display:none;");
+    //collapsing feature
     PageAddCSSClass("button", "r_cl_minimize_button", "background-color:antiquewhite;padding:0px;font-size:11px;height:18px;width:18px;position:relative;z-index:2;color:#7F7F7F;cursor:pointer;");
     PageAddCSSClass("button", "r_cl_minimize_button:hover", "background-color:black;");
+    PageAddCSSClass("", "r_cl_entry_container.r_cl_collapsed .r_cl_entry_image", "opacity:0.5;");
+    PageAddCSSClass("", "r_cl_entry_container.r_cl_collapsed .r_cl_subheader", "opacity:0.5;");
+    PageAddCSSClass("", "r_cl_entry_container.r_cl_collapsed .r_cl_modifier", "opacity:0.5;");
+    PageAddCSSClass("", "r_cl_entry_container.r_cl_collapsed .r_cl_collapsable", "display:none;");
+    PageAddCSSClass("", "r_cl_entry_container.r_cl_collapsed .r_cl_image_container_large", "display:none;");
+    PageAddCSSClass("", "r_cl_entry_container.r_cl_collapsed .r_cl_image_container_medium", "display:none;");
+    PageAddCSSClass("", "r_cl_entry_container.r_cl_collapsed .r_cl_image_container_small", "display:block;");
+    PageAddCSSClass("", "r_cl_entry_container.r_cl_collapsed .r_cl_image_container_small", "display:none;", 0, __setting_media_query_tiny_size);
 	
     
     PageAddCSSClass("", "r_cl_image_container_large", "display:block;");
@@ -476,7 +484,7 @@ buffer ChecklistEntryGenerateContentHTML(ChecklistEntry entry, ChecklistSubentry
         }
         else if (entry.should_indent_after_first_subentry && !indented_after_first_subentry)
         {
-            entry_content.append(HTMLGenerateTagPrefix("div", mapMake("class", "r_indention " + entry_id)));
+            entry_content.append(HTMLGenerateTagPrefix("div", mapMake("class", "r_indention r_cl_collapsable"))); // + entry_id
             indented_after_first_subentry = true;
         }
         
@@ -504,7 +512,7 @@ buffer ChecklistEntryGenerateContentHTML(ChecklistEntry entry, ChecklistSubentry
                 
                 subentry_text.append(line);
             }
-            entry_content.append(HTMLGenerateTagWrap("div", subentry_text, mapMake("class", "r_indention" + (indented_after_first_subentry ? "" : " " + entry_id) )));
+            entry_content.append(HTMLGenerateTagWrap("div", subentry_text, mapMake("class", "r_indention" + (indented_after_first_subentry ? "" : " r_cl_collapsable") ))); // + entry_id
         }
         
         first = false;
@@ -702,7 +710,7 @@ buffer ChecklistGenerate(Checklist cl, boolean output_borders) {
         }
         else
             entry.container_div_attributes["class"] = container_class;
-        entry.container_div_attributes["class"] += " entry_" + entry.tags.id;
+        entry.container_div_attributes["class"] += " " + entry.tags.id;
         entry_content.append(HTMLGenerateTagWrap("div", generated_subentry_html, entry.container_div_attributes));
 
 		
