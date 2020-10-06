@@ -664,7 +664,7 @@ buffer ChecklistGenerate(Checklist cl, boolean output_borders) {
             else if (entry.tags.id != "")
                 entry_id = entry.tags.id;
             else
-                entry_id = entry.subentries[0].header;
+                entry_id = "unIDed_" + entry.subentries[0].header;
             entry_id = create_matcher("[ \\-.,#]", entry_id).replace_all("_");
             entry.tags.id = entity_encode(entry_id);
         }

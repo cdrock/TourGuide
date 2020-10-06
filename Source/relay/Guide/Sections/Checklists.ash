@@ -153,7 +153,7 @@ void generateChecklists(Checklist [int] ordered_output_checklists)
     {
         LimitModeBatfellowGenerateChecklists(checklists);
     }
-    else if (!playerIsLoggedIn())
+    else if (!playerIsLoggedIn() && !__misc_state["Example mode"])
     {
 		Checklist task_entries = lookupChecklist(checklists, "Tasks");
         
@@ -161,7 +161,7 @@ void generateChecklists(Checklist [int] ordered_output_checklists)
         image_name = "disco bandit";
 		task_entries.entries.listAppend(ChecklistEntryMake(image_name, "", ChecklistSubentryMake("Log in", "+internet", "An Adventurer is You!"), -11).ChecklistEntrySetIDTag("Not logged in"));
     }
-    else if (__misc_state["In valhalla"])
+    else if (__misc_state["In valhalla"] && !__misc_state["Example mode"])
     {
         //Valhalla:
 		Checklist task_entries = lookupChecklist(checklists, "Tasks");
