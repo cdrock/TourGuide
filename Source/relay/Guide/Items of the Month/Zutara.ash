@@ -9,7 +9,7 @@ void IOTMZutaraGenerateResource(ChecklistEntry [int] resource_entries)
     entry.importance_level = 8;
     entry.image_lookup_name = "__item genie's turbane";
     entry.url = "clan_viplounge.php?preaction=lovetester";
-    entry.url = "Clan VIP madame Zatara consults";
+    entry.id = "Clan VIP madame Zatara consults";
     if (!get_property_boolean("_clanFortuneBuffUsed"))
     {
     	string [int] description;
