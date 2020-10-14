@@ -40,7 +40,6 @@ buffer generateContextualMenu()
     //guide_contextual_menu.append(HTMLGenerateTagWrap("span", "", string [string] {"id":"contextual_menu_current_node", "style":"margin-bottom:2px;"}));
     //guide_contextual_menu.append(HTMLGenerateTagWrap("div", "", string [string] {"id":"contextual_menu_next_nodes", "style":"margin-bottom:2px;"})); //cur. unused
 
-    //https://developer.mozilla.org/en-US/docs/Web/CSS/:not
 
     if (true)
     {
