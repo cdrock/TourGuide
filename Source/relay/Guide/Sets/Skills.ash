@@ -58,7 +58,7 @@ void SSkillsGenerateResource(ChecklistEntry [int] resource_entries)
         }
         if (free_smiths_left > 0 || jackhammer_crafts_later > 0) {
             craft_entry.url = "craft.php?mode=discoveries&what=smith";
-            free_smiths_left += free_crafts_left;
+            //free_smiths_left += free_crafts_left; //naaaah
             //FIXME remind them to buy a hammer (if no loathing jackhammer)
             string [int] description;
             if (jackhammer_crafts_later > 0)
@@ -66,12 +66,12 @@ void SSkillsGenerateResource(ChecklistEntry [int] resource_entries)
             string title = "free smithing";
             if (knoll_available()) //innabox makes normal smithing free
                 title = "free advanced smithing";
-            craft_entry.subentries.listAppend(ChecklistSubentryMake(pluralise(free_smiths_left, title, title + "s") + " remaining", free_crafts_left > 0 ? "Includes \"free crafts\" left" : "", description));
+            craft_entry.subentries.listAppend(ChecklistSubentryMake(pluralise(free_smiths_left, title, title + "s") + " remaining", free_crafts_left > 0 ? "SMITHING only" : "", description));
         }
 
         if (free_crafts_left > 0) {
             string description = SSkillsPotentialCraftingOptions().listJoinComponents(", ").capitaliseFirstLetter();
-            craft_entry.subentries.listAppend(ChecklistSubentryMake(pluralise(free_crafts_left, "free craft", "free crafts") + " remaining", "", description));
+            craft_entry.subentries.listAppend(ChecklistSubentryMake(pluralise(free_crafts_left, "free craft", "free crafts") + " remaining", free_smiths_left > 0 || jackhammer_crafts_later > 0 ? "Any crafting mode, including smithing" : "", description));
         }
 
         if (craft_entry.subentries.count() > 0)
