@@ -23,6 +23,7 @@ import "relay/Guide/Sections/API.ash"
 import "relay/Guide/Sections/Navigation Bar.ash"
 import "relay/Guide/Sections/Tests.ash"
 import "relay/Guide/Sections/CSS.ash"
+import "relay/Guide/Sections/Contextual Menu.ash"
 import "relay/Guide/Items of the Month/Items of the Month import.ash"
 import "relay/Guide/Paths/Paths import.ash"
 
@@ -53,6 +54,7 @@ void runMain(string relay_filename)
     
 	PageInit();
 	ChecklistInit();
+    contextMenuInit();
 	setUpCSSStyles();
 	
 	
@@ -124,7 +126,7 @@ void runMain(string relay_filename)
     if (bottom_offset > 0.0)
         bottom_margin = "margin-bottom:" + bottom_offset + "em;";
     
-    PageWrite(HTMLGenerateTagPrefix("div", mapMake("class", "r_centre", "id", "Guide_horizontal_container", "style", "max-width:" + max_width_setting + "px;" + bottom_margin))); //centre holding container
+    PageWrite(HTMLGenerateTagPrefix("div", mapMake("class", "r_centre", "id", "Guide_horizontal_container", "style", "position:relative;max-width:" + max_width_setting + "px;" + bottom_margin))); //centre holding container
     
     
     
@@ -144,7 +146,7 @@ void runMain(string relay_filename)
         image_map["id"] = "button_close_box";
         image_map["alt"] = "Close";
         image_map["title"] = image_map["alt"];
-        PageWrite(HTMLGenerateTagWrap("div", HTMLGenerateTagPrefix("img", image_map), string [string] {"id":"close_button_position_reference", "style":"position:fixed;z-index:4;width:100%;max-width:" + max_width_setting + "px;"}));
+        PageWrite(HTMLGenerateTagWrap("div", HTMLGenerateTagPrefix("img", image_map), string [string] {"id":"close_button_position_reference", "style":"position:fixed;z-index:5;width:100%;max-width:" + max_width_setting + "px;"}));
         
         
         //position:absolute holding container, so we can absolutely position these, absolutely:
@@ -178,9 +180,27 @@ void runMain(string relay_filename)
         PageWrite(HTMLGenerateTagPrefix("img", image_map));
         
         image_map = mapCopy(base_image_map);
+        image_map["id"] = "button_global_settings";
+        image_map["onclick"] = "callSettingsContextualMenu(event)";
+        image_map["oncontextmenu"] = "callSettingsContextualMenu(event)";
+        image_map["style"] = "right:5px;top:30px;visibility:visible;";
+        image_map["alt"] = "Global Settings";
+        //image_map["title"] = image_map["alt"]; //useless here
+        image_map["aria-hidden"] = "true";
+        image_map["focusable"] = "false";
+        image_map["data-prefix"] = "fas";
+        image_map["data-icon"] = "cog";
+        image_map["class"] = image_map["class"] + " svg-inline--fa fa-cog fa-w-16";
+        image_map["role"] = "img";
+        image_map["xmlns"] = "http://www.w3.org/2000/svg";
+        image_map["viewBox"] = "0 0 512 512";
+        remove image_map["width"];
+        PageWrite(HTMLGenerateTagWrap("svg", '<title>Global Settings</title><path fill="currentColor" d="M487.4 315.7l-42.6-24.6c4.3-23.2 4.3-47 0-70.2l42.6-24.6c4.9-2.8 7.1-8.6 5.5-14-11.1-35.6-30-67.8-54.7-94.6-3.8-4.1-10-5.1-14.8-2.3L380.8 110c-17.9-15.4-38.5-27.3-60.8-35.1V25.8c0-5.6-3.9-10.5-9.4-11.7-36.7-8.2-74.3-7.8-109.2 0-5.5 1.2-9.4 6.1-9.4 11.7V75c-22.2 7.9-42.8 19.8-60.8 35.1L88.7 85.5c-4.9-2.8-11-1.9-14.8 2.3-24.7 26.7-43.6 58.9-54.7 94.6-1.7 5.4.6 11.2 5.5 14L67.3 221c-4.3 23.2-4.3 47 0 70.2l-42.6 24.6c-4.9 2.8-7.1 8.6-5.5 14 11.1 35.6 30 67.8 54.7 94.6 3.8 4.1 10 5.1 14.8 2.3l42.6-24.6c17.9 15.4 38.5 27.3 60.8 35.1v49.2c0 5.6 3.9 10.5 9.4 11.7 36.7 8.2 74.3 7.8 109.2 0 5.5-1.2 9.4-6.1 9.4-11.7v-49.2c22.2-7.9 42.8-19.8 60.8-35.1l42.6 24.6c4.9 2.8 11 1.9 14.8-2.3 24.7-26.7 43.6-58.9 54.7-94.6 1.5-5.5-.7-11.3-5.6-14.1zM256 336c-44.1 0-80-35.9-80-80s35.9-80 80-80 80 35.9 80 80-35.9 80-80 80z"><title>Global Settings</title></path>', image_map)); //https://fontawesome.com/license
+        
+        image_map = mapCopy(base_image_map);
         image_map["id"] = "button_expand_all";
         image_map["onclick"] = "buttonExpandAllClicked(event)";
-        image_map["style"] = "right:5px;top:30px;";
+        image_map["style"] = "right:30px;top:30px;";
         image_map["alt"] = "Expand all";
         //image_map["title"] = image_map["alt"]; //useless here
         image_map["aria-hidden"] = "true";
@@ -212,15 +232,22 @@ void runMain(string relay_filename)
         PageWrite(HTMLGenerateTagPrefix("div", mapMake("id", "Guide_body", "style", style)));
     }
     
+    buffer information_cache;
+    
+    string player_name = my_name().to_lower_case().HTMLEscapeString();
+    if (player_name == "")
+        player_name = "anonymous";
+    information_cache.append(HTMLGenerateTagWrap("div", player_name, string [string] {"id":"player_name"}));
+    
+    information_cache.append(HTMLGenerateTagWrap("div", gameday_to_int(), string [string] {"id":"in_game_day"}));
+    
+    information_cache.append(HTMLGenerateTagWrap("div", my_ascensions(), string [string] {"id":"ascension_count"}));
+    
+    PageWrite(HTMLGenerateTagWrap("div", information_cache, string [string] {"id":"ASH_information_cache", "style":"display:none;"}));
+    
     if (true)
     {
         // Head text
-    
-        string player_name = my_name().to_lower_case().HTMLEscapeString();
-        if (player_name == "")
-            player_name = "anonymous";
-        PageWrite(HTMLGenerateTagWrap("div", player_name, string [string] {"id":"player_name", "style":"display:none;"}));
-        PageWrite("<!--A way for the .js to know the player's name, for the minimize feature to log minimized tiles on a per-player basis-->");
         
         // Title
         PageWrite(HTMLGenerateSpanOfStyle(guide_title, "font-weight:bold; font-size:1.5em"));
@@ -303,6 +330,9 @@ void runMain(string relay_filename)
             PageWrite(HTMLGenerateDivOfStyle(HTMLGenerateTagPrefix("img", image_map), "max-height:0px;width:100%;text-align:left;"));
         }
     }
+    
+    //Contextual menu
+    PageWrite(HTMLGenerateTagWrap("div", generateContextualMenu(), string [string] {"class":"menu"}));
     
 	PageWrite("</div>");
 	PageWrite("</div>");

@@ -339,6 +339,7 @@ void ChecklistInit()
 	
 	PageAddCSSClass("", "r_cl_header", "text-align:center; font-size:1.15em; font-weight:bold;");
 	PageAddCSSClass("", "r_cl_subheader", "font-size:1.07em; font-weight:bold;");
+    PageAddCSSClass("", "r_cl_entry_id", "font-size:1.07em; font-weight:bold; display:none;");
     PageAddCSSClass("div", "r_cl_entry_first_subheader", "display:flex;flex-direction:row;align-items:flex-start;width:100%;");
     PageAddCSSClass("div", "r_cl_entry_container", "display:flex; flex-direction:row; align-items:flex-start; padding-top: var(--cl_entry_container_padding); padding-bottom: var(--cl_entry_container_padding);");
     
@@ -357,16 +358,77 @@ void ChecklistInit()
     PageAddCSSClass("", "r_cl_entry_container:hover .r_cl_entry_content_container.entry_hovered", "display:flex;");
     
     //collapsing feature
-    PageAddCSSClass("button", "r_cl_minimize_button", "background-color:antiquewhite;padding:0px;font-size:11px;height:18px;width:18px;position:relative;z-index:2;color:#7F7F7F;cursor:pointer;");
+    PageAddCSSClass("button", "r_cl_minimize_button", "background-color:antiquewhite;padding:0px;font-size:11px;height:18px;width:18px;flex-shrink:0;position:relative;z-index:2;color:#7F7F7F;cursor:pointer;");
     PageAddCSSClass("button", "r_cl_minimize_button:hover", "background-color:black;");
-    PageAddCSSClass("", "r_cl_entry_container.r_cl_collapsed .r_cl_entry_image", "opacity:0.5;");
-    PageAddCSSClass("", "r_cl_entry_container.r_cl_collapsed .r_cl_subheader", "opacity:0.5;");
-    PageAddCSSClass("", "r_cl_entry_container.r_cl_collapsed .r_cl_modifier", "opacity:0.5;");
-    PageAddCSSClass("", "r_cl_entry_container.r_cl_collapsed .r_cl_collapsable", "display:none;");
-    PageAddCSSClass("", "r_cl_entry_container.r_cl_collapsed .r_cl_image_container_large", "display:none;");
-    PageAddCSSClass("", "r_cl_entry_container.r_cl_collapsed .r_cl_image_container_medium", "display:none;");
-    PageAddCSSClass("", "r_cl_entry_container.r_cl_collapsed .r_cl_image_container_small", "display:block;");
-    PageAddCSSClass("", "r_cl_entry_container.r_cl_collapsed .r_cl_image_container_small", "display:none;", 0, __setting_media_query_tiny_size);
+    
+    if (true)
+    {
+        PageAddCSSClass("", "#Guide_body.opacity_full .r_cl_entry_container.r_cl_collapsed .r_cl_entry_image"
+                        + ", #Guide_body.opacity_full .r_cl_entry_container.r_cl_collapsed .r_cl_subheader"
+                        + ", #Guide_body.opacity_full .r_cl_entry_container.r_cl_collapsed .r_cl_modifier", "opacity:1;");
+        PageAddCSSClass("", "#Guide_body .r_cl_entry_container.r_cl_collapsed.opacity_full .r_cl_entry_image"
+                        + ", #Guide_body .r_cl_entry_container.r_cl_collapsed.opacity_full .r_cl_subheader"
+                        + ", #Guide_body .r_cl_entry_container.r_cl_collapsed.opacity_full .r_cl_modifier", "opacity:1;", 1);
+        
+        PageAddCSSClass("", "#Guide_body.opacity_half .r_cl_entry_container.r_cl_collapsed .r_cl_entry_image"
+                        + ", #Guide_body.opacity_half .r_cl_entry_container.r_cl_collapsed .r_cl_subheader"
+                        + ", #Guide_body.opacity_half .r_cl_entry_container.r_cl_collapsed .r_cl_modifier", "opacity:0.5;");
+        PageAddCSSClass("", "#Guide_body .r_cl_entry_container.r_cl_collapsed.opacity_half .r_cl_entry_image"
+                        + ", #Guide_body .r_cl_entry_container.r_cl_collapsed.opacity_half .r_cl_subheader"
+                        + ", #Guide_body .r_cl_entry_container.r_cl_collapsed.opacity_half .r_cl_modifier", "opacity:0.5;", 1);
+        
+        
+        //.image_auto on #Guide_body is already the normal behaviour, so don't do anything here (THANKFULLY).
+        PageAddCSSClass("", "#Guide_body .r_cl_entry_container.r_cl_collapsed.image_auto .r_cl_image_container_large", "display:block;", 1, __setting_media_query_large_size);
+        PageAddCSSClass("", "#Guide_body .r_cl_entry_container.r_cl_collapsed.image_auto .r_cl_image_container_medium"
+                        + ", #Guide_body .r_cl_entry_container.r_cl_collapsed.image_auto .r_cl_image_container_small", "display:none;", 1, __setting_media_query_large_size);
+        PageAddCSSClass("", "#Guide_body .r_cl_entry_container.r_cl_collapsed.image_auto .r_cl_image_container_medium", "display:block;", 1, __setting_media_query_medium_size);
+        PageAddCSSClass("", "#Guide_body .r_cl_entry_container.r_cl_collapsed.image_auto .r_cl_image_container_large"
+                        + ", #Guide_body .r_cl_entry_container.r_cl_collapsed.image_auto .r_cl_image_container_small", "display:none;", 1, __setting_media_query_medium_size);
+        PageAddCSSClass("", "#Guide_body .r_cl_entry_container.r_cl_collapsed.image_auto .r_cl_image_container_small", "display:block;", 1, __setting_media_query_small_size);
+        PageAddCSSClass("", "#Guide_body .r_cl_entry_container.r_cl_collapsed.image_auto .r_cl_image_container_large"
+                        + ", #Guide_body .r_cl_entry_container.r_cl_collapsed.image_auto .r_cl_image_container_medium", "display:none;" , 1, __setting_media_query_small_size);
+        
+        PageAddCSSClass("", "#Guide_body.image_none .r_cl_entry_container.r_cl_collapsed .r_cl_image_container_large"
+                        + ", #Guide_body.image_none .r_cl_entry_container.r_cl_collapsed .r_cl_image_container_medium"
+                        + ", #Guide_body.image_none .r_cl_entry_container.r_cl_collapsed .r_cl_image_container_small", "display:none;");
+        PageAddCSSClass("", "#Guide_body .r_cl_entry_container.r_cl_collapsed.image_none .r_cl_image_container_large"
+                        + ", #Guide_body .r_cl_entry_container.r_cl_collapsed.image_none .r_cl_image_container_medium"
+                        + ", #Guide_body .r_cl_entry_container.r_cl_collapsed.image_none .r_cl_image_container_small", "display:none;", 1);
+        
+        PageAddCSSClass("", "#Guide_body.image_small .r_cl_entry_container.r_cl_collapsed .r_cl_image_container_large"
+                        + ", #Guide_body.image_small .r_cl_entry_container.r_cl_collapsed .r_cl_image_container_medium", "display:none;");
+        PageAddCSSClass("", "#Guide_body.image_small .r_cl_entry_container.r_cl_collapsed .r_cl_image_container_small", "display:block;");
+        PageAddCSSClass("", "#Guide_body.image_small .r_cl_entry_container.r_cl_collapsed .r_cl_image_container_small", "display:none;", 0, __setting_media_query_tiny_size);
+        PageAddCSSClass("", "#Guide_body .r_cl_entry_container.r_cl_collapsed.image_small .r_cl_image_container_large"
+                        + ", #Guide_body .r_cl_entry_container.r_cl_collapsed.image_small .r_cl_image_container_medium", "display:none;", 1);
+        PageAddCSSClass("", "#Guide_body .r_cl_entry_container.r_cl_collapsed.image_small .r_cl_image_container_small", "display:block;", 1);
+        PageAddCSSClass("", "#Guide_body .r_cl_entry_container.r_cl_collapsed.image_small .r_cl_image_container_small", "display:none;", 1, __setting_media_query_tiny_size);
+        
+        
+        PageAddCSSClass("", "#Guide_body.collapsing_entries .r_cl_entry_container.r_cl_collapsed .r_cl_subheader"
+                        + ", #Guide_body.collapsing_entries .r_cl_entry_container.r_cl_collapsed .r_cl_modifier", "display:block;");
+        PageAddCSSClass("", "#Guide_body.collapsing_entries .r_cl_entry_container.r_cl_collapsed .r_cl_entry_id", "display:none;");
+        PageAddCSSClass("", "#Guide_body .r_cl_entry_container.r_cl_collapsed.collapsing_entries .r_cl_subheader"
+                        + ", #Guide_body .r_cl_entry_container.r_cl_collapsed.collapsing_entries .r_cl_modifier", "display:block;", 1);
+        PageAddCSSClass("", "#Guide_body .r_cl_entry_container.r_cl_collapsed.collapsing_entries .r_cl_entry_id", "display:none;", 1);
+        
+        PageAddCSSClass("", "#Guide_body.collapsing_modifiers .r_cl_entry_container.r_cl_collapsed .r_cl_subheader", "display:block;");
+        PageAddCSSClass("", "#Guide_body.collapsing_modifiers .r_cl_entry_container.r_cl_collapsed .r_cl_modifier"
+                        + ", #Guide_body.collapsing_modifiers .r_cl_entry_container.r_cl_collapsed .r_cl_entry_id", "display:none;");
+        PageAddCSSClass("", "#Guide_body .r_cl_entry_container.r_cl_collapsed.collapsing_modifiers .r_cl_subheader", "display:block;", 1);
+        PageAddCSSClass("", "#Guide_body .r_cl_entry_container.r_cl_collapsed.collapsing_modifiers .r_cl_modifier"
+                        + ", #Guide_body .r_cl_entry_container.r_cl_collapsed.collapsing_modifiers .r_cl_entry_id", "display:none;", 1);
+        
+        PageAddCSSClass("", "#Guide_body.collapsing_replace .r_cl_entry_container.r_cl_collapsed .r_cl_subheader"
+                        + ", #Guide_body.collapsing_replace .r_cl_entry_container.r_cl_collapsed .r_cl_modifier", "display:none;");
+        PageAddCSSClass("", "#Guide_body.collapsing_replace .r_cl_entry_container.r_cl_collapsed .r_cl_entry_id", "display:block;");
+        PageAddCSSClass("", "#Guide_body .r_cl_entry_container.r_cl_collapsed.collapsing_replace .r_cl_subheader"
+                        + ", #Guide_body .r_cl_entry_container.r_cl_collapsed.collapsing_replace .r_cl_modifier", "display:none;", 1);
+        PageAddCSSClass("", "#Guide_body .r_cl_entry_container.r_cl_collapsed.collapsing_replace .r_cl_entry_id", "display:block;", 1);
+
+        PageAddCSSClass("", "r_cl_entry_container.r_cl_collapsed .r_cl_collapsable", "display:none;");
+    }
 	
     
     PageAddCSSClass("", "r_cl_image_container_large", "display:block;");
@@ -450,10 +512,12 @@ buffer ChecklistEntryGenerateContentHTML(ChecklistEntry entry, ChecklistSubentry
     foreach j, subentry in subentries {
         if (subentry.header == "")
             continue;
-        string subheader = HTMLGenerateSpanOfClass(subentry.header, "r_cl_subheader");
         
         if (first)
         {
+            string subheader = HTMLGenerateSpanOfClass(subentry.header, "r_cl_subheader");
+            subheader += HTMLGenerateSpanOfClass(entry_id, "r_cl_entry_id");
+            
             buffer first_subheader;
             if (anchor_attributes.count() > 0 && !__setting_entire_area_clickable)
                 subheader = HTMLGenerateTagWrap("a", subheader, anchor_attributes);
@@ -477,7 +541,7 @@ buffer ChecklistEntryGenerateContentHTML(ChecklistEntry entry, ChecklistSubentry
             first_subheader.append(HTMLGenerateTagWrap("div", "", string [string] {"style":"flex-grow:1;"})); //fill empty space to ensure the button(s) are on the right end
 
             if (entry_has_content_to_minimize) {
-                first_subheader.append(HTMLGenerateTagWrap("button", "&#9660;", string [string] {"class":"r_cl_minimize_button toggle_" + entry_id,"alt":"Minimize","title":"Minimize","id":"toggle_" + entry_id,"onclick":"alterSubentryMinimization(event)"}));
+                first_subheader.append(HTMLGenerateTagWrap("button", "&#9660;", string [string] {"class":"r_cl_minimize_button toggle_" + entry_id,"alt":"Minimize","title":"Minimize","id":"toggle_" + entry_id,"onclick":"alterSubentryMinimization(event)", "oncontextmenu":"callSettingsContextualMenu(event)"}));
             }
 
             entry_content.append(HTMLGenerateTagWrap("div", first_subheader, string [string] {"class":"r_cl_entry_first_subheader"}));

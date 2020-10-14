@@ -665,10 +665,10 @@ buffer generateLocationPopup(float bottom_coordinates, boolean location_bar_loca
         l = get_property_location("nextAdventure");
     
     string transition_time = "0.5s";
-    buf.append(HTMLGenerateTagWrap("div", "", mapMake("id", "r_location_popup_blackout", "style", "position:fixed;z-index:5;width:100%;height:100%;background:rgba(0,0,0,0.5);opacity:0;pointer-events:none;visibility:hidden;")));
+    buf.append(HTMLGenerateTagWrap("div", "", mapMake("id", "r_location_popup_blackout", "style", "position:fixed;z-index:6;width:100%;height:100%;background:rgba(0,0,0,0.5);opacity:0;pointer-events:none;visibility:hidden;")));
     
     
-    buf.append(HTMLGenerateTagPrefix("div", mapMake("id", "r_location_popup_box", "style", "height:auto;transition:bottom " + transition_time + ";z-index:5;opacity:0;pointer-events:none;bottom:-10000px", "class", "r_bottom_outer_container")));
+    buf.append(HTMLGenerateTagPrefix("div", mapMake("id", "r_location_popup_box", "style", "height:auto;transition:bottom " + transition_time + ";z-index:6;opacity:0;pointer-events:none;bottom:-10000px", "class", "r_bottom_outer_container")));
     buf.append(HTMLGenerateTagPrefix("div", mapMake("class", "r_bottom_inner_container", "style", "background:white;height:auto;")));
     
     float [monster] appearance_rates_adjusted = l.appearance_rates_adjusted(false).appearance_rates_cancel_nc();
@@ -911,8 +911,8 @@ buffer generateLocationPopup(float bottom_coordinates, boolean location_bar_loca
         }
         if (true)
         {
-            //string style = "width:100%;display:table;padding:0.25em;z-index:7;position:relative;overflow:hidden;";
-            string style = "width:100%;padding-bottom:0.1em;z-index:7;position:relative;overflow:hidden;";
+            //string style = "width:100%;display:table;padding:0.25em;z-index:8;position:relative;overflow:hidden;";
+            string style = "width:100%;padding-bottom:0.1em;z-index:8;position:relative;overflow:hidden;";
             if (try_for_minimal_display)
                 style += "padding-top:0.1em;";
             if (monster_cannot_be_encountered)

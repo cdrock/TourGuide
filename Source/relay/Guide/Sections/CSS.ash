@@ -83,7 +83,7 @@ void setUpCSSStyles()
             __setting_navbar_background_colour = __setting_page_background_colour;
         }
     }
-    PageAddCSSClass("div", "r_bottom_outer_container", "height:" + __setting_navbar_height + ";position:fixed;z-index:6;width:100%;overflow:hidden;");
+    PageAddCSSClass("div", "r_bottom_outer_container", "height:" + __setting_navbar_height + ";position:fixed;z-index:7;width:100%;overflow:hidden;");
     if (true)
     {
         //Second holding container:

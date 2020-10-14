@@ -57,7 +57,9 @@ buffer CSSBlockGenerate(CSSBlock block)
             if (entry.class_name == "")
                 result.append(entry.tag + " { " + entry.definition + " }");
             else
-                result.append(entry.tag + "." + entry.class_name + " { " + entry.definition + " }");
+            {
+                result.append(entry.tag + ( entry.class_name.char_at(0) != "#" && entry.class_name.char_at(0) != "." ? "." : "") + entry.class_name + " { " + entry.definition + " }");
+            }
             result.append("\n");
         }
         if (output_identifier)
