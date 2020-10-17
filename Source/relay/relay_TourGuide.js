@@ -721,8 +721,7 @@ function writePageExtras()
         {
         }
 	}
-    var refresh_status = document.getElementById("refresh_status");
-    refresh_status.innerHTML = ""; //clear out disabled message
+    document.getElementById("refresh_status").innerHTML = ""; //clear out disabled message
     
     
     //Load user settings from localStorage
@@ -779,9 +778,9 @@ function writePageExtras()
     //auto-expansion
     informational_settings["ascension"] = document.getElementById("ascension_count").textContent;
     informational_settings["game_day"] = document.getElementById("in_game_day").textContent;
-    //on ascension
-    if (informational_settings["ascension"] != default_settings["ascension"]) //"informational_settings" has the current ascension, and "default_settings" has the logged one. A difference means they ascended since last load.
+    if (informational_settings["ascension"] != default_settings["ascension"]) //on ascension
     {
+        //"informational_settings" has the current ascension, and "default_settings" has the logged one. A difference means they ascended since last load.
         for (const [category, category_settings] of Object.entries(settings))
         {
             if (category == "__default" && default_settings["ascension_AE"] == "true")
@@ -815,9 +814,9 @@ function writePageExtras()
         }
         catch (e) {}
     }
-    //on rollover
-    if (informational_settings["game_day"] != default_settings["game_day"]) //will fail if it's been exactly 95 days since last login (a KoL year), but at that point, who cares
+    if (informational_settings["game_day"] != default_settings["game_day"]) //on rollover
     {
+        //will fail if it's been exactly 95 days since last login (a KoL year), but at that point, who cares
         for (const [category, category_settings] of Object.entries(settings))
         {
             if (category == "__default" && default_settings["rollover_AE"] == "true")
@@ -864,11 +863,11 @@ function writePageExtras()
     }
     updateExpandAllButtonVisibility();
     
-    var importance_container = document.getElementById("importance_bar");
+    const importance_container = document.getElementById("importance_bar");
     if (importance_container != undefined)
     {
         __guide_importance_bar_visible = false;
-        var tasks_position = elementGetGlobalOffsetTop(document.getElementById("Tasks_checklist_container")) + 1;
+        const tasks_position = elementGetGlobalOffsetTop(document.getElementById("Tasks_checklist_container")) + 1;
         
         recalculateImportanceBarVisibility(tasks_position, importance_container, true)
         
@@ -1248,7 +1247,6 @@ function callSettingsContextualMenu(event)
 
     //Positioning
     menu.style.display = "flex";
-    var right;
     if (sourceButton.id == "button_global_settings")
     {
         menu.style.top = sourceButton.style.top;
