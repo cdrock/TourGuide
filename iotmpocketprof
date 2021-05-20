@@ -1,0 +1,32 @@
+	if ($familiar[pocket professor].familiar_is_usable());
+    {
+        int lectures_used = get_property_int("_pocketProfessorLectures");
+        string name = lectures_used + " Pocket Professor lectures used";
+        string [int] description;
+        string image_name = "";
+       
+        description.listAppend("Sausage goblins, ninja snowman assassin, ghosts, or something else...?");
+       
+        string url = "";
+       
+        if ($familiar[pocket professor].familiar_is_usable())
+        {
+            image_name = "pocket professor";
+        }
+       
+        if (!($familiars[Frumious Bandersnatch, pocket professor] contains my_familiar()))
+            url = "familiar.php";
+               
+        resource_entries.listAppend(ChecklistEntryMake(image_name, url, ChecklistSubentryMake(name, "", description)));
+   
+        if (!get_property_boolean("_thesisDelivered"))
+        {
+            string [int] description;
+            description.listAppend("+8 advs from a 256+ HP monster");
+			description.listAppend("+10 advs from a 625+ HP monster");
+			description.listAppend("+11 advs from a 1,296+ HP monster");
+            
+            resource_entries.listAppend(ChecklistEntryMake("__familiar Pocket Professor", "", ChecklistSubentryMake("Deliver your Thesis!", "", description), 0).ChecklistEntryTagEntry("+11 Adventures"));
+            
+        }
+	}

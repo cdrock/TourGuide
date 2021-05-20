@@ -1,0 +1,25 @@
+RegisterResourceGenerationFunction("IOTMMushroomGardenGenerateResource");
+void IOTMMushroomGardenGenerateResource(ChecklistEntry [int] resource_entries)
+{
+    int mushroom_growth = (get_property_int("mushroomGardenCropLevel"));
+	int total_piranha_fights_available = 1;
+	if (my_path_id() == PATH_OF_THE_PLUMBER)
+		total_piranha_fights_available = 5;
+	int piranha_fights_remaining = clampi(total_piranha_fights_available - get_property_int("_mushroomGardenFights"), 0, total_piranha_fights_available);
+		
+	if (get_property_int("_mushroomGardenFights") < total_piranha_fights_available)
+	{
+		string url = "";
+		string [int] description;
+		description.listAppend("5 free fights if you are a Plumber.");
+		description.listAppend("Only 1 free fight if you aren't a Plumber.");
+		description.listAppend("Harvest a mushroom, or fertilize it to make it grow bigger.");
+		description.listAppend("Current growth level: " + mushroom_growth + "/5");
+		description.listAppend("4 days: 1 mushroom slab");
+		description.listAppend("5 days: 2 mushroom slabs");
+		description.listAppend("10 days: 1 mushroom house (tradable, but still bad)");
+		description.listAppend("Mushrooms give good-tier food, awesome-tier booze, or a 1-spleen +com/ML buff.");
+			
+		resource_entries.listAppend(ChecklistEntryMake("__item spanish fly trap", url,  ChecklistSubentryMake(pluralise(piranha_fights_remaining, "piranha plant fight", "piranha plant fights"), "", description), 0));
+	}
+}
