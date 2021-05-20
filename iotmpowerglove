@@ -1,0 +1,20 @@
+RegisterResourceGenerationFunction("IOTMPowerfulGloveGenerateResource");
+void IOTMPowerfulGloveGenerateResource(ChecklistEntry [int] resource_entries)
+{
+	if (lookupItem("Powerful Glove").available_amount() == 0) return;
+	if (get_property_int("_powerfulGloveBatteryPowerUsed") < 100)
+	{
+		int uses_remaining = clampi(100 - get_property_int("_powerfulGloveBatteryPowerUsed"), 0, 100);
+		string url = "";
+        if (!lookupItem("Powerful Glove").equipped())
+        	url = "inventory.php?which=2";
+        string [int] description;
+        description.listAppend("Use CHEAT CODES, which let you:");
+        description.listAppend("Get +200% stats - 5% battery");
+		description.listAppend("Get -10% combat frequency - 5% battery");
+		description.listAppend("Shrink the target - 5% battery");
+        description.listAppend("Replace the target - 10% battery");
+        //description.listAppend("Choose one of:|*" + options.listJoinComponents("|*"));
+        resource_entries.listAppend(ChecklistEntryMake("__item powerful glove", url, ChecklistSubentryMake(pluralise(uses_remaining, "% Powerful Glove battery", "% Powerful Glove battery"), "", description), 0));
+	}
+}

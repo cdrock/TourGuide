@@ -1,0 +1,21 @@
+//Miniature Crystal ball
+
+RegisterTaskGenerationFunction("IOTMCrystalBallGenerateTasks");
+void IOTMCrystalBallGenerateTasks(ChecklistEntry [int] task_entries, ChecklistEntry [int] optional_task_entries, ChecklistEntry [int] future_task_entries)
+{
+		string title;
+		title = "Miniature crystal ball monster prediction";
+		monster crystalBallPrediction = (get_property_monster("crystalBallMonster"));
+		location crystalBallZone = (get_property_location("crystalBallLocation"));
+		string [int] description;
+            if (!lookupItem("miniature crystal ball").equipped())
+            {
+				description.listAppend("Next fight in " + HTMLGenerateSpanFont(crystalBallZone, "blue") + " will be: " + HTMLGenerateSpanFont(crystalBallPrediction, "blue"));
+				optional_task_entries.listAppend(ChecklistEntryMake("__item miniature crystal ball", "url", ChecklistSubentryMake(title, description)));
+			}
+            else
+			{
+                description.listAppend("Next fight in " + HTMLGenerateSpanFont(crystalBallZone, "blue") + " will be: " + HTMLGenerateSpanFont(crystalBallPrediction, "blue"));
+				task_entries.listAppend(ChecklistEntryMake("__item miniature crystal ball", "url", ChecklistSubentryMake(title, description), -11));
+			}	
+}

@@ -1,0 +1,19 @@
+RegisterResourceGenerationFunction("IOTMVampireCloakGenerateResource");
+void IOTMVampireCloakGenerateResource(ChecklistEntry [int] resource_entries)
+{
+	if (!$item[vampyric cloake].have())
+		return;
+    
+    int uses_left = clampi(10 - get_property_int("_vampyreCloakeFormUses"), 0, 10);
+    if (uses_left > 0 && my_path_id() != PATH_POCKET_FAMILIARS)
+	{
+		string [int] skills;
+        skills.listAppend("Wolf: +50% muscle, +50% meat");
+        skills.listAppend("Mist: +2 all resistance");
+        skills.listAppend("Bat: +50% items");
+        
+		string [int] description;
+        description.listAppend("Imitate the form of a powerful vampyre for 1 adventure:|*" + skills.listJoinComponents("|*"));
+        resource_entries.listAppend(ChecklistEntryMake("__item vampyric cloake", "", ChecklistSubentryMake(pluralise(uses_left, "Vampyric cloake skill use", "Vampyric cloake skill uses"), "", description), 5));
+    }
+}
