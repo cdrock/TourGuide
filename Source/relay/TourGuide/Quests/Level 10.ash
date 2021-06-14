@@ -169,7 +169,12 @@ void QLevel10GenerateTasks(ChecklistEntry [int] task_entries, ChecklistEntry [in
                 subentry.modifiers.listAppend("slimeling?");
             
             if ($item[model airship].available_amount() == 0)
-                subentry.entries.listAppend("Acquire model airship from non-combat. (speeds up quest)");
+	    {
+                if (lookupSkill("Comprehensive Cartography").skill_is_usable() && $item[mohawk wig].available_amount() > 0)
+                    subentry.entries.listAppend("Optionally acquire model airship from non-combat, but can already wear mohawk wig for first top floor noncombat pick.");
+                else
+                    subentry.entries.listAppend("Acquire model airship from non-combat. (speeds up quest)");
+	    }
             if ($item[amulet of extreme plot significance].available_amount() == 0)
             {
                 things_we_want_item_for.listAppend("amulet of extreme plot significance");
@@ -236,6 +241,8 @@ void QLevel10GenerateTasks(ChecklistEntry [int] task_entries, ChecklistEntry [in
                 {
                     if ($item[mohawk wig].available_amount() == 0) //no wig, no airship
                         subentry.entries.listAppend("Backfarm for a model airship in the fantasy airship. (non-combat option, run -combat)");
+                    else if (lookupSkill("Comprehensive Cartography").skill_is_usable())
+                        subentry.entries.listAppend("Go where there be Punk Rock Giants in the one-time first noncombat. Otherwise quest completion not guaranteed in later noncombats (no model airship).");
                     else
                         subentry.entries.listAppend("Potentially backfarm for a model airship in the fantasy airship. (non-combat option, run -combat)"); //always suggest this - backfarming for model airship is faster than spending time in top floor, I think
                 }
