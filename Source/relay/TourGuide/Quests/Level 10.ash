@@ -171,7 +171,7 @@ void QLevel10GenerateTasks(ChecklistEntry [int] task_entries, ChecklistEntry [in
             if ($item[model airship].available_amount() == 0)
 	    {
                 if (lookupSkill("Comprehensive Cartography").skill_is_usable() && $item[mohawk wig].available_amount() > 0)
-                    subentry.entries.listAppend("Optionally acquire model airship from non-combat, but can already wear mohawk wig for first top floor noncombat pick.");
+                    subentry.entries.listAppend("Optionally acquire model airship from non-combat, but already have mohawk wig to wear for first top floor noncombat pick.");
                 else
                     subentry.entries.listAppend("Acquire model airship from non-combat. (speeds up quest)");
 	    }
